@@ -49,6 +49,11 @@ h_one[] | segment indicies for the ones digit for the hours
 h_ten[] | segment indicies for the tens digit for the hours
 
 ## In Secrets.h
+Create a file called "Secrets.h" with the following code. Replace the placeholder text with the relevant information:
+```c++
+const char PROGMEM *ssid     = "Your WiFi Name Here";
+const char PROGMEM *password = "Your WiFi Password Here";
+```
 Variable | Description
 ---------|---------
 ssid | Name of the WiFi point to connect to. Otherwise the clock will not sync and you can't connect to the webserver
