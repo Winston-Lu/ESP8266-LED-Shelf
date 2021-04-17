@@ -86,7 +86,7 @@ Heres a total Bill of Materials and tools I used for my setup
     * DIY Machines printed them vertically, but with weaker filaments like PolyLite, printing horizontally would be much better
     * That way the load will be going perpendicular to the layer lines (The point that usually fails first), while the almost non-existant transverse strain will go against the layer lines
     * Overhangs won't look too great, but we won't be looking at them
-* 3kg of wood or brown filament (PETG or PLA works). This is for the shelf covers. You will use about 2.2kg, not including any failed prints
+* 3kg of wood or brown filament (PETG or PLA works). This is for the shelf covers. You will use about 2.6kg, not including any failed prints/filament change purges
 * A Wood panel. I used a 3/4in x 2ft x 4ft piece of Plywood from Home Depot. I wouldn't recommend anything smaller for a 12hr shelf
 * \>64 #8 Wood screws. 64 would be the minimum (2 per segment)
 * Cabinet/Painting mounting bracket to mount to the wall
