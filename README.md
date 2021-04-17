@@ -57,7 +57,7 @@ const char PROGMEM *password = "Your WiFi Password Here";
 Variable | Description
 ---------|---------
 ssid | Name of the WiFi point to connect to. Otherwise the clock will not sync and you can't connect to the webserver
-password | password to the WiFi point
+password | Password to the WiFi point
 
 ## In WebServer.cpp
 Variable | Description
@@ -110,7 +110,7 @@ Optional Materials
 * The STL files for these parts are in the original video description, so give him some support by going to the video.
 
 ### The ESP8266 Part
-Run this code in some folder you want to save this code if you have git installed. Otherwise just download zip in the top left and extract:
+Run this code in some folder you want to save this code if you have git installed. Otherwise just download the repo zip in the top right and extract:
 ```cmd
 git clone https://github.com/Winston-Lu/LED-Clock
 ```
