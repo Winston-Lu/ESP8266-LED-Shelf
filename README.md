@@ -83,7 +83,7 @@ Heres a total Bill of Materials and tools I used for my setup
     * Overhangs won't look too great, but we won't be looking at them
 * 3kg of wood or brown filament (PETG or PLA works). This is for the shelf covers. You will use about 2.2kg, not including any failed prints
 * A Wood panel. I used a 3/4in x 2ft x 4ft piece of Plywood from Home Depot. I wouldn't recommend anything smaller for a 12hr shelf
-* >64 #8 Wood screws. 64 would be the minimum (2 per segment)
+* \>64 #8 Wood screws. 64 would be the minimum (2 per segment)
 * Cabinet/Painting mounting bracket to mount to the wall
 * A handful of wire, preferably of red, black, +1 other color. Buying a set from Amazon will be more than enough
 * A soldering iron and some solder
