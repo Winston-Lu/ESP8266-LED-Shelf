@@ -91,6 +91,7 @@ Heres a total Bill of Materials and tools I used for my setup
 * An ESP8266. You can get these on Amazon or Aliexpress.
 * 5m 60 LEDs/m Addressable RGB LED strip. You can go with a 30 LED/m strip, but you will have some dark spots, or you can go with 144 LED/m with a 2.4x increase in power usage for the tradeoff of having really bright lights such that it will probably shine through the shelf walls. 
 * A computer to upload code with a micro USB cable
+* Hot glue gun and/or adhesives 
 
 Optional Materials
 * Terminal blocks if you don't want to solder as much
