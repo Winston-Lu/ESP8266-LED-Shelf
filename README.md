@@ -11,7 +11,6 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * Modify Time (for daylight savings)
   * Color Control
   * Pattern Control
-  * 24hr clock support (Untested)
 * It also includes different patterns/lighting effects
   * Static/Solid
   * Rainbow
