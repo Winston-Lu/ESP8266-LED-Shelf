@@ -72,7 +72,7 @@ IP/cmd?c=resetProfile | Factory Reset lighting settings, but doesnt reset UTC of
 ## Creating
 Add pictures later
 Heres a total Bill of Materials and tools I used for my setup
-* A 3d printer. Any cheap printer would work, but it would need a bed size of at least 150mm x 150mm to print the wall segments
+* A 3D printer. Any cheap printer would work, but it would need a bed size of at least 150mm x 150mm to print the wall segments. The wall piece is about 180mm long
 * Screwdrivers and/or a drill helps
 * Tweezers to run wires through the bracket holes
 * 1kg of filament for the 31 + 1 brackets, as well as the diffusers. I recommend White filament (I used PLA, but PETG or ABS is fine too)
