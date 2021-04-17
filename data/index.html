@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>LED Clock</title>
+    <meta charset="UTF-8">
+    <link href="common.css" rel="stylesheet">
+    <script src="html5kellycolorpicker.min.js"></script>
+    <link rel="shortcut icon" type="image/jpg" href="favicon.ico"/>
+</head>
+<body>
+    <h1>LED Clock Control</h1>
+    <div class="divider">General</div>
+    <div class="selectBox">
+        <div class="griditem">
+            <h3>Power</h3> 
+        </div>
+        <div class="griditem">
+            <label class="switch">
+                <input type="checkbox" id="power" onclick="updateClock('/power')">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    <div class="selectBox">
+        <div class="griditem">
+            <h3>Clock Transparency: <span id="clockTransparency">100%</span></h3> 
+        </div>
+        <div class="griditem">
+            <div class="rowslidecontainer">
+                <input type="range" min="0" max="255" value="255" class="rowslider" id="transparencySlider" onclick="updateClock('/transparency')">
+            </div>
+        </div>
+        <br>
+    </div>
+    <div class="selectBox">
+        <div class="griditem">
+            <h3>Auto Brightness</h3> 
+        </div>
+        <div class="griditem">
+            <label class="switch">
+                <input type="checkbox" id="autobrightness" onclick="updateClock('/autobrightness')">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    <div class="selectBox" id="manualbrightness">
+        <div class="griditem">
+            <h3>Clock Brightness: <span id="brightness">100%</span></h3> 
+        </div>
+        <div class="griditem">
+            <div class="rowslidecontainer">
+                <input type="range" min="0" max="255" value="255" class="rowslider" id="brightnessSlider" onclick="updateClock('/brightness')">
+            </div>
+        </div>
+        <br>
+        <div class="griditem">
+            <h3>Background Brightness: <span id="backgroundBrightness">100%</span></h3> 
+        </div>
+        <div class="griditem">
+            <div class="rowslidecontainer">
+                <input type="range" min="0" max="255" value="255" class="rowslider" id="backgroundBrightnessSlider" onclick="updateClock('/backgroundbrightness')">
+            </div>
+        </div>
+        <br>
+        <div class="griditem">
+            <h3>Spotlight Brightness: <span id="spotlightBrightness">100%</span></h3> 
+        </div>
+        <div class="griditem">
+            <div class="rowslidecontainer">
+                <input type="range" min="0" max="255" value="255" class="rowslider" id="spotlightBrightnessSlider" onclick="updateClock('/spotlightbrightness')">
+            </div>
+        </div>
+    </div>
+    <div class="divider">Color Picker</div>
+    <div onmouseup="mouseUp()">
+        <div class="manual">
+            <div class="item" id="colorpicker1">
+                <h3 id="text1">Hours 10</h3>
+                <canvas id="picker1" onmousedown="lastColor('/h1color')"></canvas>
+                <br>
+                <input id="color1" value="#dde" onchange="updateClock('/h1color')">
+            </div>
+            <div class="item" id="colorpicker2">
+                <h3 id="text2">Hours 1</h3>
+                <canvas id="picker2" onmousedown="lastColor('/h2color')"></canvas>
+                <br>
+                <input id="color2" value="#dde" onchange="updateClock('/h2color')">
+            </div>
+            <div class="item" id="colorpicker3">
+                <h3 id="text3">Minutes 10</h3>
+                <canvas id="picker3" onmousedown="lastColor('/m1color')"></canvas>
+                <br>
+                <input id="color3" value="#5cd" onchange="updateClock('/m1color')">
+            </div>
+            <div class="item" id="colorpicker4">
+                <h3 id="text4">Minutes 1</h3>
+                <canvas id="picker4" onmousedown="lastColor('/m2color')"></canvas>
+                <br>
+                <input id="color4" value="#5cd" onchange="updateClock('/m2color')">
+            </div>
+        </div>
+        <h2>Background</h2>
+        <div class="manual">
+            <div class="item">
+                <canvas id="picker5" onmousedown="lastColor('/bgcolor')"></canvas>
+                <br>
+                <input id="color5" value="#077" onchange="updateClock('/bgcolor')">
+            </div>
+            <div class="item" id="gradientPicker">
+                <canvas id="picker6" onmousedown="lastColor('/bgcolor2')"></canvas>
+                <br>
+                <input id="color6" value="#077" onchange="updateClock('/bgcolor2')">
+            </div>
+        </div>
+        <h2>Spotlights</h2>
+        <div class="manual">
+            <div class="item" id="spotlightColor1">
+                <canvas id="picker10" onmousedown="lastColor('/spot1color')"></canvas>
+                <br>
+                <input id="color10" value="#fa0" onchange="updateClock('/spot1color')">
+            </div>
+            <div class="item" id="spotlightColor2">
+                <canvas id="picker11" onmousedown="lastColor('/spot2color')"></canvas>
+                <br>
+                <input id="color11" value="#fa0" onchange="updateClock('/spot2color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker12" onmousedown="lastColor('/spot3color')"></canvas>
+                <br>
+                <input id="color12" value="#fa0" onchange="updateClock('/spot3color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker13" onmousedown="lastColor('/spot4color')"></canvas>
+                <br>
+                <input id="color13" value="#fa0" onchange="updateClock('/spot4color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker14" onmousedown="lastColor('/spot5color')"></canvas>
+                <br>
+                <input id="color14" value="#fa0" onchange="updateClock('/spot5color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker15" onmousedown="lastColor('/spot6color')"></canvas>
+                <br>
+                <input id="color15" value="fa0" onchange="updateClock('/spot6color')">
+            </div>
+        </div>
+        <div class="manual">
+            <div class="item" name="spotlightColors">
+                <canvas id="picker16" onmousedown="lastColor('/spot7color')"></canvas>
+                <br>
+                <input id="color16" value="#fa0" onchange="updateClock('/spot7color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker17" onmousedown="lastColor('/spot8color')"></canvas>
+                <br>
+                <input id="color17" value="#fa0" onchange="updateClock('/spot8color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker18" onmousedown="lastColor('/spot9color')"></canvas>
+                <br>
+                <input id="color18" value="#fa0" onchange="updateClock('/spot9color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker19" onmousedown="lastColor('/spot10color')"></canvas>
+                <br>
+                <input id="color19" value="#fa0" onchange="updateClock('/spot10color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker20" onmousedown="lastColor('/spot11color')"></canvas>
+                <br>
+                <input id="color20" value="#fa0" onchange="updateClock('/spot11color')">
+            </div>
+            <div class="item" name="spotlightColors">
+                <canvas id="picker21" onmousedown="lastColor('/spot12color')"></canvas>
+                <br>
+                <input id="color21" value="#fa0" onchange="updateClock('/spot12color')">
+            </div>
+        </div>
+    </div>
+    <div class="divider">Effects</div>
+    <div class="selectBox">
+        <div class="griditem">
+            <h3>Clock</h3>
+        </div>
+        <div class="griditem">
+            <select id="foreground" onchange="updateClock('/effectfg')">
+                <option value="off">None</option>
+                <option value="solid" selected>Solid Clock</option>
+                <option value="rainbow">Rainbow Clock</option>
+                <option value="gradient">Gradient Clock</option>
+            </select>
+        </div>
+    </div>
+    <div class="selectBox">
+        <div class="griditem">
+            <h3>Background</h3>
+        </div>
+        <div class="griditem">
+            <select id="background" onchange="updateClock('/effectbg')">
+                <option value="off">None</option>
+                <option value="solid" selected>Solid</option>
+                <option value="rainbow">Rainbow</option>
+                <option value="gradient">Gradient</option>
+                <option value="rain">Rain</option>
+                <option value="sparkle">Sparkle</option>
+            </select>
+        </div>
+    </div>
+    <div class="selectBox">
+        <div class="griditem">
+            <h3>Spotlights</h3>
+        </div>
+        <div class="griditem">
+            <select id="spotlightEffect" onchange="updateClock('/effectsl')">
+                <option value="off">None</option>
+                <option value="solid" selected>Solid</option>
+                <option value="rainbow">Rainbow</option>
+                <option value="gradient">Gradient</option>
+                <option value="rain">Rain</option>
+                <option value="sparkle">Sparkle</option>
+            </select>
+        </div>
+    </div>
+</body>
+<script src="script.js"></script>
+</html>
