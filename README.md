@@ -98,10 +98,10 @@ Optional Materials
 * Buck converters if you want to use an existing laptop power supply to step down to 5v (I would recommend at least 2 or 3. 2 buck converters start to overheat at 100% load after 45 minutes or so)
 
 ### Printing
-Each wall segment takes about 3 hours to print each. I would print them horizontally and not vertically as shown in the original video to get stronger prints
-Each wall takes about 8 hours to print each. The first 3 layers are printed in white PLA, while the rest is with wooden PLA (or whatever plastic you use)
-You only need 1 of the layout template. Remember to measure twice and drill once
-The STL files for these parts are in the original video description, so give him some support by going to the video.
+* Each wall segment takes about 3 hours to print each. I would print them horizontally and not vertically as shown in the original video to get stronger prints
+* Each wall takes about 8 hours to print each. The first 3 layers are printed in white PLA, while the rest is with wooden PLA (or whatever plastic you use)
+* You only need 1 of the layout template. Remember to measure twice and drill once
+* The STL files for these parts are in the original video description, so give him some support by going to the video.
 
 ### The ESP8266 Part
 Run this code in some folder you want to save this code if you have git installed. Otherwise just download zip in the top left and extract:
