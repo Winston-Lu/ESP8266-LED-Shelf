@@ -21,7 +21,7 @@
 
 #define EEPROM_UPDATE_DELAY 5 //in seconds so we dont update constantly to prolong EEPROM lifespan. We will write to EEPROM after this many seconds if a change has been made
 
-extern double utcOffset; //defined in NTPTime.cpp
+
 
 
 

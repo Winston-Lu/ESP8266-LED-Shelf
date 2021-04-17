@@ -1,5 +1,6 @@
 #ifndef NPTTIME_H
 #define NPTTIME_H
+extern double utcOffset; 
 void initClock();
 void updateTime();
 void setNewOffset();
