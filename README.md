@@ -155,4 +155,4 @@ int spotlightToLedIndex() | Returns the LED index in the `leds[]` array of a spo
 1. Add a struct/array for the clock LED's in a 2D-esque way
 2. Create a rain effect
 3. Create a fire effect
-
+4. Optional hyphen seperator for hours and minutes
