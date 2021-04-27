@@ -149,3 +149,10 @@ Function | Description
 strip segmentToLedIndex() | Returns a `strip` struct, which contains the first LED index (lowest index) and if the effect should be reversed (pointing to the top left rather than bottom right). If the first LED index is 27, strip is in reverse, and LEDS_PER_LINE is 9, then the LEDs are \[27,28,29,30,31,32,33,34,35] moving up or to the right
 int spotlightToLedIndex() | Returns the LED index in the `leds[]` array of a spotlight
 
+
+
+## To Do
+1. Add a struct/array for the clock LED's in a 2D-esque way
+2. Create a rain effect
+3. Create a fire effect
+
