@@ -16,7 +16,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * Rainbow
   * Gradient  
   * Sparkle
-  * Rain (WiP)
+  * More to be implemented
 * Every segment on the shelf has LEDs
   * Requires exactly 300 WS2812B LEDs (compared to the original 219)
     * You can buy a 5m 60 LED's/m WS2812B LEDS strip for about $20 CAD on Aliexpress. Just pray that none of the LED's come dead on arrival
