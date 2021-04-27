@@ -37,6 +37,11 @@ const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,11,10,9,8,7,6};
 20    21    22    23    24    25    26
   -27-  -28-  -29-  -30-  -31-  -32-
 */
+//If diffusion is different per segment (sanded down diffusion) or an LED segment is dimmer than usual, compensate here
+#define BRIGHTNESS_COMPENSATION
+#ifdef BRIGHTNESS_COMPENSATION
+const byte segmentBrightnessCompensation[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+#endif
 
 //indexes of the digits
 const int PROGMEM m_one[] = {5,11,12,18,24,25,31}; 
