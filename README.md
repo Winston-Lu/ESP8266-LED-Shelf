@@ -23,7 +23,9 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * 32 Segments (compared to the original 23)
   * 12 Spotlights
 * Customizable to 24-hour format
-  * (Untested) Requires a few configuration modifications
+  * (Untested) Requires a single configuration modification
+
+This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings or timezones as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
 
 ## Configuration
@@ -33,8 +35,8 @@ Variable | Description
 LEDS_PER_LINE        | Should be 9 unless you want to use 30 LEDs/m or 144 LEDs/m
 MILLI_AMPS           | Amperage rating of the power supply. I used a 12v 3A supply and used 2 buck converters to step down. Wired half of the LEDs to the first buck converter, and half to the 2nd. I do not really recommend doing it like this since it does heat up quite a bit when it runs at 100% brightness on white (~90c) which could deform PLA. I have a heatsink on it to reduce heat, but the lack of airflow is concerning
 FRAMES_PER_SECOND    | Shouldn't be above 30 or else some timing stuff may lag behind. If you don't mind, you can set to 60
-\_12_HR_CLOCK         | 12-hour clock layout
-\_24_HR_CLOCK         | 24-hour clock layout. Requires additional segments and LEDs
+\_12_HR_CLOCK         | 12-hour clock layout. This is selected by default
+\_24_HR_CLOCK         | 24-hour clock layout. Requires additional segments and LEDs. To enable this, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK. Width and Height should automatically reconfigure to support this.
 LIGHT_SENSOR         | Should be connected to A0, since thats the only analog pin on the board
 DATAPIN              | Connected to D8 on my NodeMCU v0.9 (pin 15)
 LED_TYPE             | Should be WS2812B's in most cases
@@ -69,7 +71,7 @@ gateway | IP address of your router. You can type "ipconfig" on Windows or "ifco
 Command | Description | Example
 ---------------|----------|----------
 IP/cmd?c=utcoffset&v=### | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset | http://192.168.1.51/cmd?c=utcoffset&v=-8 
-IP/cmd?c=rainbowrate&v=### | Replace ### with the rate. By default, this value is 5 | http://192.168.1.51/cmd?c=rainbowrate&v=3
+IP/cmd?c=rainbowrate&v=### | Replace ### with the rate. By default, this value is 5. Any changes will be lost on restart since this is not stored in EEPROM | http://192.168.1.51/cmd?c=rainbowrate&v=3
 IP/cmd?c=reset | Factory Reset settings, including UTC offset | http://192.168.1.51/cmd?c=reset
 IP/cmd?c=resetProfile | Factory Reset lighting settings, but doesnt reset UTC offset | http://192.168.1.51/cmd?c=resetProfile
 
