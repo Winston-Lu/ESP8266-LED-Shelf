@@ -255,21 +255,31 @@ void setupServer(){
   webServer.on("/cmd", HTTP_GET, []() {
     String command = webServer.arg("c");
     String val = webServer.arg("v");
-    if(command=="utcoffset"){
+    if(command=="help" || command=="?"){
+      webServer.send(200, "text/plain", String("Available commands:<br>" 
+                                        "utcoffset ## - Set UTF offset in hours for clock [current offset: " + String(getOffset()) + "]<br>" +
+                                        "rainbowrate ## - Set how rainbowy the rainbow is [current rate: " + String(rainbowRate) + "]<br>" +
+                                        "reset - Reset all settings<br>" +
+                                        "resetprofile - Reset lighting settings"
+                                        ));
+    }else if(command=="utcoffset"){
       utcOffset = val.toDouble();
       setNewOffset();
       storeUtcOffset(utcOffset);
-      webServer.send(200, "text/plain", String(getUtcOffset()));
+      webServer.send(200, "text/plain", "Set UTC offset to " + String(getUtcOffset()));
     }else if(command=="rainbowrate"){
       rainbowRate = (double)val.toInt();
-      webServer.send(200, "text/plain", String(rainbowRate));
+      lightingChanges.rainbowRate = true;
+      lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
+      updateSettings = true;
+      webServer.send(200, "text/plain", "Set rainbow rate to " + String(rainbowRate));
     }else if(command=="reset"){
       defaultSettings();
       saveAllSettings();
       webServer.send(200, "text/plain", "Reset Settings");
-    }else if(command=="resetProfile"){
+    }else if(command=="resetprofile"){
       deleteSettings();
-      webServer.send(200, "text/plain", "Profile will reset to default on boot");
+      webServer.send(200, "text/plain", "Profile will reset to default on reboot");
     }else{
       webServer.send(200, "text/plain", "Command not found");
     }

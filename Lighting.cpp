@@ -671,6 +671,7 @@ void defaultSettings(){
   foregroundPattern = 1;
   backgroundPattern = 1;
   spotlightPattern = 1;
+  rainbowRate = 5;
 }
 
 void loadEEPROM(){
@@ -713,6 +714,8 @@ void loadEEPROM(){
   backgroundPattern = EEPROM.read(addr++);  
   //spotlight patterns
   spotlightPattern = EEPROM.read(addr++);
+  //rainbow speed
+  rainbowRate = EEPROM.read(addr++);
 }
 
 void storeEEPROM(){
@@ -738,6 +741,7 @@ void storeEEPROM(){
   if(lightingChanges.foregroundPattern)         {EEPROM.write(addr,foregroundPattern);                                                                                      madeChanges = true;}     addr++;
   if(lightingChanges.backgroundPattern)         {EEPROM.write(addr,backgroundPattern);                                                                                      madeChanges = true;}     addr++;
   if(lightingChanges.spotlightPattern)          {EEPROM.write(addr,spotlightPattern);                                                                                       madeChanges = true;}     addr++;
+  if(lightingChanges.rainbowRate)               {EEPROM.write(addr,rainbowRate);                                                                                            madeChanges = true;}     addr++;
   EEPROM.write(0,1);
   EEPROM.commit();
 }

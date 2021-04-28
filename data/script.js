@@ -1,3 +1,19 @@
+const enable24HR = false;
+
+if(enable24HR){
+    //Remove naming conflict
+    let colorElements = document.getElementsByClassName("showOn12Hr");
+    Array.prototype.forEach.call(colorElements, function(item) {
+        item.parentNode.removeChild(item);
+    });
+}else{
+    let colorElements = document.getElementsByClassName("hideOn12Hr");
+    Array.prototype.forEach.call(colorElements, function(item) {
+        item.parentNode.removeChild(item);
+    });
+    //Needed since the last one doesnt get removed since it's in the same div
+    colorElements[0].parentNode.removeChild(colorElements[0]);
+}
 let h1 = new KellyColorPicker({place : 'picker1', input : 'color1', size : 150});
 let h2 = new KellyColorPicker({place : 'picker2', input : 'color2', size : 150});
 let m1 = new KellyColorPicker({place : 'picker3', input : 'color3', size : 150});
@@ -16,6 +32,11 @@ let s9 = new KellyColorPicker({place : 'picker18', input : 'color18', size : 100
 let s10 = new KellyColorPicker({place : 'picker19', input : 'color19', size : 100});
 let s11 = new KellyColorPicker({place : 'picker20', input : 'color20', size : 100});
 let s12 = new KellyColorPicker({place : 'picker21', input : 'color21', size : 100});
+let s13,s14;
+if(enable24HR){
+    s13 = new KellyColorPicker({place : 'picker22', input : 'color22', size : 100});
+    s14 = new KellyColorPicker({place : 'picker23', input : 'color23', size : 100});
+}
 
 document.getElementById("gradientPicker").style.display = 'none';
 let lastFunction = "";
@@ -48,30 +69,6 @@ function updateClock(functionCall,value=""){
             value = document.getElementById("color5").style.backgroundColor; break;
         case "/bgcolor2":
             value = document.getElementById("color6").style.backgroundColor; break;
-        case "/spot1color":
-            value = document.getElementById("color10").style.backgroundColor + ",1"; break;
-        case "/spot2color":
-            value = document.getElementById("color11").style.backgroundColor + ",2"; break;
-        case "/spot3color":
-            value = document.getElementById("color12").style.backgroundColor + ",3"; break;
-        case "/spot4color":
-            value = document.getElementById("color13").style.backgroundColor + ",4"; break;
-        case "/spot5color":
-            value = document.getElementById("color14").style.backgroundColor + ",5"; break;
-        case "/spot6color":
-            value = document.getElementById("color15").style.backgroundColor + ",6"; break;
-        case "/spot7color":
-            value = document.getElementById("color16").style.backgroundColor + ",7"; break;
-        case "/spot8color":
-            value = document.getElementById("color17").style.backgroundColor + ",8"; break;
-        case "/spot9color":
-            value = document.getElementById("color18").style.backgroundColor + ",9"; break;
-        case "/spot10color":
-            value = document.getElementById("color19").style.backgroundColor + ",10"; break;
-        case "/spot11color":
-            value = document.getElementById("color20").style.backgroundColor + ",11"; break;
-        case "/spot12color":
-            value = document.getElementById("color21").style.backgroundColor + ",12"; break;
         case "/effectfg":
             value = document.getElementById("foreground").value;
             modifySiteState();
@@ -85,8 +82,15 @@ function updateClock(functionCall,value=""){
             modifySiteState();
             break;
         default:
-            console.log("Case not supported: " + functionCall);
-    }
+            if(functionCall.substring(0,5)==="/spot"){
+                let number = parseInt(functionCall.substring(5,functionCall.indexOf('c')));
+                let id = "color" + (number+9);
+                value = document.getElementById(id).style.backgroundColor + "," + number;
+            }
+            else{
+                console.log("Case not supported: " + functionCall);
+            }
+    }   
     if(value.length > 4 && value.substring(0,4)==="rgb("){
         let rgb = value.substring(4,value.length).replace(/ /g,"").replace(/\)/,"").split(",");
         if(rgb.length === 3){
@@ -103,14 +107,15 @@ function updateClock(functionCall,value=""){
 function sendData(functionCall,value=""){
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200 && this.responseText!=="1") {
+        if (this.readyState == 4 && this.status == 200 && functionCall==="/getsettings") {
             loadSettings(this.responseText);
-        }else if(this.readyState == 4 && this.status == 200 && this.responseText==="1") {
-            console.log("Request sent successfully");
-        }else if(this.readyState == 4 && this.status != 404){
-            console.log("Error:\nReady: " + (this.readyState==4) + "\nStatus: " + (this.status) + "\nResponse: " + (this.responseText))
+        }else if(this.readyState == 4 && this.status == 200) {
+            console.log("Response: " + this.responseText);
+            if(functionCall == "/cmd")
+                document.getElementById("cmdresponse").innerHTML="Success: " + this.responseText;
         }else if(this.readyState == 4 && this.status == 404){
-            console.log("404: No GET request for " + functionCall)
+            console.log("404: No GET request for " + functionCall + value);
+            document.getElementById("cmdresponse").innerHTML="404 on " + functionCall + value;
         }
     };
     if(value!=="") xhttp.open("GET", functionCall + "?value=" + value, true);
@@ -167,11 +172,16 @@ function loadSettings(settings){
     s10.setColor(data[id++]);
     s11.setColor(data[id++]);
     s12.setColor(data[id++]);
+    if(enable24HR){
+        s13.setColor(data[id++]);
+        s14.setColor(data[id++]);
+    }
     document.getElementById("foreground").value = data[id++];
     document.getElementById("background").value = data[id++];
     document.getElementById("spotlightEffect").value = data[id++];
     modifySiteState();
 }
+
 function modifySiteState(){
     let ab = document.getElementById("autobrightness");
     let mb = document.getElementById("manualbrightness");
@@ -246,5 +256,18 @@ function mouseUp(){
 function lastColor(command){
     lastFunction = command;
 }
+
+function submitcmd(){
+    let command = document.getElementById("cmd").value.split(" ");
+    if(command.length >= 2){
+        sendData("/cmd","0&c="+command[0] + "&v=" + command[1]);
+    }else if (command[0].length > 0){
+        sendData("/cmd","0&c="+command[0]);
+    }
+}
+
+document.getElementById("cmd").addEventListener("keyup", function(event) {
+    if (event.code === "Enter") submitcmd();
+  });
 
 sendData("/getsettings");

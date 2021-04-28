@@ -4,6 +4,7 @@ extern double utcOffset;
 void initClock();
 void updateTime();
 void setNewOffset();
+double getOffset();
 int getHour12();
 int getHour24();
 int getMinute();

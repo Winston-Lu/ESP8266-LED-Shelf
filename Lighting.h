@@ -32,6 +32,7 @@ struct changelist{
   bool foregroundPattern = false;
   bool backgroundPattern = false;
   bool spotlightPattern = false;
+  bool rainbowRate = false;
 };
 
 extern changelist lightingChanges;
