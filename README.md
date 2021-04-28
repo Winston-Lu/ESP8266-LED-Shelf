@@ -37,6 +37,8 @@ To enable this, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config
 
 You also need to change a line in `./data/script.js` and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modualr as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
 
+Last thing to do is to go into `Config.h` and modify the segmentWiringOrder, spotlightWiringOrder, h_ten[], h_one[], m_ten[], and m_one[]. The first array tells the program how you wired the clock, so each number in the array is the lighting index that segment covers. The numbers in those last 4 arrays should be the lighting (not wiring) index.
+
 ## Setting up Secrets.h (Required)
 Create a file called "Secrets.h" with the following code. Replace the placeholder text with the relevant information:
 ```c++
