@@ -22,35 +22,22 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
     * You can buy a 5m 60 LED's/m WS2812B LEDS strip for about $20 CAD on Aliexpress. Just pray that none of the LED's come dead on arrival
   * 32 Segments (compared to the original 23)
   * 12 Spotlights
-* Customizable to 24-hour format
-  * (Untested) Requires 2 configuration modifications
+* Support for 24-hour format
+  * (Untested) Requires some configuration modifications (See **Setting to 24hr layout** below)
+* Expandable to larger shelf sizes
+  * (Untested) The Arduino code is much more modular than the web page. Setting sizes in `Config.h` should work, but the webpage support for spotlights is not.
 
 This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings or timezones as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
 
 ## Configuration
-### In Config.h
-Variable | Description
----------|---------
-LEDS_PER_LINE        | Should be 9 unless you want to use 30 LEDs/m or 144 LEDs/m
-MILLI_AMPS           | Amperage rating of the power supply. I used a 12v 3A supply and used 2 buck converters to step down. Wired half of the LEDs to the first buck converter, and half to the 2nd. I do not really recommend doing it like this since it does heat up quite a bit when it runs at 100% brightness on white (~90c) which could deform PLA. I have a heatsink on it to reduce heat, but the lack of airflow is concerning
-FRAMES_PER_SECOND    | Shouldn't be above 30 or else some timing stuff may lag behind. If you don't mind, you can set to 60
-\_12_HR_CLOCK         | 12-hour clock layout. This is selected by default
-\_24_HR_CLOCK         | 24-hour clock layout. Requires additional segments and LEDs. To enable this, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK. Width and Height should automatically reconfigure to support this.
-LIGHT_SENSOR         | Should be connected to A0, since thats the only analog pin on the board
-DATAPIN              | Connected to D8 on my NodeMCU v0.9 (pin 15)
-LED_TYPE             | Should be WS2812B's in most cases
-COLOR_ORDER          | WS2812B's are GRB. If colors act weird or you are using other LED_TYPE's, you may need to switch to RGB
-NAME                 | Name of the ESP8266 device (used to connect or as an identifier so you know what device is which in the routers "device" page
-EEPROM_UPDATE_DELAY  | How many seconds to wait after a change before saving it to EEPROM. This is to reduce writes to EEPROM so we don't wear it out
-segmentWiringOrder[] | Compensates for the difference between how the code references segments and how its actually wired. The wiring order goes from 1-2-3-4-5-6-7... in the order it is wired. If the direction of the wiring points towards the bottom right, the number is positive. If the direciton of the wiring points towards the upper left, the direction is negative. This is to both make effects easier without needing to hard-code any values. The numbers in the array represent the position of the segment it covers. The way I wired it was starting at segment 7 moving upwards, then moving right across segment 1, then down to segment 8, right to segment 14, and so on.
-spotlightWiringOrder[] | Same as above, but for spotlights. Starts at 0 this time since we don't need +- signs.
-m_one[] | segment indicies for the ones digit for the minutes
-m_ten[] | segment indicies for the tens digit for the minutes
-h_one[] | segment indicies for the ones digit for the hours
-h_ten[] | segment indicies for the tens digit for the hours
 
-## In Secrets.h
+## Setting to 24hr layout (Optional)
+To enable this, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config.h`. Width and Height should automatically reconfigure to support this. 
+
+You also need to change a line in `./data/script.js` and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modualr as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
+
+## Setting up Secrets.h (Required)
 Create a file called "Secrets.h" with the following code. Replace the placeholder text with the relevant information:
 ```c++
 const char PROGMEM *ssid     = "Your WiFi Name Here";
@@ -61,23 +48,47 @@ Variable | Description
 ssid | Name of the WiFi point to connect to. Otherwise the clock will not sync and you can't connect to the webserver
 password | Password to the WiFi point
 
-## In WebServer.cpp
+### Config.h (Mostly required)
+This is to modify some settings in case your setup is not wired exactly like mine. I've bolded any settings that you would most likely need to modify
+
+Variable | Description
+---------|---------
+LEDS_PER_LINE        | Should be 9 unless you want to use 30 LEDs/m or 144 LEDs/m
+**MILLI_AMPS**           | Amperage rating of the power supply. I used a 12v 3A supply and used 2 buck converters to step down. Wired half of the LEDs to the first buck converter, and half to the 2nd. I do not really recommend doing it like this since it does heat up quite a bit when it runs at 100% brightness on white (~90c) which could deform PLA. I have a heatsink on it to reduce heat, but the lack of airflow is concerning
+FRAMES_PER_SECOND    | Shouldn't be above 30 or else some timing stuff may lag behind. If you don't mind, you can set to 60
+\_12_HR_CLOCK         | 12-hour clock layout. This is selected by default
+\_24_HR_CLOCK         | 24-hour clock layout. Requires additional segments and LEDs. See **Setting to 24hr layout** above to change the layout to 24hr
+LIGHT_SENSOR         | Should be connected to A0, since thats the only analog pin on the board
+**DATAPIN**              | Connected to D8 on my NodeMCU v0.9 (pin 15)
+LED_TYPE             | Should be WS2812B's in most cases
+COLOR_ORDER          | WS2812B's are GRB. If colors act weird or you are using other LED_TYPE's, you may need to switch to RGB
+NAME                 | Name of the ESP8266 device (used to connect or as an identifier so you know what device is which in the routers "device" page
+EEPROM_UPDATE_DELAY  | How many seconds to wait after a change before saving it to EEPROM. This is to reduce writes to EEPROM so we don't wear it out
+**segmentWiringOrder[]** | Compensates for the difference between how the code references segments and how its actually wired. The wiring order goes from 1-2-3-4-5-6-7... in the order it is wired. If the direction of the wiring points towards the bottom right, the number is positive. If the direciton of the wiring points towards the upper left, the direction is negative. This is to both make effects easier without needing to hard-code any values. The numbers in the array represent the position of the segment it covers. The way I wired it was starting at segment 7 moving upwards, then moving right across segment 1, then down to segment 8, right to segment 14, and so on.
+**spotlightWiringOrder[]** | Same as above, but for spotlights. Starts at 0 this time since we don't need +- signs. If you don't have any spotlights, just leave this alone
+m_one[] | segment indicies for the ones digit for the minutes
+m_ten[] | segment indicies for the tens digit for the minutes
+h_one[] | segment indicies for the ones digit for the hours
+h_ten[] | segment indicies for the tens digit for the hours
+
+## In WebServer.cpp (Mostly Required)
+You may need to change the settings if you use a 192.168.0.# local IP address or want to change to a different static IP address. I would not recommend using DHCP since I usually find more success connecting via IP address instead of the hostname (you would need to modify more code if you wanted to use DHCP anyways). To find your IP, you can type "ipconfig" on Windows in cmd or "ifconfig" on Mac/Linux in terminal to find this IP. Usually it is 192.168.0.1 or 192.168.1.1 for home networks.
 Variable | Description
 ---------|---------
 ip | Static IP Configuration so you can connect using a 192.168.#.# address
-gateway | IP address of your router. You can type "ipconfig" on Windows or "ifconfig" on Mac/Linux to find this IP. Usually it is 192.168.0.1 or 192.168.1.1 for home networks
+gateway | IP address of your router
+subnet | Subnet address of your home address. If you don't know what this is, you probably wont need to touch it
 
-## Webserver configuration
-For the webserver code, if you are using a 24hr clock, go into `./data/script.js`, and on the first line, switch it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup >2x7, then you will need to code in the spotlight modification yourself. I didn't do as great of a job making this part modular, as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
-
+## Webserver configuration (Recommended to set UTC Offset)
 At the bottom of the webpage, there is also a spot for commands:
 
 Command | Description | Usage
 ---------------|----------|----------
 utcoffset | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset | utcoffset -8 
-rainbowrate | Replace ### with the rate. By default, this value is 5. This value will be saved when the device restarts | rainbowrate 3
+rainbowrate | Replace ### with the rate. By default, this value is 5. This value will be saved when the device restarts. This changes how rainbow-y the rainbow is | rainbowrate 3
 reset | Factory Reset settings, including UTC offset | reset
 resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | resetProfile
+
 
 
 ## Creating
@@ -132,7 +143,9 @@ git clone https://github.com/Winston-Lu/LED-Clock
 10.  Download the [LittleFS tool from this repository here](https://github.com/earlephilhower/arduino-esp8266littlefs-plugin/releases)
 11.  Follow their installation instructions and under "Tools", you should see "ESP8266 LittleFS Data Upload"
 12.  Click on it and let it upload the webserver code
-13.  After that, you should be done.
+13.  Create a `Secrets.h` file and modify the settings accordingly. Read above for how to configure your Wi-Fi settings and other important settings.
+14.  Upload the Arduino code by clicking the right-facing arrow near the top left. 
+15.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
 
 ### Wiring
 //Add picture of my wiring direction
