@@ -23,7 +23,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * 32 Segments (compared to the original 23)
   * 12 Spotlights
 * Customizable to 24-hour format
-  * (Untested) Requires a single configuration modification
+  * (Untested) Requires 2 configuration modifications
 
 This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings or timezones as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
@@ -68,6 +68,10 @@ ip | Static IP Configuration so you can connect using a 192.168.#.# address
 gateway | IP address of your router. You can type "ipconfig" on Windows or "ifconfig" on Mac/Linux to find this IP. Usually it is 192.168.0.1 or 192.168.1.1 for home networks
 
 ## Webserver configuration
+For the webserver code, if you are using a 24hr clock, go into `./data/script.js`, and on the first line, switch it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup >2x7, then you will need to code in the spotlight modification yourself. I didn't do as great of a job making this part modular, as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
+
+At the bottom of the webpage, there is also a spot for commands:
+
 Command | Description | Example
 ---------------|----------|----------
 IP/cmd?c=utcoffset&v=### | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset | http://192.168.1.51/cmd?c=utcoffset&v=-8 
