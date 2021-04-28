@@ -18,14 +18,14 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * Sparkle
   * More to be implemented
 * Every segment on the shelf has LEDs
-  * Requires exactly 300 WS2812B LEDs (compared to the original 219)
+  * Requires exactly 300 WS2812B LEDs (compared to the original 219) for the 12hr version. Would need 347 total for a 24hr version (including spotlights)
     * You can buy a 5m 60 LED's/m WS2812B LEDS strip for about $20 CAD on Aliexpress. Just pray that none of the LED's come dead on arrival
-  * 32 Segments (compared to the original 23)
-  * 12 Spotlights
+  * 32 Segments for the 12hr version (compared to the original 23). 37 Segments for the 24hr version
+  * 12 Spotlights for the 12hr version. 14 Spotlights for the 24hr version
 * Support for 24-hour format
-  * (Untested) Requires some configuration modifications (See **Setting to 24hr layout** below)
+  * (Mostly untested) Requires some configuration modifications (See **Setting to 24hr layout** below). Should work fine since the code would break for the 12hr version if the 24hr version wouldn't also work due to the less readable but modular code
 * Expandable to larger shelf sizes
-  * (Untested) The Arduino code is much more modular than the web page. Setting sizes in `Config.h` should work, but the webpage support for spotlights is not.
+  * (Untested) The Arduino code is much more modular than the web page. Setting sizes in `Config.h` should work, but the webpage support for solid spotlights is not. The Arduino code should still work fine, but I don't have the resources to test this.
 
 This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings or timezones as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
