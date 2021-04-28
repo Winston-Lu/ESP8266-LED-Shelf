@@ -19,10 +19,7 @@
 
 #define NAME "LEDShelf"
 
-#define EEPROM_UPDATE_DELAY 5 //in seconds so we dont update constantly to prolong EEPROM lifespan. We will write to EEPROM after this many seconds if a change has been made
-
-
-
+#define EEPROM_UPDATE_DELAY 15 //in seconds so we dont update constantly to prolong EEPROM lifespan. We will write to EEPROM after this many seconds if a change has been made
 
 
 //Assume direction is from top left to bottom right. Negative if pointing in opposite direction

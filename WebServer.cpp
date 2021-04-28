@@ -10,15 +10,15 @@
 #include "Lighting.h"
 #include "NTPTime.h"
 
-ESP8266WebServer webServer(80);
-ESP8266HTTPUpdateServer httpUpdateServer;
-
 //IP config
 IPAddress ip(192,168,1,51);     //Device IP
 IPAddress gateway(192,168,1,1); //IP of router
 IPAddress subnet(255,255,255,0);
 IPAddress primaryDNS(8,8,8,8);
 IPAddress secondaryDNS(8,8,4,4);
+
+ESP8266WebServer webServer(80);
+ESP8266HTTPUpdateServer httpUpdateServer;
 
 void setupWiFi(){
   if (!WiFi.config(ip, gateway, subnet, primaryDNS, secondaryDNS)) {Serial.println("STA Failed to configure");}  
