@@ -72,12 +72,12 @@ For the webserver code, if you are using a 24hr clock, go into `./data/script.js
 
 At the bottom of the webpage, there is also a spot for commands:
 
-Command | Description | Example
+Command | Description | Usage
 ---------------|----------|----------
-IP/cmd?c=utcoffset&v=### | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset | http://192.168.1.51/cmd?c=utcoffset&v=-8 
-IP/cmd?c=rainbowrate&v=### | Replace ### with the rate. By default, this value is 5. Any changes will be lost on restart since this is not stored in EEPROM | http://192.168.1.51/cmd?c=rainbowrate&v=3
-IP/cmd?c=reset | Factory Reset settings, including UTC offset | http://192.168.1.51/cmd?c=reset
-IP/cmd?c=resetProfile | Factory Reset lighting settings, but doesnt reset UTC offset | http://192.168.1.51/cmd?c=resetProfile
+utcoffset | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset | utcoffset -8 
+rainbowrate | Replace ### with the rate. By default, this value is 5. This value will be saved when the device restarts | rainbowrate 3
+reset | Factory Reset settings, including UTC offset | reset
+resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | resetProfile
 
 
 ## Creating
