@@ -28,11 +28,19 @@
 const int PROGMEM segmentWiringOrder[] = {-7,1,8,-14,20,27,-21,15,-9,-2,3,10,-16,22,-28,29,-23,17,-11,-4,5,12,-18,24,-30,31,-25,19,-13,-6,26,-32}; 
 const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,11,10,9,8,7,6};
 /* Index reference for segmentWiringOrder. spotlightWiringOrder startsat 0 since it doesnt need a sign for direction
+12hr
   --1-  --2-  --3-  --4-  --5-  --6- 
 -7    -8    -9    10    11    12    13
   -14-  -15-  -16-  -17-  -18-  -19-
 20    21    22    23    24    25    26
   -27-  -28-  -29-  -30-  -31-  -32-
+
+24hr
+  --1-  --2-  --3-  --4-  --5-  --6-  --7-
+-8    -9    10    11    12    13    14    15
+  -16-  -17-  -18-  -19-  -20-  -21-  -22-
+23    24    25    26    27    28    29    30
+  -31-  -32-  -33-  -34-  -35-  -36-  -37-
 */
 //If diffusion is different per segment (sanded down diffusion) or an LED segment is dimmer than usual, compensate here
 #define BRIGHTNESS_COMPENSATION
@@ -46,11 +54,19 @@ const int PROGMEM m_ten[] = {3,9,10,16,22,23,29};
 const int PROGMEM h_one[] = {1,7,8,14,20,21,27};
 const int PROGMEM h_ten[] = {-1,-1,6,-1,-1,19,-1};
 /* Digit index    
-  --0-  --1-  --2-  --3-  --4-  --5- 
--6    -7    -8    -9    10    11    12
-  -13-  -14-  -15-  -16-  -17-  -18- 
-19    20    21    22    23    24    25
-  -26-  -27-  -28-  -29-  -30-  -31- 
+12hr
+  --1-  --2-  --3-  --4-  --5-  --6- 
+-7    -8    -9    10    11    12    13
+  -14-  -15-  -16-  -17-  -18-  -19-
+20    21    22    23    24    25    26
+  -27-  -28-  -29-  -30-  -31-  -32-
+
+24hr
+  --1-  --2-  --3-  --4-  --5-  --6-  --7-
+-8    -9    10    11    12    13    14    15
+  -16-  -17-  -18-  -19-  -20-  -21-  -22-
+23    24    25    26    27    28    29    30
+  -31-  -32-  -33-  -34-  -35-  -36-  -37-
 */
 
 #endif
@@ -62,7 +78,7 @@ const int PROGMEM h_ten[] = {-1,-1,6,-1,-1,19,-1};
   #define WIDTH 7 
   #define HEIGHT 2
 #else
-  #warning "Clock may not work, Time format not selected. Change WIDTH and HEIGHT in Config.h if you have custom dimensions"
+  #warning "Some settings not work, Time format not selected. Change WIDTH and HEIGHT in Config.h if you have custom dimensions"
   #define WIDTH 6 
   #define HEIGHT 2
 #endif
