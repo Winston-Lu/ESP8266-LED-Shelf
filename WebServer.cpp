@@ -308,7 +308,7 @@ void setupServer(){
       backgroundPattern = 255;
       webServer.send(200, "text/plain", "Playing loading effect");
     }else if(command=="hyphen"){
-      hyphenLength = (byte)val.toInt();
+      hyphenLength = max(min((byte)val.toInt(),(byte)LEDS_PER_LINE),(byte)0);
       lightingChanges.hyphenLength = true;
       lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
       updateSettings = true;
