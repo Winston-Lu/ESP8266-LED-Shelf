@@ -276,7 +276,9 @@ void setupServer(){
                                         "resetprofile - Reset lighting settings<br>" +
                                         "loading - Play the loading effect<br>" +
                                         "hyphen ## - Sets the length of the hyphen seperator. 0 Disables hyphen. [current length: " + String(hyphenLength) + "]<br>" +
-                                        "hyphencolor HEX - Sets the hyphen color (format should be RRGGBB in hex, like FFA400). [current color: " + String(crgbToCss(hyphenColor)) + "]<br>" 
+                                        "hyphencolor HEX - Sets the hyphen color (format should be RRGGBB in hex, like FFA400). [current color: " + String(crgbToCss(hyphenColor)) + "]<br>" +
+                                        "save - Saves all current settings<br>" +
+                                        "reboot - Reboots the device after 3 seconds" 
                                         ));
     }else if(command=="settings"){
       webServer.send(200, "text/plain", getCurrentSettings("<br>"));
@@ -321,6 +323,15 @@ void setupServer(){
       lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
       updateSettings = true;
       webServer.send(200, "text/plain", "Set hyphen color to " + String(crgbToCss(hyphenColor)));
+    }else if(command=="save"){
+      saveAllSettings();
+      webServer.send(200, "text/plain", "Saved Settings");
+    }else if(command=="reboot" || command=="restart"){
+      //Wont actually send
+      //webServer.send(200, "text/plain", "Rebooting in 3 seconds...");
+      
+      ESP.wdtEnable(15); // Turn on watchdog then let program hang. Im not sure if the 15ms is actually implemented in the ESP source code
+      for(;;) {} //Make watchdog reset the device
     }else{
       webServer.send(200, "text/plain", "Command not found");
     }
