@@ -73,6 +73,8 @@ bool firstRun = true;
 uint32_t lastUpdate = 0;
 bool updateSettings = false;
 uint32_t loadingCursorPosition = 0; 
+byte hyphenLength = 0;
+CRGB hyphenColor = CRGB::Black;
 
 strip stripSegment, convert;
 changelist lightingChanges;
@@ -233,6 +235,24 @@ void showLightingEffects() {
       render_clock_to_display_gradient(getHour12(), getMinute(), 255 - segmentBrightness);
       clockRefreshTimer++;
       break;
+  }
+  //Hyphen segment if enabled
+  if(hyphenColor.r != 0 || hyphenColor.g != 0 || hyphenColor.b != 0){
+    strip seg = segmentToLedIndex(hyphenSegment);
+    //If gap is odd, round the leftLedSkip up.since typically the m_ten values will be further right (for digits 1 & 7)
+    //Hyphen length of 4 = 3left -hyphen- 2right. Clamp values to 0-LEDS_PER_LINE
+    const int leftLedSkip = min(max(0,(LEDS_PER_LINE-hyphenLength)/2 + (LEDS_PER_LINE-hyphenLength)%2),LEDS_PER_LINE); 
+    if(seg.reverse){
+      for(int i=0; i<leftLedSkip+hyphenLength ; i++){
+        if(i<leftLedSkip) continue;
+        leds[seg.start-i] = hyphenColor;
+      }
+    }else{
+      for(int i=0; i<leftLedSkip+hyphenLength ; i++){
+        if(i<leftLedSkip) continue;
+        leds[seg.start+i] = hyphenColor;
+      }
+    }
   }
   hueOffset += rainbowRate;
   for(int i=0;i<sizeof(segmentBrightnessCompensation)/sizeof(segmentBrightnessCompensation[0]);i++)
@@ -722,10 +742,15 @@ void saveAllSettings(){
   lightingChanges.foregroundPattern = true;
   lightingChanges.backgroundPattern = true;
   lightingChanges.spotlightPattern = true;
+  lightingChanges.rainbowRate = true;
+  lightingChanges.fps = true;
+  lightingChanges.hyphenLength = true;
+  lightingChanges.hyphenColor = true;
   lastUpdate = 0;
   updateSettings = false;
   storeEEPROM();
 }
+
 void clearLightingCache(){
   //Clear TTL cache
   for(int y=0;y<HEIGHT;y++){
@@ -740,6 +765,32 @@ void clearLightingCache(){
   }
   //Clear screen segments (spotlights dont need to be wiped)
   solidSegments(CRGB::Black);
+}
+
+String getCurrentSettings(String seperator){
+  String ans = "Power: " + String(power ? "On" : "Off") + seperator;
+  ans +=  "Foreground Transparency: " + String(foregroundTransparency*100/255) + "%" + seperator;
+  ans +=  "Autobrightness: " + String(autobrightness ? "On" : "Off") + seperator;
+  ans +=  "Segment Brightness: " + String(segmentBrightness*100/255) + "%" + seperator;
+  ans +=  "Background Brightness: " + String(backgroundBrightness*100/255) + "%" + seperator;
+  ans +=  "Spotlight Brightness: " + String(backgroundBrightness*100/255) + "%" + seperator;
+  ans +=  "h_ten_color: " + String(crgbToCss(h_ten_color)) + seperator;
+  ans +=  "h_one_color: " + String(crgbToCss(h_one_color)) + seperator;
+  ans +=  "m_ten_color: " + String(crgbToCss(m_ten_color)) + seperator;
+  ans +=  "m_one_color: " + String(crgbToCss(m_one_color)) + seperator;
+  ans +=  "bg: " + String(crgbToCss(bg)) + seperator;
+  ans +=  "bg2: " + String(crgbToCss(bg2)) + seperator;
+  for(int i=0;i<WIDTH*HEIGHT;i++){
+    ans += "spotlight " + String(i) + ": " + String(crgbToCss(spotlights[i])) + seperator;
+  }
+  ans +=  "Foreground pattern: " + String(effectNames[foregroundPattern]) + seperator;
+  ans +=  "Background pattern: " + String(effectNames[backgroundPattern]) + seperator;
+  ans +=  "Spotlight pattern: "  + String(effectNames[spotlightPattern]) + seperator;
+  ans +=  "Rainbow rate: "  + String(rainbowRate) + seperator;
+  ans +=  "fps: "  + String(FRAMES_PER_SECOND) + seperator;
+  ans +=  "Hyphen Length: "  + String(hyphenLength) + seperator;
+  ans +=  "Hyphen Color: "  + String(crgbToCss(hyphenColor));
+  return ans;
 }
 
 //************************************************//
@@ -778,21 +829,18 @@ String parseSettings() {
                ") BG: " + String(effectNames[backgroundPattern]) + " (" + String(foregroundPattern) + "/" + String(sizeof(effectNames)/sizeof(effectNames[0])) + 
                ") SL: " + String(effectNames[spotlightPattern])  + " (" + String(foregroundPattern) + "/" + String(sizeof(effectNames)/sizeof(effectNames[0])) + ")");
                
-  Serial.println("Adding FG:");
   if(foregroundPattern >= sizeof(effectNames)/sizeof(effectNames[0]) || foregroundPattern < 0){
     Serial.println("Critical error: Foreground pattern number invalid: " + String(foregroundPattern));
     settings += String(effectNames[1]); //default case
   }else settings += String(effectNames[foregroundPattern]);
   settings += '|';
   
-  Serial.println("Adding BG:");
   if(backgroundPattern >= sizeof(effectNames)/sizeof(effectNames[0]) || backgroundPattern < 0){
     Serial.println("Critical error: Background pattern number invalid: " + String(backgroundPattern));
     settings += String(effectNames[1]); //default case
   }else settings += String(effectNames[backgroundPattern]);
   settings += '|';
   
-  Serial.println("Adding SL:");
   if(spotlightPattern >= sizeof(effectNames)/sizeof(effectNames[0]) || spotlightPattern < 0){
     Serial.println("Critical error: Spotlightground pattern number invalid: " + String(spotlightPattern));
     settings += String(effectNames[1]); //default case
@@ -854,6 +902,9 @@ void defaultSettings(){
   backgroundPattern = 1;
   spotlightPattern = 1;
   rainbowRate = 5;
+  FRAMES_PER_SECOND = 30;
+  hyphenLength = 0;
+  hyphenColor = CRGB::Black;
 }
 
 void loadEEPROM(){
@@ -891,18 +942,24 @@ void loadEEPROM(){
     addr+=3;
   }
   //foreground pattern
-  foregroundPattern = (byte) EEPROM.read(addr++);  
+  foregroundPattern = EEPROM.read(addr++);  
   //background pattern
   backgroundPattern = EEPROM.read(addr++);  
   //spotlight patterns
   spotlightPattern = EEPROM.read(addr++);
   //rainbow speed
   rainbowRate = EEPROM.read(addr++);
-  Serial.println("Done loading from EEPROM");
+  //fps
+  FRAMES_PER_SECOND = EEPROM.read(addr++);
+  //hyphenLength
+  hyphenLength = EEPROM.read(addr++);
+  //hyphenColor
+  hyphenColor = CRGB(EEPROM.read(addr),EEPROM.read(addr+1),EEPROM.read(addr+2));  addr+=3;
+  Serial.println("Done loading from EEPROM. Loaded " + String(addr-3) + " bytes up to 0x" + byteToHexString(addr));
 }
 
 void storeEEPROM(){
-  Serial.println("Storing to EEPROM:\n" + parseSettings());
+  Serial.println("Storing to EEPROM:");
   EEPROM.begin(512);
   int addr = 3;
   bool madeChanges = false;
@@ -925,10 +982,13 @@ void storeEEPROM(){
   if(lightingChanges.backgroundPattern)         {EEPROM.write(addr,backgroundPattern);                                                                                      madeChanges = true;}     addr++;
   if(lightingChanges.spotlightPattern)          {EEPROM.write(addr,spotlightPattern);                                                                                       madeChanges = true;}     addr++;
   if(lightingChanges.rainbowRate)               {EEPROM.write(addr,rainbowRate);                                                                                            madeChanges = true;}     addr++;
+  if(lightingChanges.fps)                       {EEPROM.write(addr,FRAMES_PER_SECOND%256);                                                                                  madeChanges = true;}     addr++;
+  if(lightingChanges.hyphenLength)              {EEPROM.write(addr,hyphenLength);                                                                                           madeChanges = true;}     addr++;
+  if(lightingChanges.hyphenColor)               {EEPROM.write(addr,hyphenColor.red);    EEPROM.write(addr+1,hyphenColor.green);   EEPROM.write(addr+2,hyphenColor.blue);    madeChanges = true;}     addr+=3;
   if(!madeChanges) return;
   EEPROM.write(0,1);
   EEPROM.commit();
-  Serial.println("Done storing to EEPROM");
+  Serial.println("Done storing to EEPROM up to 0x" + byteToHexString(addr));
 }
 
 void lightingInit() {

@@ -28,6 +28,7 @@ extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Acce
 #ifdef _12_HR_CLOCK
   const int PROGMEM segmentWiringOrder[] = {-7,1,8,-14,20,27,-21,15,-9,-2,3,10,-16,22,-28,29,-23,17,-11,-4,5,12,-18,24,-30,31,-25,19,-13,-6,26,-32}; 
   const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,11,10,9,8,7,6};
+  const int PROGMEM hyphenSegment = 15;
   //indexes of the digits
   const int PROGMEM m_one[] = {5,11,12,18,24,25,31}; 
   const int PROGMEM m_ten[] = {3,9,10,16,22,23,29};
@@ -37,6 +38,7 @@ extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Acce
 #ifdef _24_HR_CLOCK
   const int PROGMEM segmentWiringOrder[] = {-8,1,9,-16,23,31,-24,17,-10,-2,3,11,-18,25,-32,33,-26,19,-12,-4,5,13,-20,27,-34,35,-28,21,-14,-6,7,15,-22,29,-36,37,-30}; 
   const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,6,13,12,11,10,9,8,7};
+  const int PROGMEM hyphenSegment = 18;
   //indexes of the digits
   const int PROGMEM m_one[] = {6,13,14,21,28,29,36}; 
   const int PROGMEM m_ten[] = {4,11,12,19,26,27,34};

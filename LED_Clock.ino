@@ -49,7 +49,6 @@ void loop() {
   
   lastUpdate++;
   if(lastUpdate >= EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND && updateSettings){
-    Serial.println("Storing to EEPROM: ");
     lastUpdate = 0;
     updateSettings = false;
     storeEEPROM();

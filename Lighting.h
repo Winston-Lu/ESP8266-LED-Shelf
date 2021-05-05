@@ -35,6 +35,9 @@ struct changelist{
   bool backgroundPattern = false;
   bool spotlightPattern = false;
   bool rainbowRate = false;
+  bool fps = false;
+  bool hyphenLength = false;
+  bool hyphenColor = false;
 };
 
 extern changelist lightingChanges;
@@ -52,6 +55,8 @@ extern byte foregroundPattern;
 extern byte backgroundPattern;
 extern byte spotlightPattern;
 extern bool updateSettings;
+extern byte hyphenLength;
+extern CRGB hyphenColor;
 
 //Display Functions
 void clearDisplay();
@@ -102,6 +107,7 @@ void storeUtcOffset(double value);
 void saveAllSettings();
 double getUtcOffset();
 void clearLightingCache();
+String getCurrentSettings(String seperator);
 
 //Web-Server Functions
 String parseSettings();

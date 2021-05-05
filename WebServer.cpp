@@ -268,14 +268,18 @@ void setupServer(){
     String command = webServer.arg("c");
     String val = webServer.arg("v");
     if(command=="help" || command=="?"){
-      webServer.send(200, "text/plain", String("Available commands:<br>" 
+      webServer.send(200, "text/plain", String("Available commands:<br> settings - Gets the current settings<br>" + String("") +  //Doesnt like it when I just do *char[] + *char[] here, so I need to do this
                                         "utcoffset ## - Set UTF offset in hours for clock [current offset: " + String(getOffset()) + "]<br>" +
                                         "rainbowrate ## - Set how rainbowy the rainbow is [current rate: " + String(rainbowRate) + "]<br>" +
                                         "fps ## - Sets frames per second [current rate: " + String(FRAMES_PER_SECOND) + "]<br>" +
                                         "reset - Reset all settings<br>" +
                                         "resetprofile - Reset lighting settings<br>" +
-                                        "loading - Play the loading effect"
+                                        "loading - Play the loading effect<br>" +
+                                        "hyphen ## - Sets the length of the hyphen seperator. 0 Disables hyphen. [current length: " + String(hyphenLength) + "]<br>" +
+                                        "hyphencolor HEX - Sets the hyphen color (format should be RRGGBB in hex, like FFA400). [current color: " + String(crgbToCss(hyphenColor)) + "]<br>" 
                                         ));
+    }else if(command=="settings"){
+      webServer.send(200, "text/plain", getCurrentSettings("<br>"));
     }else if(command=="utcoffset"){
       utcOffset = val.toDouble();
       setNewOffset();
@@ -289,6 +293,9 @@ void setupServer(){
       webServer.send(200, "text/plain", "Set rainbow rate to " + String(rainbowRate));
     }else if(command=="fps"){
       FRAMES_PER_SECOND = val.toInt();
+      lightingChanges.fps = true;
+      lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
+      updateSettings = true;
       webServer.send(200, "text/plain", "Set fps to " + String(FRAMES_PER_SECOND));
     }else if(command=="reset"){
       defaultSettings();
@@ -300,6 +307,20 @@ void setupServer(){
     }else if(command=="loading"){
       backgroundPattern = 255;
       webServer.send(200, "text/plain", "Playing loading effect");
+    }else if(command=="hyphen"){
+      hyphenLength = (byte)val.toInt();
+      lightingChanges.hyphenLength = true;
+      lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
+      updateSettings = true;
+      webServer.send(200, "text/plain", "Set hyphen length to " + String(hyphenLength));
+    }else if(command=="hyphencolor"){
+      Serial.println("Color: #" + val.substring(0,2) + val.substring(2,4) + val.substring(4,6));
+      Serial.println("Value: " + String(hexToByte(val.substring(0,2))) + " " + String(hexToByte(val.substring(2,4))) + " " + String(hexToByte(val.substring(4,6))));
+      hyphenColor = CRGB(hexToByte(val.substring(0,2)),hexToByte(val.substring(2,4)),hexToByte(val.substring(4,6)));
+      lightingChanges.hyphenColor = true;
+      lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
+      updateSettings = true;
+      webServer.send(200, "text/plain", "Set hyphen color to " + String(crgbToCss(hyphenColor)));
     }else{
       webServer.send(200, "text/plain", "Command not found");
     }
@@ -312,10 +333,32 @@ void setupServer(){
   MDNS.setHostname(NAME);
 
   webServer.begin();
-  Serial.println("HTTP web server started");
+  Serial.println("HTTP web server initialized");
 }
 
-void sendInt(uint8_t value){sendString(String(value));}
-void sendString(String value){webServer.send(200, "text/plain", value);}
-void broadcastInt(String name, uint8_t value){String json = "{\"name\":\"" + name + "\",\"value\":" + String(value) + "}";}
-void broadcastString(String name, String value){String json = "{\"name\":\"" + name + "\",\"value\":\"" + String(value) + "\"}";}
+byte hexToByte(String hex){
+  return ((hexCharToNum(hex.charAt(0))<<4) + (hexCharToNum(hex.charAt(1)))); //bitshift <<4 doesnt work
+}
+byte hexCharToNum(char letter){
+  switch(letter){ //could do better with an ascii representation
+    case '0': return 0;
+    case '1': return 1;
+    case '2': return 2;
+    case '3': return 3;
+    case '4': return 4;
+    case '5': return 5;
+    case '6': return 6;
+    case '7': return 7;
+    case '8': return 8;
+    case '9': return 9;
+    case 'a': case 'A': return 10;
+    case 'b': case 'B': return 11;
+    case 'c': case 'C': return 12;
+    case 'd': case 'D': return 13;
+    case 'e': case 'E': return 14;
+    case 'f': case 'F': return 15;
+    default:
+      Serial.println("Unknown value: " + String(letter)); 
+      return 0;
+  }
+}
