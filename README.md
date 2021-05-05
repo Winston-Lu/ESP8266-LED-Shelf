@@ -33,11 +33,11 @@ This should work if you decide to not add spotlight LED's. I kept the more commo
 ## Configuration
 
 ## Setting to 24hr layout (Optional)
-To enable this, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config.h`. Width and Height should automatically reconfigure to support this. 
+To switch to 24hr mode, you need to change a line in `./data/script.js` website file and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modualr as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
 
-You also need to change a line in `./data/script.js` and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modualr as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
+In the C++ code, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config.h`. Width and Height should automatically reconfigure to support this. If you wired everything exactly as I did (See the Wiring section below), you don't need to make any more configuration changes in the C++ code. Otherwise, follow the steps below.
 
-Last thing to do is to go into `Config.h` and modify the segmentWiringOrder, spotlightWiringOrder, h_ten[], h_one[], m_ten[], and m_one[]. The first array tells the program how you wired the clock, so each number in the array is the lighting index that segment covers. The numbers in those last 4 arrays should be the lighting (not wiring) index.
+Last thing you may need do is to go into `Config.h` and modify the segmentWiringOrder, spotlightWiringOrder, h_ten[], h_one[], m_ten[], and m_one[]. The first array tells the program how you wired the clock, so each number in the array is the lighting index that segment covers. The numbers in those last 4 arrays should be the lighting (not wiring) index.
 
 ## Setting up Secrets.h (Required)
 Create a file called "Secrets.h" with the following code. Replace the placeholder text with the relevant information:
@@ -49,6 +49,19 @@ Variable | Description
 ---------|---------
 ssid | Name of the WiFi point to connect to. Otherwise the clock will not sync and you can't connect to the webserver
 password | Password to the WiFi point
+
+## Webserver configuration (Recommended to set UTC Offset)
+At the bottom of the webpage once you have everything setup, there is a spot for commands at the bottom of the page:
+
+Command | Description | Usage
+---------------|----------|----------
+utcoffset | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8 `
+rainbowrate | Replace ### with the rate. By default, this value is 5. This value will be saved when the device restarts. This changes how rainbow-y the rainbow is | `rainbowrate 3`
+fps | Set the frames per second of the display. By default 30, don't think its fast enough to do 60. All effect speeds are fps-dependent | `fps 24`
+reset | Factory Reset settings, including UTC offset | `reset`
+resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | `resetProfile`
+loading | Plays the loading effect. This plays when the shelf is connecting to WiFi, but if you like it, you can set it here | `loading`
+
 
 ### Config.h (Mostly required)
 This is to modify some settings in case your setup is not wired exactly like mine. I've bolded any settings that you would most likely need to modify
@@ -68,10 +81,10 @@ NAME                 | Name of the ESP8266 device (used to connect or as an iden
 EEPROM_UPDATE_DELAY  | How many seconds to wait after a change before saving it to EEPROM. This is to reduce writes to EEPROM so we don't wear it out
 **segmentWiringOrder[]** | Compensates for the difference between how the code references segments and how its actually wired. The wiring order goes from 1-2-3-4-5-6-7... in the order it is wired. If the direction of the wiring points towards the bottom right, the number is positive. If the direciton of the wiring points towards the upper left, the direction is negative. This is to both make effects easier without needing to hard-code any values. The numbers in the array represent the position of the segment it covers. The way I wired it was starting at segment 7 moving upwards, then moving right across segment 1, then down to segment 8, right to segment 14, and so on.
 **spotlightWiringOrder[]** | Same as above, but for spotlights. Starts at 0 this time since we don't need +- signs. If you don't have any spotlights, just leave this alone
-m_one[] | segment indicies for the ones digit for the minutes
-m_ten[] | segment indicies for the tens digit for the minutes
-h_one[] | segment indicies for the ones digit for the hours
-h_ten[] | segment indicies for the tens digit for the hours
+**m_one[]** | segment indicies for the ones digit for the minutes
+**m_ten[]** | segment indicies for the tens digit for the minutes
+**h_one[]** | segment indicies for the ones digit for the hours
+**h_ten[]** | segment indicies for the tens digit for the hours
 
 ## In WebServer.cpp (Mostly Required)
 You may need to change the settings if you use a 192.168.0.# local IP address or want to change to a different static IP address. I would not recommend using DHCP since I usually find more success connecting via IP address instead of the hostname (you would need to modify more code if you wanted to use DHCP anyways). To find your IP, you can type "ipconfig" on Windows in cmd or "ifconfig" on Mac/Linux in terminal to find this IP. Usually it is 192.168.0.1 or 192.168.1.1 for home networks.
@@ -80,16 +93,6 @@ Variable | Description
 ip | Static IP Configuration so you can connect using a 192.168.#.# address
 gateway | IP address of your router
 subnet | Subnet address of your home address. If you don't know what this is, you probably wont need to touch it
-
-## Webserver configuration (Recommended to set UTC Offset)
-At the bottom of the webpage, there is also a spot for commands:
-
-Command | Description | Usage
----------------|----------|----------
-utcoffset | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset | utcoffset -8 
-rainbowrate | Replace ### with the rate. By default, this value is 5. This value will be saved when the device restarts. This changes how rainbow-y the rainbow is | rainbowrate 3
-reset | Factory Reset settings, including UTC offset | reset
-resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | resetProfile
 
 
 
@@ -140,14 +143,13 @@ git clone https://github.com/Winston-Lu/LED-Clock
 5. Look up "esp8266", then install the board
 6. Once it's installed, go to "Tools" > "Board" > "ESP8266 Boards" > "Generic ESP8266 Module". This will work for the NodeMCU v0.9 and NodeMCU v1.0.
 7. Change flash size to "4MB (FS: 1MB OTA ~1019MB)"
-8. Once you plugged in your ESP8266, select the COM port it is connected to
-9. Leave every other setting default
-10.  Download the [LittleFS tool from this repository here](https://github.com/earlephilhower/arduino-esp8266littlefs-plugin/releases)
-11.  Follow their installation instructions and under "Tools", you should see "ESP8266 LittleFS Data Upload"
-12.  Click on it and let it upload the webserver code
-13.  Create a `Secrets.h` file and modify the settings accordingly. Read above for how to configure your Wi-Fi settings and other important settings.
-14.  Upload the Arduino code by clicking the right-facing arrow near the top left. 
-15.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
+8. Once you plugged in your ESP8266, select the COM port it is connected to. You can leave every other setting default
+9.  Download the [LittleFS tool from this repository here](https://github.com/earlephilhower/arduino-esp8266littlefs-plugin/releases)
+10.  Follow their installation instructions and under "Tools", you should see "ESP8266 LittleFS Data Upload"
+11.  Click on it and let it upload the webserver code
+12.  Create a `Secrets.h` file and modify the settings accordingly. Read above for how to configure your Wi-Fi settings and other important settings.
+13.  Upload the Arduino code by clicking the right-facing arrow near the top left. 
+14.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
 
 ### Wiring
 //Add picture of my wiring direction
@@ -164,11 +166,14 @@ Effects are rather hard to create since we're working with segment indicies goin
 Since this doesnt translate nicely to a 2D array, most effects I've made relies a lot on regression, so it makes
 the code very difficult to read and initially understand.
 
+All effect rendering is done in the `Lighting.cpp` file, usually in the `showLightingEffects()` function near the top.
+
 I have a few functions that make creating effects easier
 Function | Description
 ---------|---------
-strip segmentToLedIndex() | Returns a `strip` struct, which contains the first LED index (lowest index) and if the effect should be reversed (pointing to the top left rather than bottom right). If the first LED index is 27, strip is in reverse, and LEDS_PER_LINE is 9, then the LEDs are \[27,28,29,30,31,32,33,34,35] moving up or to the right
+strip segmentToLedIndex() | Returns a `strip` struct, which contains the first LED index (top-left most LED index) and if the effect should be reversed (pointing to the top left rather than bottom right, so count down rather than up). If the first LED index is 27, strip is in reverse, and LEDS_PER_LINE is 9, then the LEDs are \[27,26,25,24,23,22,21,20,19] moving up or to the right
 int spotlightToLedIndex() | Returns the LED index in the `leds[]` array of a spotlight
+struct grid2d | Meant to represent the lights in a more 2d way split into a vertical and horizontal segment portion. Used in the rain effect
 
 
 
