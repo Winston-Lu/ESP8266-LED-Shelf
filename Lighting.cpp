@@ -180,27 +180,30 @@ void showLightingEffects() {
     case 0:
       break;//do nothing. Just here to acknowledge this option exists
     case 1: //solid
-      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
-        updateTime();
-        clockRefreshTimer = 0;
-      }
+      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+      #ifdef _12_HR_CLOCK
       render_clock_to_display(getHour12(), getMinute(), 255 - segmentBrightness);
+      #elif _24_HR_CLOCK
+      render_clock_to_display(getHour24(), getMinute(), 255 - segmentBrightness);
+      #endif
       clockRefreshTimer++;
       break;
     case 2: //rainbow
-      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
-        updateTime();
-        clockRefreshTimer = 0;
-      }
+      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+      #ifdef _12_HR_CLOCK
       render_clock_to_display_rainbow(getHour12(), getMinute(), 255 - segmentBrightness);
+      #elif _24_HR_CLOCK
+      render_clock_to_display_rainbow(getHour24(), getMinute(), 255 - segmentBrightness);
+      #endif
       clockRefreshTimer++;
       break;
     case 3: //gradient
-      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
-        updateTime();
-        clockRefreshTimer = 0;
-      }
+      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+      #ifdef _12_HR_CLOCK
       render_clock_to_display_gradient(getHour12(), getMinute(), 255 - segmentBrightness);
+      #elif _24_HR_CLOCK
+      render_clock_to_display_gradient(getHour24(), getMinute(), 255 - segmentBrightness);
+      #endif
       clockRefreshTimer++;
       break;
   }
@@ -320,22 +323,22 @@ void render_clock_to_display_gradient(int h, int m, byte dim) {
   for (int i = 0; i < 7; i++) {
     //Change hours tens LEDS
     if (light_tens_h & 0b01000000 >> i && h/10 == 1) { //use bitmask to see if the segment is supposed to be on for that digit
-      gradientSegment(h_ten[i], h_ten_color, h_one_color);
+      gradientSegment(h_ten[i], h_ten_color, h_one_color, foregroundTransparency);
       dimSegment(h_ten[i], dim);
     }
     //Change hours ones LEDS
     if (light_ones_h & 0b01000000 >> i) {
-      gradientSegment(h_one[i], h_ten_color, h_one_color);
+      gradientSegment(h_one[i], h_ten_color, h_one_color, foregroundTransparency);
       dimSegment(h_one[i], dim);
     }
     //Change minutes tens LEDS
     if (light_tens_m & 0b01000000 >> i) {
-      gradientSegment(m_ten[i], h_ten_color, h_one_color);
+      gradientSegment(m_ten[i], h_ten_color, h_one_color, foregroundTransparency);
       dimSegment(m_ten[i], dim);
     }
     //Change minutes ones LEDS
     if (light_ones_m & 0b01000000 >> i) {
-      gradientSegment(m_one[i], h_ten_color, h_one_color);
+      gradientSegment(m_one[i], h_ten_color, h_one_color, foregroundTransparency);
       dimSegment(m_one[i], dim);
     }
   }
@@ -393,7 +396,8 @@ void solidSpotlights(CRGB color) {
     leds[LEDS_PER_LINE * NUM_SEGMENTS + i ] = color;
 }
 
-void gradientSegment(int segment, CRGB color1, CRGB color2) {
+void gradientSegment(int segment, CRGB color1, CRGB color2) {gradientSegment(segment, color1, color2, 255);}
+void gradientSegment(int segment, CRGB color1, CRGB color2, byte transparency) {
   const int maxLedVal = (WIDTH + HEIGHT) * LEDS_PER_LINE; //max value to use for division
   const float increment = 1.0 / (maxLedVal); //The change in brightness for each consecutive LED
   const int offset = segmentLightingOffset(segment); //the segment offset brightness
@@ -408,9 +412,13 @@ void gradientSegment(int segment, CRGB color1, CRGB color2) {
     color.green = (byte)(( color2.green * (offset * LEDS_PER_LINE + i) * increment ) +  ( color1.green * (maxLedVal - (offset * LEDS_PER_LINE + i)) * increment ));
     color.blue  = (byte)(( color2.blue * (offset * LEDS_PER_LINE + i) * increment ) +  ( color1.blue * (maxLedVal - (offset * LEDS_PER_LINE + i)) * increment ));
     if (segmentStruct.reverse) {
-      leds[segmentStruct.start - i] = color;
+      leds[segmentStruct.start - i].r = color.r*(transparency/255.0) + leds[segmentStruct.start - i].r*(1-(transparency/255.0));
+      leds[segmentStruct.start - i].g = color.g*(transparency/255.0) + leds[segmentStruct.start - i].g*(1-(transparency/255.0));
+      leds[segmentStruct.start - i].b = color.b*(transparency/255.0) + leds[segmentStruct.start - i].b*(1-(transparency/255.0));
     } else {
-      leds[segmentStruct.start + i] = color;
+      leds[segmentStruct.start + i].r = color.r*(transparency/255.0) + leds[segmentStruct.start + i].r*(1-(transparency/255.0));
+      leds[segmentStruct.start + i].g = color.g*(transparency/255.0) + leds[segmentStruct.start + i].g*(1-(transparency/255.0));
+      leds[segmentStruct.start + i].b = color.b*(transparency/255.0) + leds[segmentStruct.start + i].b*(1-(transparency/255.0));
     }
   }
 }

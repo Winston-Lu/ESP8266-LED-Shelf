@@ -85,6 +85,7 @@ void setSpotlightColor(int index, CRGB color);
 void solidSegments(CRGB color);
 void solidSpotlights(CRGB color);
 void gradientSegment(int segment, CRGB color1, CRGB color2);
+void gradientSegment(int segment, CRGB color1, CRGB color2, byte transparency);
 void gradientSpotlights(CRGB color1, CRGB color2);
 void rainbow(int rate);
 void rainbowSegment(int segment, uint8_t offset, uint8_t rate);
