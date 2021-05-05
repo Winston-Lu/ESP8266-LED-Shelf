@@ -9,6 +9,7 @@ byte FRAMES_PER_SECOND = 30; //will be overwritten later on by EEPROM or default
 void setup(){
   Serial.begin(115200);
   random16_add_entropy((uint16_t)random16());
+  for(int i=0;i<10;i++) random16_add_entropy(random(65535));
   pinMode(LIGHT_SENSOR,INPUT);
   Serial.println("\n\n\n\n\n"); //get rid of the jiberish from boot
   
