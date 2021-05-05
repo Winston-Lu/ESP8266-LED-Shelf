@@ -2,7 +2,12 @@
 
 An improved version of [this LED shelf by DIY Machines on Youtube](https://www.youtube.com/watch?v=8E0SeycTzHw) to include more features and settings.
 
-![Webserver](https://user-images.githubusercontent.com/33874247/117093146-21acb680-ad2e-11eb-9009-c75ef6d17bf0.png)
+### Work in progress, images are not the final product
+
+<img src="https://user-images.githubusercontent.com/33874247/117093146-21acb680-ad2e-11eb-9009-c75ef6d17bf0.png" width="350" height="420" />
+<img src="https://user-images.githubusercontent.com/33874247/117094072-c3350780-ad30-11eb-89fc-b0ca06d4eca0.jpg" width="600" height="250" />
+<img src="https://user-images.githubusercontent.com/33874247/117094138-fd060e00-ad30-11eb-81cd-c64c8d04d459.jpg" width="600" height="250" />
+
 
 ## My Improvements over the original:
 * Used an ESP8266 instead of an Arduino Nano
@@ -156,7 +161,7 @@ git clone https://github.com/Winston-Lu/LED-Clock
 14.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
 
 ### Wiring
-//Add picture of my wiring direction
+<img src="https://user-images.githubusercontent.com/33874247/117094177-10b17480-ad31-11eb-9f2e-6b3de03d06f2.jpg" width="600" height="350" />
 On the ESP8266, I soldered one of the LED strip 3-pin male header onto it so I can hot-swap the module with only 1 connection needed. The red wire goes into Vin, white wire goes into G (ground), and the green wire into D8. I also have a photoresistor connected to A0 and 3v (actually 3.3v), as well as a 10k ohm resistor from A0 to G as a pull-down resistor. if you do not have this resistor, the analog readings will not be accurate.
 
 Connect 2 red wires to the 5V line on the LED strip, one connected to the 5v power supply and 1 to the LED strip female header red wire. Do the same for the black wires: 2 coming from the GND pad on the LED strip, one to GND on the power supply and 1 to the GND pin on the female LED strip header. For data, we only need 1 wire coming from the LED strip data line into the female header (usually in the middle). Once you get that setup, you should be able to hotswap the module in case you want to do any testing and don't want to setup Arduino OTA uploads. 
