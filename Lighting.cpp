@@ -20,17 +20,44 @@ CRGB bg2;
 byte foregroundPattern = 1;
 byte backgroundPattern = 1;
 byte spotlightPattern =  1;
-const char offPattern[] PROGMEM = "off";            //effect 0
-const char solidPattern[] PROGMEM = "solid";        //effect 1
-const char rainbowPattern[] PROGMEM = "rainbow";    //effect 2
-const char gradientPattern[] PROGMEM = "gradient";  //effect 3
-const char rainPattern[] PROGMEM = "rain";          //effect 4
-const char sparklePattern[] PROGMEM = "sparkle";    //effect 5
-const char *const effectNames[] PROGMEM = {offPattern, solidPattern, rainbowPattern, gradientPattern, rainPattern, sparklePattern};
+const char offPattern[] = "off";            //effect 0
+const char solidPattern[] = "solid";        //effect 1
+const char rainbowPattern[] = "rainbow";    //effect 2
+const char gradientPattern[] = "gradient";  //effect 3
+const char rainPattern[] = "rain";          //effect 4
+const char sparklePattern[] = "sparkle";    //effect 5
+const char firePattern[] = "fire";          //effect 6
+const char *const effectNames[] PROGMEM = {offPattern, solidPattern, rainbowPattern, gradientPattern, rainPattern, sparklePattern, firePattern};
 //The rest is stored in the spotlights[] array
 
-//Needed for rain effect
-int verticalSegments[HEIGHT * LEDS_PER_LINE][WIDTH + 1];
+//Needed for effects requiring some 2d-esque grid
+struct grid{
+  int verticalSegments[HEIGHT * LEDS_PER_LINE][WIDTH + 1];
+  /* verticalSegment at these 2d indexes refer to the following LED's (with LEDS_PER_LINE = 2):
+   *      - -      - -     - -     - -     - - 
+   * [0,0]   [0,1]    [0,2]   [0,3]   [0,4]   [0,5]
+   * [1,0]   [1,1]    [1,2]   [1,3]   [1,4]   [1,5]
+   *      - -      - -     - -     - -     - - 
+   * [2,0]   [2,1]    [2,2]   [2,3]   [2,4]   [2,5]
+   * [3,0]   [3,1]    [3,2]   [3,3]   [3,4]   [3,5]
+   *      - -      - -     - -     - -     - - 
+   */
+   
+  int horizontalSegments[HEIGHT+1][WIDTH * LEDS_PER_LINE];
+  /* horizontalSegment at these 2d indexes refer to the following LED's  (with LEDS_PER_LINE = 2):
+   *   [0,0][0,1]   [0,2][0,3]   [0,4][0,5]   [0,6][0,7]   [0,8][0,9]
+   *  -           -            -            -            -            -
+   *  -           -            -            -            -            -
+   *   [1,0][1,1]   [1,2][1,3]   [1,4][1,5]   [1,6][1,7]   [1,8][1,9]
+   *  -           -            -            -            -            -
+   *  -           -            -            -            -            -
+   *   [2,0][2,1]   [2,2][2,3]   [2,4][2,5]   [2,6][2,7]   [2,8][2,9]
+   */
+
+   //Age of raindrop (Time to live) for rain effect
+   int verticalLedTTL[HEIGHT*LEDS_PER_LINE][WIDTH+1];
+   int horizontalLedTTL[HEIGHT][WIDTH * LEDS_PER_LINE];
+} grid2d;
 
 int power = 1;
 int hueOffset = 0;
@@ -45,9 +72,12 @@ uint32_t clockRefreshTimer = 0;
 bool firstRun = true;
 uint32_t lastUpdate = 0;
 bool updateSettings = false;
+uint32_t loadingCursorPosition = 0; 
 
 strip stripSegment, convert;
 changelist lightingChanges;
+
+uint16_t debugPrintCounter = 0;
 
 /* Clock Segment Index
   # 0 #
@@ -71,9 +101,6 @@ const int PROGMEM nine  = 0b01111011;
 //************************************************//
 //           Show Selected Lighting               //
 //************************************************//
-//foregroundPatterns = {"off","solid","rainbow","gradient"};
-//backgroundPatterns = {"off","solid","rainbow","gradient","rain","sparkle"};
-//spotlightPatterns = {"off","solid","rainbow","gradient","rain","sparkle"};
 void showLightingEffects() {
   if (firstRun) {
     firstRun = false;
@@ -87,12 +114,15 @@ void showLightingEffects() {
   //Spotlights
   switch (spotlightPattern) {
     case 0: //off
-      for (int i = 0; i < WIDTH * HEIGHT; i++) leds[NUM_SEGMENTS * LEDS_PER_LINE + i] = CRGB::Black; break;
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Off");
+      solidSpotlights(CRGB::Black); break;
     case 1: //Solid
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Solid");
       for (int i = 0; i < WIDTH * HEIGHT; i++) leds[spotlightToLedIndex(i)] = spotlights[i]; //cant call solidSpotlights since they each have their own color value
       applySpotlightBrightness();
       break;
-    case 2: //rainbow"
+    case 2: //rainbow
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Rainbow");
       //This rainbow hue color is taken from the middle of the top/left segment, rather than the average/median between the 4 surronding segments.
       //If you want to change this to be the average/median of the 4 surrounding segments, get rid of the '/2' in the fill_rainbow portion: "(uint8_t)(rainbowRate*LEDS_PER_LINE)/2"
       for (int i = 0; i < WIDTH; i++) {
@@ -111,45 +141,73 @@ void showLightingEffects() {
       applySpotlightBrightness();
       break;
     case 3: //gradient
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Gradient");
       gradientSpotlights(spotlights[0], spotlights[1]);
       applySpotlightBrightness();
       break;
     case 4: //rain
-      //fuck me
+      if(debugPrintCounter==5*FRAMES_PER_SECOND)  Serial.println("Spotlights: Rain");
+      rain(30, CRGB::Black, spotlights[0]);
+      dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
     case 5: //sparkle
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Sparkle");
       sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
+      dimSpotlights(max(spotlightBrightness / 8, 2));
+      break;
+    case 6: //fire
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Fire");
+      fire();
       dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
   }
   //Background
   switch (backgroundPattern) {
     case 0: //off
-      for (int i = 0; i < NUM_SEGMENTS * LEDS_PER_LINE; i++) leds[i] = CRGB::Black; break;
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Off");
+      solidSegments(CRGB::Black); break;
     case 1: //solid
-      for (int i = 0; i < NUM_SEGMENTS * LEDS_PER_LINE; i++) leds[i] = bg; //I have a solidSegments() function, but this seems faster
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Solid");
+      solidSegments(bg); //I have a solidSegments() function, but this seems faster
       dimSegments(255 - backgroundBrightness);
       break;
     case 2: //rainbow
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Rainbow");
       for (int i = 0; i < NUM_SEGMENTS; i++) rainbowSegment(i, segmentLightingOffset(i)*LEDS_PER_LINE * rainbowRate, rainbowRate);
       dimSegments(255 - backgroundBrightness);
       break;
     case 3: //gradient
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Gradient");
       for (int i = 0; i < NUM_SEGMENTS; i++) gradientSegment(i, bg, bg2);
       dimSegments(255 - backgroundBrightness);
       break;
     case 4: //rain
-      //fuck me
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Rain");
+      rain(15, bg, CRGB::Black);
+      dimSegments(max(backgroundBrightness / 10, 50));
       break;
     case 5: //sparkle
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Sparkle");
       sparkle(100 , bg , 0 , NUM_SEGMENTS * LEDS_PER_LINE, 255 - backgroundBrightness); //100 chance seems fine. Note this isnt 100% or 100/255% chance. See sparkle() for how the chance works
       dimSegments(max(backgroundBrightness / 10, 2));
+      break;
+    case 6: //fire
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Fire");
+      fire();
+      dimSpotlights(max(spotlightBrightness / 8, 2));
+      break;
+    case 255: //Loading effect from manual config
+      loadingEffect(bg);
+      dimSpotlights(50);
       break;
   }
   //Foreground
   switch (foregroundPattern) {
-    case 0: break;//do nothing. Just here to acknowledge this option exists
+    case 0:
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Off"); 
+      break;//do nothing. Just here to acknowledge this option exists
     case 1: //solid
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Solid"); 
       if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
         updateTime();
         clockRefreshTimer = 0;
@@ -158,6 +216,7 @@ void showLightingEffects() {
       clockRefreshTimer++;
       break;
     case 2: //rainbow
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Rainbow"); 
       if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
         updateTime();
         clockRefreshTimer = 0;
@@ -166,6 +225,7 @@ void showLightingEffects() {
       clockRefreshTimer++;
       break;
     case 3: //gradient
+      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Gradient"); 
       if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
         updateTime();
         clockRefreshTimer = 0;
@@ -339,8 +399,8 @@ void setSpotlightColor(int index, CRGB color) {
   spotlights[index] = color;
 }
 void solidSegments(CRGB color) {
-  for (int i = 0; i < NUM_SEGMENTS; i++)
-    setSegmentColor(i, color);
+  for (int i = 0; i < NUM_SEGMENTS*LEDS_PER_LINE; i++)
+    leds[i] = color;
 }
 void solidSpotlights(CRGB color) {
   for (int i = 0; i < WIDTH * HEIGHT; i++)
@@ -439,26 +499,120 @@ void sparkle(int chance, CRGB color, int ledStart, int len, byte dim) {
   }
 }
 
-void rain(byte chance, CRGB color) {
-  /*
-    chance/128 to spawn a raindrop
-    pick random led:
-    either from the WIDTH segments or:
-    the top-most LED from the next WIDTH+1 segments
-    for each segment
-    for each led in segment
-      if led = color
-        drop down 1:
-        if horizontal, find nearest spotlight and add 255/LEDS_PER_LINE
-        if vertical, reference sign from wiring signal, then set color to below.
-          if at bottom, set top LED of segment below to color
-      subtract 10 from RGB
-    for each spotlight
-    subtract 30 from RGB using -=
+void rain(byte chance, CRGB color, CRGB spotlightColor) {
+  const int verticalLedChanceMultiplier = 5;
+  //Run if we set segment effect to a non-black color
+  if(backgroundPattern == 4 && (color.r!=0 || color.g !=0 || color.b !=0)){
+    //Horizontal segment effect
+    //Calculate falling from a Time-To-Live (TTL) array
+    for(int y=0 ; y<HEIGHT ; y++){
+      for(int x=0 ; x<WIDTH*LEDS_PER_LINE ; x++){
+        if(grid2d.horizontalLedTTL[y][x] == 1){
+          //Dont set a TTL on the last row, since it cant fall after that and it would be out-of-bounds
+          if(y<HEIGHT-1) grid2d.horizontalLedTTL[y+1][x] = LEDS_PER_LINE+1;
+          leds[grid2d.horizontalSegments[y+1][x]] = color;
+        }
+        grid2d.horizontalLedTTL[y][x]--;
+      }
+    }
+    
+    //Vertical segment effect
+    //Calculate falling from a Time-To-Live (TTL) array
+    for(int y=HEIGHT*LEDS_PER_LINE-2 ; y >= 0 ; y--){
+      for(int x=0 ; x < WIDTH+1 ; x++){
+        grid2d.verticalLedTTL[y][x]--;
+        if(grid2d.verticalLedTTL[y][x] == LEDS_PER_LINE){
+          grid2d.verticalLedTTL[y+1][x] = LEDS_PER_LINE+1; //can be any number really, the number above should be this number - 1
+          leds[grid2d.verticalSegments[y+1][x]] = color;
+        }
+      }
+    }
 
-  */
+    //Spawn new raindrops on segments
+    while (1) {
+      byte randomVal = random8(128);
+      //give a chance to spawn multiple raindrops in 1 run. That way we arent limited to a 0-100% chance each iteration.
+      //Depending on the chance, it can be anywhere from 0-12800% chance to spawn, where each 100% guarantees 1 sparkle. With a 255 chance, average of ~4 particles spawn per iteration, which should be enough.
+      //If you have a really large array of LED's and you want to increase this, change random8(128) to a lower value like random8(64) for a ~8 particle spawn per iteration
+      if (chance > randomVal) {
+        uint16_t randNum = random16(WIDTH*LEDS_PER_LINE + verticalLedChanceMultiplier*(WIDTH+1)); //pick random index within the specified range. The WIDTH+1 is for the vertical segments
+        //Spawn on a horizontal segment
+        if(randNum < WIDTH*LEDS_PER_LINE){
+          grid2d.horizontalLedTTL[0][randNum] = LEDS_PER_LINE+1;
+          leds[grid2d.horizontalSegments[0][randNum]] = color;
+        }
+        //Spawn on a vertical segment
+        else{ 
+          grid2d.verticalLedTTL[0][(randNum - WIDTH*LEDS_PER_LINE)/verticalLedChanceMultiplier] = LEDS_PER_LINE+1;
+          leds[grid2d.verticalSegments[0][(randNum - WIDTH*LEDS_PER_LINE)/verticalLedChanceMultiplier]] = color;
+        }
+        chance -= randomVal; //decrement counter so we could spawn more than 1 per iteration
+      } else break;
+    }
+  }
+  //if background not selected but spotlights are, generate a map of raindrops but dont render it
+  else if(backgroundPattern != 4 && (spotlightColor.r!=0 || spotlightColor.g !=0 || spotlightColor.b !=0)){
+    //standalone spotlight effect if background rain is not selected
+    //Use the above code for generating rain on horizontal segments, but dont render the segments
+    for(int y=0 ; y<HEIGHT ; y++){
+      for(int x=0 ; x<WIDTH*LEDS_PER_LINE ; x++){
+        if(grid2d.horizontalLedTTL[y][x] == 1){
+          if(y<HEIGHT-1){
+            grid2d.horizontalLedTTL[y+1][x] = LEDS_PER_LINE+1;
+            leds[grid2d.horizontalSegments[y+1][x]] = spotlightColor;
+          }
+        }
+        grid2d.horizontalLedTTL[y][x]--;
+      }
+    }
+    while (1) {
+      byte randomVal = random8(128);
+      float chanceOffset = (float)(WIDTH*verticalLedChanceMultiplier)/(WIDTH*(LEDS_PER_LINE+1)+1);
+      if (chance*chanceOffset > randomVal) {
+        uint16_t randNum = random16(WIDTH*LEDS_PER_LINE);
+        grid2d.horizontalLedTTL[0][randNum] = LEDS_PER_LINE+1;
+        leds[grid2d.horizontalSegments[0][randNum]] = spotlightColor;
+        chance -= randomVal; //decrement counter so we could spawn more than 1 per iteration
+      } else break;
+    }
+  }
+  
+  //Calculate spotlight falling based on horizontal TTL segments
+  if(spotlightPattern == 4 && (spotlightColor.r!=0 || spotlightColor.g !=0 || spotlightColor.b !=0)){
+    for(int y=0 ; y < HEIGHT ; y++){
+      for(int x=0 ; x < WIDTH ; x++){
+        //Get average TTL for each segment above a spotlight
+        float avgTTL = 0;
+        for(int i=0 ; i<LEDS_PER_LINE ; i++)
+          avgTTL += max(grid2d.horizontalLedTTL[y][x*LEDS_PER_LINE+i]-1,0);
+        CRGB newColor;
+        newColor.r = spotlightColor.r * (avgTTL/(LEDS_PER_LINE+1)/LEDS_PER_LINE);
+        newColor.g = spotlightColor.g * (avgTTL/(LEDS_PER_LINE+1)/LEDS_PER_LINE);
+        newColor.b = spotlightColor.b * (avgTTL/(LEDS_PER_LINE+1)/LEDS_PER_LINE);
+        leds[spotlightToLedIndex(y*WIDTH + x)] = newColor ;
+      }
+    }
+  }
 }
 
+void fire(){
+  
+}
+void loadingEffect(CRGB color){
+  if       (loadingCursorPosition <    WIDTH        *LEDS_PER_LINE){  //top segments
+    leds[grid2d.horizontalSegments[0][loadingCursorPosition]] = color;
+  }else if (loadingCursorPosition < (  WIDTH+HEIGHT)*LEDS_PER_LINE){  //right segments
+    leds[grid2d.verticalSegments[loadingCursorPosition - WIDTH*LEDS_PER_LINE][WIDTH]] = color;
+  }else if (loadingCursorPosition < (2*WIDTH+HEIGHT)*LEDS_PER_LINE){  //bottom segments
+    leds[grid2d.horizontalSegments[HEIGHT][(2*WIDTH+HEIGHT)*LEDS_PER_LINE-loadingCursorPosition-1]] = color;
+  }else if (loadingCursorPosition < 2*(WIDTH+HEIGHT)*LEDS_PER_LINE){  //left segments
+    leds[grid2d.verticalSegments[2*(WIDTH+HEIGHT)*LEDS_PER_LINE-loadingCursorPosition-1][0]] = color;
+  }else{
+    loadingCursorPosition = -1;
+  }
+  loadingCursorPosition++;
+  dimSegments(30);
+}
 
 //************************************************//
 //                Helper Functions                //
@@ -484,7 +638,6 @@ byte segmentLightingOffset(int index) {
 
 strip segmentToLedIndex(int index) {
   //map from the abstracted segment index to the actual wiring index
-  int wiringSegmentIndex = -1;
   //go through entire segmentWiringOrder array
   for (int i = 0; i < sizeof(segmentWiringOrder) / sizeof(int); i++) {
     //If at the segmentWiringOrder index, we find the index of the abstracted segment index, return the wiring position
@@ -575,12 +728,28 @@ void saveAllSettings(){
   updateSettings = false;
   storeEEPROM();
 }
+void clearLightingCache(){
+  //Clear TTL cache
+  for(int y=0;y<HEIGHT;y++){
+    for(int x=0;x<WIDTH*LEDS_PER_LINE;x++){
+      grid2d.horizontalLedTTL[y][x] = 0;
+    }
+  }
+  for(int y=0;y<HEIGHT*LEDS_PER_LINE;y++){
+    for(int x=0;x<WIDTH+1;x++){
+      grid2d.verticalLedTTL[y][x] = 0;
+    }
+  }
+  //Clear screen segments (spotlights dont need to be wiped)
+  solidSegments(CRGB::Black);
+}
 
 //************************************************//
 //             WebServer Functions                //
 //************************************************//
 //Runs when site is loaded
 String parseSettings() {
+  Serial.println("Getting settings");
   String settings = "";
   settings += String(power) + "|";
   settings += String(foregroundTransparency) + "|";
@@ -606,18 +775,32 @@ String parseSettings() {
   settings += crgbToCss(spotlights[9]) + '|';
   settings += crgbToCss(spotlights[10]) + '|';
   settings += crgbToCss(spotlights[11]) + '|';
-  if(foregroundPattern > sizeof(effectNames)/sizeof(effectNames[0]) || foregroundPattern < 0){
+  Serial.println("Getting selected pattern in settings");
+  Serial.println("FG: " + String(effectNames[foregroundPattern]) + " (" + String(foregroundPattern) + "/" + String(sizeof(effectNames)/sizeof(effectNames[0])) + 
+               ") BG: " + String(effectNames[backgroundPattern]) + " (" + String(foregroundPattern) + "/" + String(sizeof(effectNames)/sizeof(effectNames[0])) + 
+               ") SL: " + String(effectNames[spotlightPattern])  + " (" + String(foregroundPattern) + "/" + String(sizeof(effectNames)/sizeof(effectNames[0])) + ")");
+               
+  Serial.println("Adding FG:");
+  if(foregroundPattern >= sizeof(effectNames)/sizeof(effectNames[0]) || foregroundPattern < 0){
     Serial.println("Critical error: Foreground pattern number invalid: " + String(foregroundPattern));
-    settings += String(effectNames[1]) + '|'; //default case
-  }else settings += String(effectNames[foregroundPattern]) + '|';
-  if(backgroundPattern > sizeof(effectNames)/sizeof(effectNames[0]) || backgroundPattern < 0){
+    settings += String(effectNames[1]); //default case
+  }else settings += String(effectNames[foregroundPattern]);
+  settings += '|';
+  
+  Serial.println("Adding BG:");
+  if(backgroundPattern >= sizeof(effectNames)/sizeof(effectNames[0]) || backgroundPattern < 0){
     Serial.println("Critical error: Background pattern number invalid: " + String(backgroundPattern));
-    settings += String(effectNames[1]) + '|'; //default case
-  }else settings += String(effectNames[backgroundPattern]) + '|';
-  if(spotlightPattern > sizeof(effectNames)/sizeof(effectNames[0]) || spotlightPattern < 0){
+    settings += String(effectNames[1]); //default case
+  }else settings += String(effectNames[backgroundPattern]);
+  settings += '|';
+  
+  Serial.println("Adding SL:");
+  if(spotlightPattern >= sizeof(effectNames)/sizeof(effectNames[0]) || spotlightPattern < 0){
     Serial.println("Critical error: Spotlightground pattern number invalid: " + String(spotlightPattern));
-    settings += String(effectNames[1]) + '|'; //default case
+    settings += String(effectNames[1]); //default case
   }else settings += String(effectNames[spotlightPattern]);
+  
+  Serial.println("Done getting settings");
   return settings;
 }
 void setSegmentBrightness(byte brightness)    {segmentBrightness    = brightness;}
@@ -652,6 +835,7 @@ void deleteSettings(){EEPROM.begin(512); EEPROM.write(0,0); EEPROM.commit();}
 //              Initialize variables              //
 //************************************************//
 void defaultSettings(){
+  Serial.println("Setting options to default settings");
   power = 1;
   foregroundTransparency = 255;
   autobrightness = false;
@@ -716,6 +900,7 @@ void loadEEPROM(){
   spotlightPattern = EEPROM.read(addr++);
   //rainbow speed
   rainbowRate = EEPROM.read(addr++);
+  Serial.println("Done loading from EEPROM");
 }
 
 void storeEEPROM(){
@@ -742,38 +927,63 @@ void storeEEPROM(){
   if(lightingChanges.backgroundPattern)         {EEPROM.write(addr,backgroundPattern);                                                                                      madeChanges = true;}     addr++;
   if(lightingChanges.spotlightPattern)          {EEPROM.write(addr,spotlightPattern);                                                                                       madeChanges = true;}     addr++;
   if(lightingChanges.rainbowRate)               {EEPROM.write(addr,rainbowRate);                                                                                            madeChanges = true;}     addr++;
+  if(!madeChanges) return;
   EEPROM.write(0,1);
   EEPROM.commit();
+  Serial.println("Done storing to EEPROM");
 }
 
 void lightingInit() {
+  loadingCursorPosition = random16(2*(WIDTH+HEIGHT)*LEDS_PER_LINE);
   EEPROM.begin(512);
   if(EEPROM.read(0)==1){
     loadEEPROM();
   }
   else{
     //Load from EEPROM if it exists
-    Serial.println("Creating default profile");
     defaultSettings();
     saveAllSettings();
   }
+
+  
   //init verticalSegments array
-  for (int i = 0; i < HEIGHT * (WIDTH + 1); i++) {
-    //                                       offset from top           +   skip horizontal segments   +   segment
-    //                                  0 if top, 13 if bottom         +         Width (6)            +   0/1/2/3/4/5/6
-    strip seg = segmentToLedIndex( (2 * WIDTH + 1) * (i / (WIDTH + 1)) +          WIDTH               +     i % (WIDTH + 1) );
-    //Place all LED indicies into the array
-    if (seg.reverse) {
-      for (int j = 0; j < LEDS_PER_LINE; j++) {
-        //              9-j-1 if first row, 18-j-1 if bottom          0/1/2/3/4/5/6
-        verticalSegments[LEDS_PER_LINE*(i / (WIDTH + 1) + 1) - j - 1][i % (WIDTH + 1)] = seg.start + j;
+  int vertSegX = 0;
+  int vertSegY = 0;
+  int horzSegX = 0;
+  int horzSegY = 0;
+  for (int i = 0; i < NUM_SEGMENTS; i++) {
+    strip seg = segmentToLedIndex(i);
+    //Determine if segment is horizontal or vertical
+    /* Reference
+      --0-  --1-  --2-  --3-  --4-  --5-  
+    -6    -7    -8    -9    10    11    12
+      -13-  -14-  -15-  -16-  -17-  -18-  
+    19    20    21    22    23    24    25
+      -26-  -27-  -28-  -29-  -30-  -31-  
+    */
+    //Since a row repeats every 13 segments (or 2*WIDTH+1 segments), horizontal is when i%13 < 6, otherwise vertical
+
+    if( i%(2*WIDTH+1) < WIDTH){  //Horizontal
+      if(seg.reverse)
+        for(int i=0;i<LEDS_PER_LINE;i++)  grid2d.horizontalSegments[horzSegY][horzSegX*LEDS_PER_LINE + i] = seg.start - i; //Reverse x-direction
+      else
+        for(int i=0;i<LEDS_PER_LINE;i++)  grid2d.horizontalSegments[horzSegY][horzSegX*LEDS_PER_LINE + i] = seg.start + i; //Forward x-direction
+      //Move to next row if reached end
+      if(++horzSegX == WIDTH){
+        horzSegX = 0;
+        horzSegY++;
       }
-    } else {
-      for (int j = 0; j < LEDS_PER_LINE; j++) {
-        //              0+j if first row, 9+j if bottom        0/1/2/3/4/5/6
-        verticalSegments[ LEDS_PER_LINE*(i / (WIDTH + 1)) + j][i % (WIDTH + 1)] = seg.start + j;
+    }else{     //Vertical
+      if(seg.reverse)
+        for(int i=0;i<LEDS_PER_LINE;i++)  grid2d.verticalSegments[vertSegY*LEDS_PER_LINE + i][vertSegX] = seg.start - i; //Reverse y-direction
+      else
+        for(int i=0;i<LEDS_PER_LINE;i++)  grid2d.verticalSegments[vertSegY*LEDS_PER_LINE + i][vertSegX] = seg.start + i; //Forward y-direction
+      //Move to next row if reached end
+      if(++vertSegX == WIDTH+1){
+        vertSegX = 0;
+        vertSegY++;
       }
     }
   }
-  
+  Serial.println("Done initializing lighting data");
 }

@@ -1,12 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-#define FASTLED_INTERNAL
-#include <ESP8266WiFi.h>
+#include <Arduino.h> //Some stuff like "progmem" and "byte" wont work without this
 
 //How many LEDS per segment
 #define LEDS_PER_LINE 9
 #define MILLI_AMPS 5500 // Set the max milli-Amps of your power supply 
-#define FRAMES_PER_SECOND  30  // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
 
 //Clock format
 #define _12_HR_CLOCK
@@ -21,6 +19,8 @@
 
 #define EEPROM_UPDATE_DELAY 15 //in seconds so we dont update constantly to prolong EEPROM lifespan. We will write to EEPROM after this many seconds if a change has been made
 
+extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
+                                // Originally constant, but can be changed using commands
 
 //Assume direction is from top left to bottom right. Negative if pointing in opposite direction
 //numbers here are what the wiring maps to the abstracted array below. Index is what LED segment they are. Add +1 to give 0 a +- sign
@@ -29,44 +29,41 @@ const int PROGMEM segmentWiringOrder[] = {-7,1,8,-14,20,27,-21,15,-9,-2,3,10,-16
 const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,11,10,9,8,7,6};
 /* Index reference for segmentWiringOrder. spotlightWiringOrder startsat 0 since it doesnt need a sign for direction
 12hr
-  --1-  --2-  --3-  --4-  --5-  --6- 
--7    -8    -9    10    11    12    13
-  -14-  -15-  -16-  -17-  -18-  -19-
+  __1_  __2_  __3_  __4_  __5_  __6_ 
+_7    _8    _9    10    11    12    13
+  _14_  _15_  _16_  _17_  _18_  _19_
 20    21    22    23    24    25    26
-  -27-  -28-  -29-  -30-  -31-  -32-
+  _27_  _28_  _29_  _30_  _31_  _32_
 
 24hr
-  --1-  --2-  --3-  --4-  --5-  --6-  --7-
--8    -9    10    11    12    13    14    15
-  -16-  -17-  -18-  -19-  -20-  -21-  -22-
+  __1_  __2_  __3_  __4_  __5_  __6_  __7_
+_8    _9    10    11    12    13    14    15
+  _16_  _17_  _18_  _19_  _20_  _21_  _22_
 23    24    25    26    27    28    29    30
-  -31-  -32-  -33-  -34-  -35-  -36-  -37-
+  _31_  _32_  _33_  _34_  _35_  _36_  _37_
 */
 //If diffusion is different per segment (sanded down diffusion) or an LED segment is dimmer than usual, compensate here
-#define BRIGHTNESS_COMPENSATION
-#ifdef BRIGHTNESS_COMPENSATION
 const byte segmentBrightnessCompensation[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-#endif
 
 //indexes of the digits
 const int PROGMEM m_one[] = {5,11,12,18,24,25,31}; 
 const int PROGMEM m_ten[] = {3,9,10,16,22,23,29};
 const int PROGMEM h_one[] = {1,7,8,14,20,21,27};
-const int PROGMEM h_ten[] = {-1,-1,6,-1,-1,19,-1};
+const int PROGMEM h_ten[] = {-1,-1,6,-1,-1,19,-1}; //-1 means undefined since 12hr doesnt have this segment
 /* Digit index    
 12hr
-  --1-  --2-  --3-  --4-  --5-  --6- 
--7    -8    -9    10    11    12    13
-  -14-  -15-  -16-  -17-  -18-  -19-
-20    21    22    23    24    25    26
-  -27-  -28-  -29-  -30-  -31-  -32-
+  --0-  --1-  --2-  --3-  --4-  --5-  
+-6    -7    -8    -9    10    11    12
+  -13-  -14-  -15-  -16-  -17-  -18-  
+19    20    21    22    23    24    25
+  -26-  -27-  -28-  -29-  -30-  -31-  
 
 24hr
-  --1-  --2-  --3-  --4-  --5-  --6-  --7-
--8    -9    10    11    12    13    14    15
-  -16-  -17-  -18-  -19-  -20-  -21-  -22-
-23    24    25    26    27    28    29    30
-  -31-  -32-  -33-  -34-  -35-  -36-  -37-
+  --0-  --1-  --2-  --3-  --4-  --5-  --6-  
+-7    -8    -9    10    11    12    13    14
+  -15-  -16-  -17-  -18-  -19-  -20-  -21-  
+22    23    24    25    26    27    28    29
+  -30-  -31-  -32-  -33-  -34-  -35-  -36-  
 */
 
 #endif

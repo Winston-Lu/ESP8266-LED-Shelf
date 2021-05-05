@@ -1,16 +1,17 @@
-#include <ESP8266WiFi.h>
 #include <LittleFS.h> //for filesystem
 #include "Config.h"
 #include "NTPTime.h"
 #include "Lighting.h"
 #include "WebServer.h" 
 
+byte FRAMES_PER_SECOND = 30;
+
 void setup(){
   Serial.begin(115200);
+  random16_add_entropy((uint16_t)random16());
   pinMode(LIGHT_SENSOR,INPUT);
+  Serial.println("\n\n\n\n\n"); //get rid of the jiberish from boot
   
-  //WiFi Setup
-  setupWiFi();
   //FastLED Setup
   FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS);         
   FastLED.setDither(false);
@@ -18,9 +19,11 @@ void setup(){
   FastLED.setBrightness(255);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
   fill_solid(leds, NUM_LEDS, CRGB::Black);
-  FastLED.show();
+  
+  Serial.println("Initializing data structures for lighting effects");
+  lightingInit();
 
-  //Website Setup
+  //Website filesystem setup
   LittleFS.begin();
   Serial.println("LittleFS contents:");
   Dir dir = LittleFS.openDir("/");
@@ -30,12 +33,14 @@ void setup(){
     Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), String(fileSize).c_str());
   }
   Serial.printf("\n");
-  random16_add_entropy((uint16_t)random16());
-
-  initClock();
-  lightingInit();
-  
+  //WiFi Setup
+  Serial.println("Setting up Wi-Fi");
+  setupWiFi();
+  Serial.println("Showing lights");
   showLightingEffects();
+  Serial.println("Initializing real-time clock...");
+  initClock();
+  Serial.println("Getting webserver started...");
   setupServer();
 }
 
@@ -44,6 +49,7 @@ void loop() {
   
   lastUpdate++;
   if(lastUpdate >= EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND && updateSettings){
+    Serial.println("Storing to EEPROM: ");
     lastUpdate = 0;
     updateSettings = false;
     storeEEPROM();

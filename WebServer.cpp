@@ -24,7 +24,15 @@ void setupWiFi(){
   if (!WiFi.config(ip, gateway, subnet, primaryDNS, secondaryDNS)) {Serial.println("STA Failed to configure");}  
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  while (WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");}
+  while (WiFi.status()!=WL_CONNECTED){
+    //Show pattern while trying to connect to Wi-Fi
+    for(int i=0 ; i<FRAMES_PER_SECOND/2 ; i++){
+      loadingEffect(CRGB::White);
+      FastLED.delay(1000 / FRAMES_PER_SECOND);
+    }
+    Serial.print(".");
+  }
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
   Serial.println();
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 }
@@ -226,7 +234,9 @@ void setupServer(){
     else if(pattern == "gradient") backgroundPattern = 3;
     else if(pattern == "rain") backgroundPattern = 4;
     else if(pattern == "sparkle") backgroundPattern = 5;
+    else if(pattern == "fire") backgroundPattern = 6;
     lightingChanges.backgroundPattern = true;
+    clearLightingCache();
     lastUpdate = 0;
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
@@ -240,7 +250,9 @@ void setupServer(){
     else if(pattern == "gradient") spotlightPattern = 3;
     else if(pattern == "rain") spotlightPattern = 4;
     else if(pattern == "sparkle") spotlightPattern = 5;
+    else if(pattern == "fire") backgroundPattern = 6;
     lightingChanges.spotlightPattern = true;
+    clearLightingCache();
     lastUpdate = 0;
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
@@ -259,8 +271,10 @@ void setupServer(){
       webServer.send(200, "text/plain", String("Available commands:<br>" 
                                         "utcoffset ## - Set UTF offset in hours for clock [current offset: " + String(getOffset()) + "]<br>" +
                                         "rainbowrate ## - Set how rainbowy the rainbow is [current rate: " + String(rainbowRate) + "]<br>" +
+                                        "fps ## - Sets frames per second [current rate: " + String(FRAMES_PER_SECOND) + "]<br>" +
                                         "reset - Reset all settings<br>" +
-                                        "resetprofile - Reset lighting settings"
+                                        "resetprofile - Reset lighting settings<br>" +
+                                        "loading - Play the loading effect"
                                         ));
     }else if(command=="utcoffset"){
       utcOffset = val.toDouble();
@@ -273,6 +287,9 @@ void setupServer(){
       lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
       updateSettings = true;
       webServer.send(200, "text/plain", "Set rainbow rate to " + String(rainbowRate));
+    }else if(command=="fps"){
+      FRAMES_PER_SECOND = val.toInt();
+      webServer.send(200, "text/plain", "Set fps to " + String(FRAMES_PER_SECOND));
     }else if(command=="reset"){
       defaultSettings();
       saveAllSettings();
@@ -280,6 +297,9 @@ void setupServer(){
     }else if(command=="resetprofile"){
       deleteSettings();
       webServer.send(200, "text/plain", "Profile will reset to default on reboot");
+    }else if(command=="loading"){
+      backgroundPattern = 255;
+      webServer.send(200, "text/plain", "Playing loading effect");
     }else{
       webServer.send(200, "text/plain", "Command not found");
     }

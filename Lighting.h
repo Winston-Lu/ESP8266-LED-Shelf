@@ -6,6 +6,8 @@
 
 const int PROGMEM NUM_LEDS = LEDS_PER_LINE * (2*WIDTH*HEIGHT + WIDTH + HEIGHT) + WIDTH*HEIGHT;
 const int PROGMEM NUM_SEGMENTS = 2*WIDTH*HEIGHT + WIDTH + HEIGHT;
+
+//Love me some global variables
 extern CRGB leds[NUM_LEDS];
 extern int rainbowRate;
 extern uint32_t lastUpdate;
@@ -85,7 +87,9 @@ void rainbowSegment(int segment, uint8_t offset, uint8_t rate, byte transparency
 void sparkle(int chance, int ledStart, int len);
 void sparkle(int chance, CRGB color, int ledStart, int len);
 void sparkle(int chance, CRGB color, int ledStart, int len, byte dim);
-void rain(byte chance, CRGB color);
+void rain(byte chance, CRGB color, CRGB spotlightColor);
+void fire();
+void loadingEffect(CRGB color);
 
 //Helper Functions
 byte segmentLightingOffset(int index);
@@ -97,6 +101,7 @@ void storeEEPROM();
 void storeUtcOffset(double value);
 void saveAllSettings();
 double getUtcOffset();
+void clearLightingCache();
 
 //Web-Server Functions
 String parseSettings();
