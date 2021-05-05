@@ -193,4 +193,3 @@ struct grid2d | Meant to represent the lights in a more 2d way split into a vert
 ### Functional (Based on threads in the original repo)
 1. Optional hyphen seperator for hours and minutes
 2. DHT22 temperature & humidity sensor support
-3. MQTT support
