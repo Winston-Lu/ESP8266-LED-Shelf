@@ -790,6 +790,7 @@ String getCurrentSettings(String seperator){
   ans +=  "fps: "  + String(FRAMES_PER_SECOND) + seperator;
   ans +=  "Hyphen Length: "  + String(hyphenLength) + seperator;
   ans +=  "Hyphen Color: "  + String(crgbToCss(hyphenColor));
+  ans +=  "UTC offset: " + String(getUtcOffset());
   return ans;
 }
 
