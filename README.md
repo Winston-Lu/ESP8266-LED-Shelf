@@ -75,6 +75,9 @@ resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | `r
 loading | Plays the loading effect. This plays when the shelf is connecting to WiFi, but if you like it, you can set it here | `loading`
 hyphen | Sets the hyphen width for the hours/minutes seperator | `hyphen 9`
 hyphencolor | Sets the hyphen color | `hyphencolor ffa400`
+save | Saves all settings without waiting for the save counter | `save`
+reboot |  Restarts the device after 3 seconds | `reboot`
+restart | Alias for reboot | `restart`
 
 
 ### Config.h (Mostly required)
