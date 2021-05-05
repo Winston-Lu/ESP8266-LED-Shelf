@@ -1,6 +1,6 @@
 # ESP8266 LED Shelf
 
-An improved version of [this LED shelf by DIY Machines on Youtube](https://www.youtube.com/watch?v=8E0SeycTzHw) to include more features and settings.
+An improved version of [this LED shelf by DIY Machines on Youtube](https://www.youtube.com/watch?v=8E0SeycTzHw) to include more features and settings. [Link to the original Github repo here](https://github.com/DIY-Machines/DigitalClockSmartShelving)
 
 ### Work in progress, images are not the final product
 
