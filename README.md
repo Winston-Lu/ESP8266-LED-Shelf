@@ -9,7 +9,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 <img src="https://user-images.githubusercontent.com/33874247/117094138-fd060e00-ad30-11eb-81cd-c64c8d04d459.jpg" width="600" height="250" />
 
 
-## My Improvements over the original:
+# Improvements over the original:
 * Used an ESP8266 instead of an Arduino Nano
 * Auto-update time from the internet (No need for a real-time clock or manual configuration aside from UTC offsets)
 * Created a webserver to control different settings:
@@ -39,7 +39,9 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings for timezones or setting FPS as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
 
-## Configuration
+# Configuration
+
+**If you need help on any configuration, go to the discussions tab and ask there**
 
 ## Setting to 24hr layout (Optional)
 To switch to 24hr mode, you need to change a line in `./data/script.js` website file and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modular as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
@@ -80,7 +82,7 @@ reboot |  Restarts the device after 3 seconds | `reboot`
 restart | Alias for reboot | `restart`
 
 
-### Config.h (Mostly required)
+## Config.h (Mostly required)
 This is to modify some settings in case your setup is not wired exactly like mine. I've bolded any settings that you would most likely need to modify
 
 Variable | Description
@@ -113,9 +115,35 @@ subnet | Subnet address of your home address. If you don't know what this is, yo
 
 
 
-## Creating
+# Setting up the ESP8266
+Run this code in some folder you want to save this code if you have git installed. Otherwise just download the repo zip in the top right and extract:
+```cmd
+git clone https://github.com/Winston-Lu/LED-Clock
+```
+1. Download and open the [Arduino IDE](https://www.arduino.cc/en/software) 
+2. Go to "File" > "Preferences"
+3. Under "Additional Boards Manager URLs:", add `http://arduino.esp8266.com/stable/package_esp8266com_index.json`. If you have entries there already, add a comma to seperate them
+4. Click OK and go to "Tools" > "Board" > "Board Manager"
+5. Look up "esp8266", then install the board
+6. Once it's installed, go to "Tools" > "Board" > "ESP8266 Boards" > "Generic ESP8266 Module". This will work for the NodeMCU v0.9 and NodeMCU v1.0.
+7. Change flash size to "4MB (FS: 1MB OTA ~1019MB)"
+8. Once you plugged in your ESP8266, select the COM port it is connected to. You can leave every other setting default
+9.  Download the [LittleFS tool from this repository here](https://github.com/earlephilhower/arduino-esp8266littlefs-plugin/releases)
+10.  Follow their installation instructions and under "Tools", you should see "ESP8266 LittleFS Data Upload"
+11.  Click on it and let it upload the webserver code
+12.  Create a `Secrets.h` file and modify the settings accordingly. Read above for how to configure your Wi-Fi settings and other important settings.
+13.  Upload the Arduino code by clicking the right-facing arrow near the top left. 
+14.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
+
+# Wiring
+<img src="https://user-images.githubusercontent.com/33874247/117094177-10b17480-ad31-11eb-9f2e-6b3de03d06f2.jpg" width="600" height="350" />
+On the ESP8266, I soldered one of the LED strip 3-pin male header onto it so I can hot-swap the module with only 1 connection needed. The red wire goes into Vin, white wire goes into G (ground), and the green wire into D8. I also have a photoresistor connected to A0 and 3v (actually 3.3v), as well as a 10k ohm resistor from A0 to G as a pull-down resistor. if you do not have this resistor, the analog readings will not be accurate.
+
+Connect 2 red wires to the 5V line on the LED strip, one connected to the 5v power supply and 1 to the LED strip female header red wire. Do the same for the black wires: 2 coming from the GND pad on the LED strip, one to GND on the power supply and 1 to the GND pin on the female LED strip connector. For data, we only need 1 wire coming from the LED strip data line into the female connector (usually in the middle). Once you get that setup, you should be able to hotswap the module in case you want to do any testing and don't want to setup Arduino OTA uploads. If you don't want to hotswap, you can just solder directly onto the board's VIN, GND, and D8
+
+# Hardware
 Add pictures later
-Heres a total Bill of Materials and tools I used for my setup
+## Bill of Materials and tools
 * A 3D printer. Any cheap printer would work, but it would need a bed size of at least 150mm x 150mm to print the wall segments. The wall piece is about 180mm long
 * Screwdrivers and/or a drill helps
 * Tweezers to run wires through the bracket holes
@@ -137,49 +165,26 @@ Heres a total Bill of Materials and tools I used for my setup
 * A computer to upload code with a micro USB cable
 * Hot glue gun and/or adhesives 
 
-Optional Materials
+### Optional Materials
 * Terminal blocks if you don't want to solder as much
 * Photoresistor + 10k ohm resistor if you want autobrightness
 * Buck converters if you want to use an existing laptop power supply to step down to 5v (I would recommend at least 2 or 3. 2 buck converters start to overheat at 100% load after 45 minutes or so)
 
-### Printing
+## Printing
 * Each wall segment takes about 3 hours to print each. I would print them horizontally and not vertically as shown in the original video to get stronger prints
 * Each wall takes about 8 hours to print each. The first 3 layers are printed in white PLA, while the rest is with wooden PLA (or whatever plastic you use)
 * You only need 1 of the layout template. Remember to measure twice and drill once
 * The STL files for these parts are in the original video description, so give him some support by going to the video.
 
-### The ESP8266 Part
-Run this code in some folder you want to save this code if you have git installed. Otherwise just download the repo zip in the top right and extract:
-```cmd
-git clone https://github.com/Winston-Lu/LED-Clock
-```
-1. Download and open the [Arduino IDE](https://www.arduino.cc/en/software) 
-2. Go to "File" > "Preferences"
-3. Under "Additional Boards Manager URLs:", add `http://arduino.esp8266.com/stable/package_esp8266com_index.json`. If you have entries there already, add a comma to seperate them
-4. Click OK and go to "Tools" > "Board" > "Board Manager"
-5. Look up "esp8266", then install the board
-6. Once it's installed, go to "Tools" > "Board" > "ESP8266 Boards" > "Generic ESP8266 Module". This will work for the NodeMCU v0.9 and NodeMCU v1.0.
-7. Change flash size to "4MB (FS: 1MB OTA ~1019MB)"
-8. Once you plugged in your ESP8266, select the COM port it is connected to. You can leave every other setting default
-9.  Download the [LittleFS tool from this repository here](https://github.com/earlephilhower/arduino-esp8266littlefs-plugin/releases)
-10.  Follow their installation instructions and under "Tools", you should see "ESP8266 LittleFS Data Upload"
-11.  Click on it and let it upload the webserver code
-12.  Create a `Secrets.h` file and modify the settings accordingly. Read above for how to configure your Wi-Fi settings and other important settings.
-13.  Upload the Arduino code by clicking the right-facing arrow near the top left. 
-14.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
-
-### Wiring
-<img src="https://user-images.githubusercontent.com/33874247/117094177-10b17480-ad31-11eb-9f2e-6b3de03d06f2.jpg" width="600" height="350" />
-On the ESP8266, I soldered one of the LED strip 3-pin male header onto it so I can hot-swap the module with only 1 connection needed. The red wire goes into Vin, white wire goes into G (ground), and the green wire into D8. I also have a photoresistor connected to A0 and 3v (actually 3.3v), as well as a 10k ohm resistor from A0 to G as a pull-down resistor. if you do not have this resistor, the analog readings will not be accurate.
-
-Connect 2 red wires to the 5V line on the LED strip, one connected to the 5v power supply and 1 to the LED strip female header red wire. Do the same for the black wires: 2 coming from the GND pad on the LED strip, one to GND on the power supply and 1 to the GND pin on the female LED strip connector. For data, we only need 1 wire coming from the LED strip data line into the female connector (usually in the middle). Once you get that setup, you should be able to hotswap the module in case you want to do any testing and don't want to setup Arduino OTA uploads. If you don't want to hotswap, you can just solder directly onto the board's VIN, GND, and D8
 
 
 
-## Adding Effects
+
+## Adding Effects and Contributing
 Effects are rather hard to create since we're working with segment indicies going in different directions.
 Since this doesnt translate nicely to a 2D array, most effects I've made relies a lot on regression, so it makes
-the code very difficult to read and initially understand.
+the code very difficult to read and initially understand. If you have any ideas or suggestions, put it in the
+discussions tab
 
 All effect rendering is done in the `Lighting.cpp` file, usually in the `showLightingEffects()` function near the top.
 
