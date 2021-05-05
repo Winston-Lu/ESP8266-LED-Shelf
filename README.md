@@ -23,6 +23,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * Rainbow
   * Gradient  
   * Sparkle
+  * Rain/Snow
   * More to be implemented
 * Every segment on the shelf has LEDs
   * Requires exactly 300 WS2812B LEDs (compared to the original 219) for the 12hr version. Would need 347 total for a 24hr version (including spotlights)
@@ -34,17 +35,17 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 * Expandable to larger shelf sizes
   * (Untested) The Arduino code is much more modular than the web page. Setting sizes in `Config.h` should work, but the webpage support for solid spotlights is not. The Arduino code should still work fine, but I don't have the resources to test this.
 
-This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings or timezones as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
+This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings for timezones or setting FPS as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
 
 ## Configuration
 
 ## Setting to 24hr layout (Optional)
-To switch to 24hr mode, you need to change a line in `./data/script.js` website file and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modualr as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
+To switch to 24hr mode, you need to change a line in `./data/script.js` website file and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modular as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
 
 In the C++ code, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config.h`. Width and Height should automatically reconfigure to support this. If you wired everything exactly as I did (see image below), you don't need to make any more configuration changes in the C++ code. Otherwise, follow the steps below.
 
-Last thing you may need do is to go into `Config.h` and modify the segmentWiringOrder, spotlightWiringOrder, h_ten[], h_one[], m_ten[], and m_one[]. The first array tells the program how you wired the clock, so each number in the array is the lighting index that segment covers. The numbers in those last 4 arrays should be the lighting (not wiring) index.
+Last thing you may need do is to go into `Config.h` and modify the segmentWiringOrder, spotlightWiringOrder, h_ten[], h_one[], m_ten[], and m_one[]. The first array tells the program how you wired the clock, so each number in the array is the lighting index that segment covers. The numbers in those last 4 arrays should be the lighting (not wiring) index. The image below is the wiring order that is coded into the program right now. However, if your wiring order is not the same, you have to reference in what order your segments are wired. See the code in `Config.h` to learn in what order to put it in.
 
 ![Wiring](https://user-images.githubusercontent.com/33874247/117093218-4ef96480-ad2e-11eb-81ca-bb69942681c6.png)
 
@@ -66,7 +67,7 @@ Command | Description | Usage
 ---------------|----------|----------
 utcoffset | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8 `
 rainbowrate | Replace ### with the rate. By default, this value is 5. This value will be saved when the device restarts. This changes how rainbow-y the rainbow is | `rainbowrate 3`
-fps | Set the frames per second of the display. By default 30, don't think its fast enough to do 60. All effect speeds are fps-dependent | `fps 24`
+fps | Set the frames per second of the display. Default is 30, I don't think its fast enough to do 60. All effect speeds are fps-dependent. This is not saved on restart | `fps 24`
 reset | Factory Reset settings, including UTC offset | `reset`
 resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | `resetProfile`
 loading | Plays the loading effect. This plays when the shelf is connecting to WiFi, but if you like it, you can set it here | `loading`
