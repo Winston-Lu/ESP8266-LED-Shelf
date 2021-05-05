@@ -65,9 +65,9 @@ At the bottom of the webpage once you have everything setup, there is a spot for
 
 Command | Description | Usage
 ---------------|----------|----------
-utcoffset | Replace ### with your UTC offset. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8 `
-rainbowrate | Replace ### with the rate. By default, this value is 5. This value will be saved when the device restarts. This changes how rainbow-y the rainbow is | `rainbowrate 3`
-fps | Set the frames per second of the display. Default is 30, I don't think its fast enough to do 60. All effect speeds are fps-dependent. This is not saved on restart | `fps 24`
+utcoffset | Sets your UTC offset in hours. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8 `
+rainbowrate | This changes how rainbow-y the rainbow is. By default, this value is 5. This value will be saved when the device restarts.  | `rainbowrate 3`
+fps | Set the frames per second of the display. Default is 30, I don't think its fast enough to do 60. All effect speeds are fps-dependent. This is not saved on restart, as this is more of a debug feature currently | `fps 24`
 reset | Factory Reset settings, including UTC offset | `reset`
 resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | `resetProfile`
 loading | Plays the loading effect. This plays when the shelf is connecting to WiFi, but if you like it, you can set it here | `loading`
