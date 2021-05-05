@@ -968,8 +968,8 @@ void storeEEPROM(){
   if(lightingChanges.foregroundTransparency)    {EEPROM.write(addr,foregroundTransparency);                                                                                 madeChanges = true;}     addr++;
   if(lightingChanges.autobrightness)            {EEPROM.write(addr,autobrightness);                                                                                         madeChanges = true;}     addr++;
   if(lightingChanges.segmentBrightness)         {EEPROM.write(addr,segmentBrightness);                                                                                      madeChanges = true;}     addr++;
-  if(lightingChanges.spotlightBrightness)       {EEPROM.write(addr,spotlightBrightness);                                                                                    madeChanges = true;}     addr++;
   if(lightingChanges.backgroundBrightness)      {EEPROM.write(addr,backgroundBrightness);                                                                                   madeChanges = true;}     addr++;
+  if(lightingChanges.spotlightBrightness)       {EEPROM.write(addr,spotlightBrightness);                                                                                    madeChanges = true;}     addr++;
   if(lightingChanges.h_ten_color)               {EEPROM.write(addr,h_ten_color.red);    EEPROM.write(addr+1,h_ten_color.green);   EEPROM.write(addr+2,h_ten_color.blue);    madeChanges = true;}     addr+=3;
   if(lightingChanges.h_one_color)               {EEPROM.write(addr,h_one_color.red);    EEPROM.write(addr+1,h_one_color.green);   EEPROM.write(addr+2,h_one_color.blue);    madeChanges = true;}     addr+=3;
   if(lightingChanges.m_ten_color)               {EEPROM.write(addr,m_ten_color.red);    EEPROM.write(addr+1,m_ten_color.green);   EEPROM.write(addr+2,m_ten_color.blue);    madeChanges = true;}     addr+=3;

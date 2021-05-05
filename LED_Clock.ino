@@ -4,7 +4,7 @@
 #include "Lighting.h"
 #include "WebServer.h" 
 
-byte FRAMES_PER_SECOND = 30;
+byte FRAMES_PER_SECOND = 30; //will be overwritten later on by EEPROM or default settings
 
 void setup(){
   Serial.begin(115200);
