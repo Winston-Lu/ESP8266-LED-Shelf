@@ -235,10 +235,8 @@ void showLightingEffects() {
       break;
   }
   hueOffset += rainbowRate;
-  #ifdef BRIGHTNESS_COMPENSATION
   for(int i=0;i<sizeof(segmentBrightnessCompensation)/sizeof(segmentBrightnessCompensation[0]);i++)
-    dimSegment(i,segmentBrightnessCompensation[i]);
-  #endif
+    if(segmentBrightnessCompensation[i]!=0) dimSegment(i,segmentBrightnessCompensation[i]);
   FastLED.show();
 }
 
