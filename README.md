@@ -64,7 +64,7 @@ password | Password to the WiFi point
 ## Webserver configuration (Recommended to set UTC Offset)
 Located at the bottom of the webpage once you have everything setup. If you forget these commands, you can type `help` to bring this list up in the webserver
 
-Command | Description | Usage
+<img width="150px" />Command | <img width=100%/>Description | <img width="250px" />Usage
 ---------------|----------|----------
 settings | For debug, shows all settings stored on the device | `settings`
 utcoffset | Sets your UTC offset in hours. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8 `
