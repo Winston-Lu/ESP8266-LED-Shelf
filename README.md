@@ -2,6 +2,8 @@
 
 An improved version of [this LED shelf by DIY Machines on Youtube](https://www.youtube.com/watch?v=8E0SeycTzHw) to include more features and settings.
 
+![Webserver](https://user-images.githubusercontent.com/33874247/117093146-21acb680-ad2e-11eb-9009-c75ef6d17bf0.png)
+
 ## My Improvements over the original:
 * Used an ESP8266 instead of an Arduino Nano
 * Auto-update time from the internet (No need for a real-time clock or manual configuration aside from UTC offsets)
@@ -35,9 +37,11 @@ This should work if you decide to not add spotlight LED's. I kept the more commo
 ## Setting to 24hr layout (Optional)
 To switch to 24hr mode, you need to change a line in `./data/script.js` website file and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modualr as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
 
-In the C++ code, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config.h`. Width and Height should automatically reconfigure to support this. If you wired everything exactly as I did (See the Wiring section below), you don't need to make any more configuration changes in the C++ code. Otherwise, follow the steps below.
+In the C++ code, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config.h`. Width and Height should automatically reconfigure to support this. If you wired everything exactly as I did (see image below), you don't need to make any more configuration changes in the C++ code. Otherwise, follow the steps below.
 
 Last thing you may need do is to go into `Config.h` and modify the segmentWiringOrder, spotlightWiringOrder, h_ten[], h_one[], m_ten[], and m_one[]. The first array tells the program how you wired the clock, so each number in the array is the lighting index that segment covers. The numbers in those last 4 arrays should be the lighting (not wiring) index.
+
+![Wiring](https://user-images.githubusercontent.com/33874247/117093218-4ef96480-ad2e-11eb-81ca-bb69942681c6.png)
 
 ## Setting up Secrets.h (Required)
 Create a file called "Secrets.h" with the following code. Replace the placeholder text with the relevant information:
@@ -154,8 +158,6 @@ git clone https://github.com/Winston-Lu/LED-Clock
 ### Wiring
 //Add picture of my wiring direction
 On the ESP8266, I soldered one of the LED strip 3-pin male header onto it so I can hot-swap the module with only 1 connection needed. The red wire goes into Vin, white wire goes into G (ground), and the green wire into D8. I also have a photoresistor connected to A0 and 3v (actually 3.3v), as well as a 10k ohm resistor from A0 to G as a pull-down resistor. if you do not have this resistor, the analog readings will not be accurate.
-
-//Add picture of ESP8266 wiring
 
 Connect 2 red wires to the 5V line on the LED strip, one connected to the 5v power supply and 1 to the LED strip female header red wire. Do the same for the black wires: 2 coming from the GND pad on the LED strip, one to GND on the power supply and 1 to the GND pin on the female LED strip header. For data, we only need 1 wire coming from the LED strip data line into the female header (usually in the middle). Once you get that setup, you should be able to hotswap the module in case you want to do any testing and don't want to setup Arduino OTA uploads. 
 
