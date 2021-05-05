@@ -18,6 +18,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * Modify Time (for daylight savings)
   * Color Control
   * Pattern Control
+  * Hypen seperator for hours and minutes
 * It also includes different patterns/lighting effects
   * Static/Solid
   * Rainbow
@@ -61,16 +62,19 @@ ssid | Name of the WiFi point to connect to. Otherwise the clock will not sync a
 password | Password to the WiFi point
 
 ## Webserver configuration (Recommended to set UTC Offset)
-At the bottom of the webpage once you have everything setup, there is a spot for commands at the bottom of the page:
+Located at the bottom of the webpage once you have everything setup. If you forget these commands, you can type `help` to bring this list up in the webserver
 
 Command | Description | Usage
 ---------------|----------|----------
+settings | For debug, shows all settings stored on the device | `settings`
 utcoffset | Sets your UTC offset in hours. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8 `
-rainbowrate | This changes how rainbow-y the rainbow is. By default, this value is 5. This value will be saved when the device restarts.  | `rainbowrate 3`
-fps | Set the frames per second of the display. Default is 30, I don't think its fast enough to do 60. All effect speeds are fps-dependent. This is not saved on restart, as this is more of a debug feature currently | `fps 24`
+rainbowrate | This changes how rainbow-y the rainbow is. By default, this value is 5  | `rainbowrate 3`
+fps | Set the frames per second of the display. Default is 30, I don't think its fast enough to do 60. All effect speeds are fps-dependent | `fps 24`
 reset | Factory Reset settings, including UTC offset | `reset`
 resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | `resetProfile`
 loading | Plays the loading effect. This plays when the shelf is connecting to WiFi, but if you like it, you can set it here | `loading`
+hyphen | Sets the hyphen width for the hours/minutes seperator | `hyphen 9`
+hyphencolor | Sets the hyphen color | `hyphencolor ffa400`
 
 
 ### Config.h (Mostly required)
@@ -191,5 +195,4 @@ struct grid2d | Meant to represent the lights in a more 2d way split into a vert
 1. Create a fire effect
 
 ### Functional (Based on threads in the original repo)
-1. Optional hyphen seperator for hours and minutes
-2. DHT22 temperature & humidity sensor support
+1. DHT22 temperature & humidity sensor support
