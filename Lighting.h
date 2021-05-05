@@ -89,6 +89,7 @@ void gradientSpotlights(CRGB color1, CRGB color2);
 void rainbow(int rate);
 void rainbowSegment(int segment, uint8_t offset, uint8_t rate);
 void rainbowSegment(int segment, uint8_t offset, uint8_t rate, byte transparency);
+void rainbowSpotlights();
 void sparkle(int chance, int ledStart, int len);
 void sparkle(int chance, CRGB color, int ledStart, int len);
 void sparkle(int chance, CRGB color, int ledStart, int len, byte dim);

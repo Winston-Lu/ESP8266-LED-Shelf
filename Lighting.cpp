@@ -116,49 +116,28 @@ void showLightingEffects() {
   //Spotlights
   switch (spotlightPattern) {
     case 0: //off
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Off");
       solidSpotlights(CRGB::Black); break;
     case 1: //Solid
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Solid");
       for (int i = 0; i < WIDTH * HEIGHT; i++) leds[spotlightToLedIndex(i)] = spotlights[i]; //cant call solidSpotlights since they each have their own color value
       applySpotlightBrightness();
       break;
     case 2: //rainbow
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Rainbow");
-      //This rainbow hue color is taken from the middle of the top/left segment, rather than the average/median between the 4 surronding segments.
-      //If you want to change this to be the average/median of the 4 surrounding segments, get rid of the '/2' in the fill_rainbow portion: "(uint8_t)(rainbowRate*LEDS_PER_LINE)/2"
-      for (int i = 0; i < WIDTH; i++) {
-        int counter = 0;
-        const int maxSegment = min(HEIGHT, i + 1); //amount of segments to light up in the diagonal
-        for (int j = i; j < WIDTH * HEIGHT; j += (WIDTH - 1)) {
-          fill_rainbow(&leds[spotlightToLedIndex(j)], 1, (uint8_t)(rainbowRate * LEDS_PER_LINE) / 2 + i * rainbowRate * LEDS_PER_LINE + hueOffset, 0);
-        }
-      }
-      //That last spotlight(s)
-      for (int i = 1; i < HEIGHT; i++) {
-        for (int j = (i + 1) * WIDTH - 1; j < WIDTH * HEIGHT; j += WIDTH - 1) {
-          fill_rainbow(&leds[spotlightToLedIndex(j)], 1, (uint8_t)(rainbowRate * LEDS_PER_LINE) / 2 + WIDTH * rainbowRate * LEDS_PER_LINE + hueOffset, 0);
-        }
-      }
+      rainbowSpotlights();
       applySpotlightBrightness();
       break;
     case 3: //gradient
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Gradient");
       gradientSpotlights(spotlights[0], spotlights[1]);
       applySpotlightBrightness();
       break;
     case 4: //rain
-      if(debugPrintCounter==5*FRAMES_PER_SECOND)  Serial.println("Spotlights: Rain");
       rain(30, CRGB::Black, spotlights[0]);
       dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
     case 5: //sparkle
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Sparkle");
       sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
       dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
     case 6: //fire
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Spotlights: Fire");
       fire();
       dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
@@ -166,35 +145,28 @@ void showLightingEffects() {
   //Background
   switch (backgroundPattern) {
     case 0: //off
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Off");
       solidSegments(CRGB::Black); break;
     case 1: //solid
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Solid");
       solidSegments(bg); //I have a solidSegments() function, but this seems faster
       dimSegments(255 - backgroundBrightness);
       break;
     case 2: //rainbow
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Rainbow");
       for (int i = 0; i < NUM_SEGMENTS; i++) rainbowSegment(i, segmentLightingOffset(i)*LEDS_PER_LINE * rainbowRate, rainbowRate);
       dimSegments(255 - backgroundBrightness);
       break;
     case 3: //gradient
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Gradient");
       for (int i = 0; i < NUM_SEGMENTS; i++) gradientSegment(i, bg, bg2);
       dimSegments(255 - backgroundBrightness);
       break;
     case 4: //rain
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Rain");
       rain(15, bg, CRGB::Black);
       dimSegments(max(backgroundBrightness / 10, 50));
       break;
     case 5: //sparkle
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Sparkle");
       sparkle(100 , bg , 0 , NUM_SEGMENTS * LEDS_PER_LINE, 255 - backgroundBrightness); //100 chance seems fine. Note this isnt 100% or 100/255% chance. See sparkle() for how the chance works
       dimSegments(max(backgroundBrightness / 10, 2));
       break;
     case 6: //fire
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Background: Fire");
       fire();
       dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
@@ -206,10 +178,8 @@ void showLightingEffects() {
   //Foreground
   switch (foregroundPattern) {
     case 0:
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Off"); 
       break;//do nothing. Just here to acknowledge this option exists
     case 1: //solid
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Solid"); 
       if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
         updateTime();
         clockRefreshTimer = 0;
@@ -218,7 +188,6 @@ void showLightingEffects() {
       clockRefreshTimer++;
       break;
     case 2: //rainbow
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Rainbow"); 
       if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
         updateTime();
         clockRefreshTimer = 0;
@@ -227,7 +196,6 @@ void showLightingEffects() {
       clockRefreshTimer++;
       break;
     case 3: //gradient
-      if(debugPrintCounter==5*FRAMES_PER_SECOND) Serial.println("Clock: Gradient"); 
       if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { //every 3 seconds
         updateTime();
         clockRefreshTimer = 0;
@@ -497,6 +465,19 @@ void rainbowSegment(int segment, uint8_t offset, uint8_t rate, byte transparency
     newColor.green = leds[stripSegment.start + i].green * (foregroundTransparency / 255.0) + oldColors[i].green * (1 - (foregroundTransparency / 255.0));
     newColor.blue  = leds[stripSegment.start + i].blue  * (foregroundTransparency / 255.0) + oldColors[i].blue  * (1 - (foregroundTransparency / 255.0));
     leds[stripSegment.start + i] = newColor;
+  }
+}
+
+void rainbowSpotlights(){
+  //This rainbow hue color is taken from the middle of the top/left segment, rather than the average/median between the 4 surronding segments.
+  //If you want to change this to be the average/median of the 4 surrounding segments, get rid of the '/2' at the end of the totalHueOffset variable: "rainbowRate*LEDS_PER_LINE/2"
+  for(int y=0 ; y<HEIGHT ; y++){
+    for(int x=0 ; x<WIDTH ; x++){
+      //                current color | segmentOffset*amount of color changed/segment | 
+      byte totalHueOffset = hueOffset + (x+y)*rainbowRate*LEDS_PER_LINE               + rainbowRate*LEDS_PER_LINE/2;
+      fill_rainbow(&leds[spotlightToLedIndex(y*WIDTH+x)], 1,    totalHueOffset ,          0);
+      //            spotlight LED index              # of LEDS    Hue offset        Delta (since its only 1 LED, 0 is fine)
+    }
   }
 }
 

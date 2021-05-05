@@ -223,7 +223,7 @@ function modifySiteState(){
     
     let bg_ = document.getElementById("background"); 
     let gp = document.getElementById("gradientPicker"); 
-    if(bg_.value === "gradient") gp.style.display = '';
+    if(bg_.value === "gradient" || bg_.value === "fire") gp.style.display = '';
     else gp.style.display = 'none';
 
     let sl_ = document.getElementById("spotlightEffect"); 
@@ -231,7 +231,7 @@ function modifySiteState(){
     let sl2 = document.getElementById("spotlightColor2"); 
     let sls = document.getElementsByName("spotlightColors"); 
     
-    if(sl_.value === "gradient"){
+    if(sl_.value === "gradient" || sl_.value === "fire"){
         sl1.style.display = 'inline';
         sl2.style.display = 'inline';
         sls.forEach(s => {s.style.display = 'none';}) 

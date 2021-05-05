@@ -235,6 +235,7 @@ void setupServer(){
     else if(pattern == "rain") backgroundPattern = 4;
     else if(pattern == "sparkle") backgroundPattern = 5;
     else if(pattern == "fire") backgroundPattern = 6;
+    else if(pattern == "loop") backgroundPattern = 255;
     lightingChanges.backgroundPattern = true;
     clearLightingCache();
     lastUpdate = 0;
@@ -274,7 +275,6 @@ void setupServer(){
                                         "fps ## - Sets frames per second [current rate: " + String(FRAMES_PER_SECOND) + "]<br>" +
                                         "reset - Reset all settings<br>" +
                                         "resetprofile - Reset lighting settings<br>" +
-                                        "loading - Play the loading effect<br>" +
                                         "hyphen ## - Sets the length of the hyphen seperator. 0 Disables hyphen. [current length: " + String(hyphenLength) + "]<br>" +
                                         "hyphencolor HEX - Sets the hyphen color (format should be RRGGBB in hex, like FFA400). [current color: " + String(crgbToCss(hyphenColor)) + "]<br>" +
                                         "save - Saves all current settings<br>" +
@@ -306,9 +306,6 @@ void setupServer(){
     }else if(command=="resetprofile"){
       deleteSettings();
       webServer.send(200, "text/plain", "Profile will reset to default on reboot");
-    }else if(command=="loading"){
-      backgroundPattern = 255;
-      webServer.send(200, "text/plain", "Playing loading effect");
     }else if(command=="hyphen"){
       hyphenLength = max(min((byte)val.toInt(),(byte)LEDS_PER_LINE),(byte)0);
       lightingChanges.hyphenLength = true;
