@@ -194,6 +194,7 @@ When creating a new clock effect, it is recommended to create a seperate functio
 * For the clock, it uses the settings in `Config.h` to determine which segments are responsible for the 7-segment digit display
 * For the background, it goes through all segments and applies the effect one-by-one or uses the `grid` struct to work on the entire display like a 2D array
 * For the spotlights, it goes through all spotlights and applies the effect one-by-one or just works off the 1D spotlight color array (used like a 2D array)
+* Note that spotlights[] and leds\[spotlightToLedIndex()] work differently. Since effects will overwrite some color settings for spotlights, I had to keep the two seperate. spotlights[] keeps track of the color data, while leds\[spotlightToLedIndex()] puts colors onto the array that will be rendered
   * Using a 1D array for simplicity.
   * If you need Y, bounds are \[0,HEIGHT)
   * If you need X, bounds are \[0,WIDTH)
@@ -201,8 +202,8 @@ When creating a new clock effect, it is recommended to create a seperate functio
 ```
 for(size_t y = 0 ; y < HEIGHT ; y++){
   for(size_t x = 0 ; x < WIDTH ; x++){
-    //spotlights[y][x] equivilant
-    spotlights[y*WIDTH+x] = ...;
+    //spotlights[y][x] equivalant
+    leds[spotlightToLedIndex(y*WIDTH+x)] = ...;
   }
 }
 ```
