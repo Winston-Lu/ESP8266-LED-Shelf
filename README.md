@@ -188,6 +188,25 @@ discussions tab
 
 All effect rendering is done in the `Lighting.cpp` file, usually in the `showLightingEffects()` function near the top.
 
+All effects use a single buffer layer that FastLED requires before pushing the data to the display. That means all effects are rendered ontop of one another in the same layer, so any segment color data that gets rendered under another effect (EG clock) will be lost. This isn't a big deal, as I calculate the color of each effect manually each frame, which isn't the most efficient but the ESP8266 is fast enough to handle it at ~30fps. The spotlights effects get rendered first, then the background, then the clock segments. When the clock renders, it overwrites the segment colors in the background and applies the clock brightness setting on the affected segments. Clock transparency allows for the overwritten segments to mix the color between the background and foreground clock if desired. 
+
+When creating a new clock effect, it is recommended to create a seperate function to calculate the LED colors per segment seperately and independently. That way you follow the previous existing code that handles switching the necessary segments.
+* For the clock, it uses the settings in `Config.h` to determine which segments are responsible for the 7-segment digit display
+* For the background, it goes through all segments and applies the effect one-by-one or uses the `grid` struct to work on the entire display like a 2D array
+* For the spotlights, it goes through all spotlights and applies the effect one-by-one or just works off the 1D spotlight color array (used like a 2D array)
+  * Using a 1D array for simplicity.
+  * If you need Y, bounds are \[0,HEIGHT)
+  * If you need X, bounds are \[0,WIDTH)
+  * To loop through the array using x and y: (You can use `size_t`, `int`, `uint8_t`, `uint16_t`, `uint32_t`, or whatever)
+```
+for(size_t y = 0 ; y < HEIGHT ; y++){
+  for(size_t x = 0 ; x < WIDTH ; x++){
+    //spotlights[y][x] equivilant
+    spotlights[y*WIDTH+x] = ...;
+  }
+}
+```
+
 I have a few functions that make creating effects easier
 Function | Description
 ---------|---------
