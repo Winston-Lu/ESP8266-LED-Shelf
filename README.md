@@ -136,7 +136,10 @@ git clone https://github.com/Winston-Lu/LED-Clock
 14.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
 
 # Wiring
-<img src="https://user-images.githubusercontent.com/33874247/117094177-10b17480-ad31-11eb-9f2e-6b3de03d06f2.jpg" width="600" height="350" />
+<div>
+ <img src="https://user-images.githubusercontent.com/33874247/117094177-10b17480-ad31-11eb-9f2e-6b3de03d06f2.jpg" width="600px" />
+ <img src="https://user-images.githubusercontent.com/33874247/117375687-82a6cc80-ae9d-11eb-9581-abc4b28fb9d8.png" width="600px" />
+</div>
 On the ESP8266, I soldered one of the LED strip 3-pin male header onto it so I can hot-swap the module with only 1 connection needed. The red wire goes into Vin, white wire goes into G (ground), and the green wire into D8. I also have a photoresistor connected to A0 and 3v (actually 3.3v), as well as a 10k ohm resistor from A0 to G as a pull-down resistor. if you do not have this resistor, the analog readings will not be accurate.
 
 Connect 2 red wires to the 5V line on the LED strip, one connected to the 5v power supply and 1 to the LED strip female header red wire. Do the same for the black wires: 2 coming from the GND pad on the LED strip, one to GND on the power supply and 1 to the GND pin on the female LED strip connector. For data, we only need 1 wire coming from the LED strip data line into the female connector (usually in the middle). Once you get that setup, you should be able to hotswap the module in case you want to do any testing and don't want to setup Arduino OTA uploads. If you don't want to hotswap, you can just solder directly onto the board's VIN, GND, and D8
