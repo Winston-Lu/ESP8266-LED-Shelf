@@ -223,7 +223,7 @@ struct grid2d | Meant to represent the lights in a more 2d way split into a vert
 ## To Do
 
 ### Lighting
-1. Create a fire effect
+1. Feel free to suggest any effects in the discussions
 
 ### Functional (Based on threads in the original repo)
 1. DHT22 temperature & humidity sensor support
