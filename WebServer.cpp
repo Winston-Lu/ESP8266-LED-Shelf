@@ -26,9 +26,9 @@ void setupWiFi(){
   WiFi.begin(ssid, password);
   while (WiFi.status()!=WL_CONNECTED){
     //Show pattern while trying to connect to Wi-Fi
-    for(int i=0 ; i<FRAMES_PER_SECOND/2 ; i++){
+    for(int i=0 ; i<60 ; i++){
       loadingEffect(CRGB::White);
-      FastLED.delay(1000 / FRAMES_PER_SECOND);
+      FastLED.delay(17);
     }
     Serial.print(".");
   }
@@ -251,7 +251,7 @@ void setupServer(){
     else if(pattern == "gradient") spotlightPattern = 3;
     else if(pattern == "rain") spotlightPattern = 4;
     else if(pattern == "sparkle") spotlightPattern = 5;
-    else if(pattern == "fire") backgroundPattern = 6;
+    else if(pattern == "fire") spotlightPattern = 6;
     lightingChanges.spotlightPattern = true;
     clearLightingCache();
     lastUpdate = 0;
@@ -294,7 +294,7 @@ void setupServer(){
       updateSettings = true;
       webServer.send(200, "text/plain", "Set rainbow rate to " + String(rainbowRate));
     }else if(command=="fps"){
-      FRAMES_PER_SECOND = val.toInt();
+      FRAMES_PER_SECOND = max((byte)1,(byte)val.toInt()); //Setting to 0 sets off the watchdog since it never refreshes
       lightingChanges.fps = true;
       lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
       updateSettings = true;
@@ -327,7 +327,7 @@ void setupServer(){
       //Wont actually send
       //webServer.send(200, "text/plain", "Rebooting in 3 seconds...");
       
-      ESP.wdtEnable(15); // Turn on watchdog then let program hang. Im not sure if the 15ms is actually implemented in the ESP source code
+      ESP.wdtEnable(3000); // Turn on watchdog then let program hang. Im not sure if the 15ms is actually implemented in the ESP source code
       for(;;) {} //Make watchdog reset the device
     }else{
       webServer.send(200, "text/plain", "Command not found");

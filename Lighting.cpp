@@ -57,6 +57,9 @@ struct grid{
    //Age of raindrop (Time to live) for rain effect
    int verticalLedTTL[HEIGHT*LEDS_PER_LINE][WIDTH+1];
    int horizontalLedTTL[HEIGHT][WIDTH * LEDS_PER_LINE];
+
+   //Height for fire effect
+   int fireHeight[WIDTH*LEDS_PER_LINE+1];
 } grid2d;
 
 int power = 1;
@@ -167,7 +170,7 @@ void showLightingEffects() {
       dimSegments(max(backgroundBrightness / 10, 2));
       break;
     case 6: //fire
-      fire();
+      if(spotlightPattern != 6) fire(); //call the effect if it hasnt been called already
       dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
     case 255: //Loading effect from manual config
@@ -603,8 +606,101 @@ void rain(byte chance, CRGB color, CRGB spotlightColor) {
 }
 
 void fire(){
-  
+  const int fireChance = 20;
+  const int minHeight = HEIGHT*LEDS_PER_LINE*0.2;
+  const int effectHeight = HEIGHT*LEDS_PER_LINE;
+  const int maxWidth = WIDTH*LEDS_PER_LINE;
+  /* generate random vals for fireHeight[], and create a 5-wide flame
+   |
+   |   |       |        |
+   |  |||     ||    |   ||
+   |_|||||_|__|||__||__||||_
+   */
+  for(int i=0 ; i<maxWidth+1 ; i++){
+    //If it has not been initialized or we want to randomly initialize it
+    if(grid2d.fireHeight[i] == 0) grid2d.fireHeight[i] = max(1,minHeight)-1+random8(3);
+    if(fireChance > random8()){
+      //Create a kind of parabolic flame effect
+      const int maxHeight         = minHeight + random8(effectHeight-minHeight);
+      const int heightDifference1 = maxHeight         - (effectHeight*0.1 + random8((byte)(effectHeight*0.1)));
+      const int heightDifference2 = heightDifference1 - (effectHeight*0.2 + random8((byte)(effectHeight*0.2)));
+
+      //Clamp x-values between 0 and WIDTH*LEDS_PER_LINE and create new Y values if greater. 
+      grid2d.fireHeight[max(0,i-2)]        = max(heightDifference2 - random8(2),grid2d.fireHeight[max(0,i-2)]);
+      grid2d.fireHeight[max(0,i-1)]        = max(heightDifference1 - random8(2),grid2d.fireHeight[max(0,i-1)]);
+      grid2d.fireHeight[i]                 = max(maxHeight                     ,grid2d.fireHeight[i]);
+      grid2d.fireHeight[min(maxWidth,i+1)] = max(heightDifference1 - random8(2),grid2d.fireHeight[min(maxWidth,i+1)]);
+      grid2d.fireHeight[min(maxWidth,i+2)] = max(heightDifference2 - random8(2),grid2d.fireHeight[min(maxWidth,i+2)]);
+    }else{
+      //Calm down the flame a bit
+      grid2d.fireHeight[i] = max(minHeight-1+random8(3), grid2d.fireHeight[i]-(1+random8((byte)(effectHeight*0.05))));
+    }
+  }
+  //render on spotlights. 
+  if(spotlightPattern == 6){
+    for(int x=0;x<WIDTH;x++){
+      //calculate average flame height
+      int avgHeight = 0;
+      for(int j=0;j<LEDS_PER_LINE+1;j++){
+        avgHeight = grid2d.fireHeight[x*LEDS_PER_LINE+j];
+      }
+      //set spotlight position to LEDS_PER_LINE/2 + verticalOffset
+      int spotlightHeight = LEDS_PER_LINE/2;
+      CRGB color;
+      for(int y=0;y<HEIGHT;y++){
+        //Get gradient
+        if(spotlightHeight-LEDS_PER_LINE/2 > avgHeight){ //if average is below that segment, dim
+          fadeToBlackBy(&leds[spotlightToLedIndex((HEIGHT-1-y)*WIDTH + x)], 1 , 160);
+        }else if(spotlightHeight > avgHeight){ //if spotlight is above average height of flames, set a point between that and black
+          color.r = spotlights[0].r*(1-(float)(spotlightHeight-avgHeight)/LEDS_PER_LINE);
+          color.g = spotlights[0].g*(1-(float)(spotlightHeight-avgHeight)/LEDS_PER_LINE);
+          color.b = spotlights[0].b*(1-(float)(spotlightHeight-avgHeight)/LEDS_PER_LINE);
+        }else{  //if average is above the spotlight position, get gradient
+          color.r = spotlights[0].r*((float)spotlightHeight/avgHeight) + spotlights[1].r*(1 - ((float)spotlightHeight/avgHeight));
+          color.g = spotlights[0].g*((float)spotlightHeight/avgHeight) + spotlights[1].g*(1 - ((float)spotlightHeight/avgHeight));
+          color.b = spotlights[0].b*((float)spotlightHeight/avgHeight) + spotlights[1].b*(1 - ((float)spotlightHeight/avgHeight));
+        }
+        spotlightHeight += LEDS_PER_LINE;
+        leds[spotlightToLedIndex((HEIGHT-1-y)*WIDTH + x)] = color;
+      }
+    }
+  }
+  //render on background
+  if(backgroundPattern == 6){
+    for(int x=0;x<maxWidth+1;x++){
+      //We added 1 extra LED for the right-most vertical segment, which would go out of bounds for our horizontal segments
+      //If on a horizontal segment
+      if(x!=maxWidth){
+        for(int h=0 ; h<=HEIGHT ; h++){ 
+          int ledNum = grid2d.horizontalSegments[HEIGHT-h][x];
+          if(grid2d.fireHeight[x] >= h*LEDS_PER_LINE - (h!=0)){ //the h!=0 since it goes 0,8,17
+            float randomColorOffset = random16(grid2d.fireHeight[x]) * h==0; //so the bottom row isnt static
+            float gradientOffset = min((float)1,max((float)0,((float)(h*LEDS_PER_LINE+randomColorOffset)) /  ((float)(grid2d.fireHeight[x]))));
+            leds[ledNum] = CRGB(bg.r*(gradientOffset) + bg2.r*(1 - gradientOffset),
+                                bg.g*(gradientOffset) + bg2.g*(1 - gradientOffset),
+                                bg.b*(gradientOffset) + bg2.b*(1 - gradientOffset)  );
+          }else fadeToBlackBy(&leds[ledNum], 1 , 120);
+        }
+      }
+    }
+    //Vertical segments
+    for(int x=0;x<WIDTH+1;x++){
+      //Gradient the segments
+      for(int y=0;y<min(HEIGHT*LEDS_PER_LINE,grid2d.fireHeight[x]);y++){
+        int ledNum = grid2d.verticalSegments[HEIGHT*LEDS_PER_LINE-y-1][x];
+        leds[ledNum] = CRGB(bg.r*((float)y/grid2d.fireHeight[x]) + bg2.r*(1 - ((float)y/grid2d.fireHeight[x])),
+                            bg.g*((float)y/grid2d.fireHeight[x]) + bg2.g*(1 - ((float)y/grid2d.fireHeight[x])),
+                            bg.b*((float)y/grid2d.fireHeight[x]) + bg2.b*(1 - ((float)y/grid2d.fireHeight[x])));
+      }
+      //Otherwise dim those segments
+      for(int y=grid2d.fireHeight[x] ; y<HEIGHT*LEDS_PER_LINE ; y++){
+        fadeToBlackBy(&leds[grid2d.verticalSegments[HEIGHT*LEDS_PER_LINE-y-1][x]], 1 , 120);
+      }
+    }
+    
+  }
 }
+
 void loadingEffect(CRGB color){
   if       (loadingCursorPosition <    WIDTH        *LEDS_PER_LINE){  //top segments
     leds[grid2d.horizontalSegments[0][loadingCursorPosition]] = color;
@@ -751,6 +847,10 @@ void clearLightingCache(){
     for(int x=0;x<WIDTH+1;x++){
       grid2d.verticalLedTTL[y][x] = 0;
     }
+  }
+  //Clear fire cache
+  for(int i=0 ; i < WIDTH*LEDS_PER_LINE+1 ; i++){
+    grid2d.fireHeight[i] = 0;
   }
   //Clear screen segments (spotlights dont need to be wiped)
   solidSegments(CRGB::Black);
@@ -940,7 +1040,7 @@ void loadEEPROM(){
   //rainbow speed
   rainbowRate = EEPROM.read(addr++);
   //fps
-  FRAMES_PER_SECOND = EEPROM.read(addr++);
+  FRAMES_PER_SECOND = max((byte)5,EEPROM.read(addr++)); //if 0, causes eternal reset loop. This is in case this value doesnt get
   //hyphenLength
   hyphenLength = EEPROM.read(addr++);
   //hyphenColor
@@ -994,7 +1094,7 @@ void lightingInit() {
   }
 
   
-  //init verticalSegments array
+  //init grid struct
   int vertSegX = 0;
   int vertSegY = 0;
   int horzSegX = 0;
@@ -1033,5 +1133,7 @@ void lightingInit() {
       }
     }
   }
+  //Set to 0's in case memory doesnt already have it at 0
+  clearLightingCache(); 
   Serial.println("Done initializing lighting data");
 }
