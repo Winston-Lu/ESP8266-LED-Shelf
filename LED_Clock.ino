@@ -5,6 +5,7 @@
 #include "WebServer.h" 
 
 byte FRAMES_PER_SECOND = 30; //will be overwritten later on by EEPROM or default settings
+unsigned long frameStart; //For fps counter
 
 void setup(){
   Serial.begin(115200);
@@ -45,7 +46,9 @@ void setup(){
   setupServer();
 }
 
+uint16_t counter = 0;
 void loop() {
+  if (counter==FRAMES_PER_SECOND*5) frameStart = micros();
   updateServer();
   
   lastUpdate++;
@@ -62,6 +65,15 @@ void loop() {
     return;
   }
   showLightingEffects();
+
+  if(counter>=FRAMES_PER_SECOND*5){
+    unsigned long microsecondsPerFrame = micros()-frameStart;
+    char buff[70];
+    sprintf(buff, "Maximum FPS: %.1f     Milliseconds per frame: %.2f",1000000.0/microsecondsPerFrame,microsecondsPerFrame/1000.0);
+    Serial.println(buff);
+    counter = 0;
+  }
+  counter++;
 
   // insert a delay to keep the framerate modest
   FastLED.delay(1000 / FRAMES_PER_SECOND);
