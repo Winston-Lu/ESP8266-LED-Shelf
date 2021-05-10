@@ -171,7 +171,7 @@ void showLightingEffects() {
       break;
     case 6: //fire
       if(spotlightPattern != 6) fire(); //call the effect if it hasnt been called already
-      dimSpotlights(max(spotlightBrightness / 8, 2));
+      dimSegments(max(spotlightBrightness / 8, 2));
       break;
     case 255: //Loading effect from manual config
       loadingEffect(bg);
