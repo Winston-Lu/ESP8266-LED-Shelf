@@ -38,6 +38,8 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 
 This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings for timezones or setting FPS as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
+This thing runs at 30+ fps relatively consistently. It usually runs at 60+ fps, but if you choose the heaviest load with gradient everything, it gets fairly computationally heavy and unoptimized. This is at 80MHz CPU, so you can get higher FPS with 160MHz. Note that all effect speeds are framerate reliant, so speeding up the FPS makes the effects faster
+
 
 # Configuration
 
