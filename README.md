@@ -27,6 +27,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * Gradient  
   * Sparkle
   * Rain/Snow
+  * Looping/Loading
   * More to be implemented
 * Every segment on the shelf has LEDs
   * Requires exactly 300 WS2812B LEDs (compared to the original 219) for the 12hr version. Would need 347 total for a 24hr version (including spotlights)
