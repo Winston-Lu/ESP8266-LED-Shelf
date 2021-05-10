@@ -4,7 +4,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 
 ### Work in progress, images are not the final product
 
-<img src="https://user-images.githubusercontent.com/33874247/117093146-21acb680-ad2e-11eb-9009-c75ef6d17bf0.png" width="350" height="420" />
+<img src="https://user-images.githubusercontent.com/33874247/117596818-3617f700-b112-11eb-8664-d567a0c0ae57.png" width="350" height="420" />
 <img src="https://user-images.githubusercontent.com/33874247/117094072-c3350780-ad30-11eb-89fc-b0ca06d4eca0.jpg" width="600" height="250" />
 <img src="https://user-images.githubusercontent.com/33874247/117094138-fd060e00-ad30-11eb-81cd-c64c8d04d459.jpg" width="600" height="250" />
 
@@ -13,6 +13,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 * Used an ESP8266 instead of an Arduino Nano
 * Auto-update time from the internet (No need for a real-time clock or manual configuration aside from UTC offsets)
 * Created a webserver to control different settings:
+  * Full mobile and desktop support!
   * Toggle On/Off
   * Control Brightness (Segments, background, or spotlight dimming)
   * Modify Time (for daylight savings)
