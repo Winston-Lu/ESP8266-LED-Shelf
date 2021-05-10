@@ -4,9 +4,15 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 
 
 # Gallery
-### Work in progress, images are not the final product
-<img src="https://user-images.githubusercontent.com/33874247/117094072-c3350780-ad30-11eb-89fc-b0ca06d4eca0.jpg" width="600" height="250" />
-<img src="https://user-images.githubusercontent.com/33874247/117094138-fd060e00-ad30-11eb-81cd-c64c8d04d459.jpg" width="600" height="250" />
+My camera quality sucks, but these effects look a lot better in-person
+ Red-Blue gradient with static clock segments and rainbow spotlights | Red-Blue gradient clock with sparkles
+ ---------|-------------
+<img src="https://user-images.githubusercontent.com/33874247/117598131-20f09780-b115-11eb-9fb6-d6ce7fa990c4.jpg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117598132-2221c480-b115-11eb-9e56-4f58b783ef2c.jpg" width="450" />
+Orange-Blue gradient fire | Rain 
+<img src="https://user-images.githubusercontent.com/33874247/117598135-22ba5b00-b115-11eb-978f-af09b5b8a68b.jpg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117599779-8d20ca80-b118-11eb-8c4c-dae912767604.jpg" width="450" />
+Rainbow clock with solid background | Rainbow Everything
+<img src="https://user-images.githubusercontent.com/33874247/117598139-24841e80-b115-11eb-89c1-5fec7226d7cb.jpg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117599774-8bef9d80-b118-11eb-9dce-f1d0e9d2e6b2.jpg"  width="450" />
+
 
 
 # Improvements over the original:
