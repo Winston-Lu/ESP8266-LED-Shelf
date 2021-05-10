@@ -138,7 +138,7 @@ void setupServer(){
     webServer.send(200, "text/plain", "1");
   });
 
-  webServer.on("/bgcolor2", HTTP_GET, []() {
+  webServer.on("/bg2color", HTTP_GET, []() {
     CRGB color = CRGB::Black;
     color.red = webServer.arg("red").toInt();
     color.green = webServer.arg("green").toInt();
