@@ -2,9 +2,9 @@
 
 An improved version of [this LED shelf by DIY Machines on Youtube](https://www.youtube.com/watch?v=8E0SeycTzHw) to include more features and settings. [Link to the original Github repo here](https://github.com/DIY-Machines/DigitalClockSmartShelving)
 
-### Work in progress, images are not the final product
 
-<img src="https://user-images.githubusercontent.com/33874247/117596818-3617f700-b112-11eb-8664-d567a0c0ae57.png" width="350" height="420" />
+# Gallery
+### Work in progress, images are not the final product
 <img src="https://user-images.githubusercontent.com/33874247/117094072-c3350780-ad30-11eb-89fc-b0ca06d4eca0.jpg" width="600" height="250" />
 <img src="https://user-images.githubusercontent.com/33874247/117094138-fd060e00-ad30-11eb-81cd-c64c8d04d459.jpg" width="600" height="250" />
 
@@ -20,6 +20,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
   * Color Control
   * Pattern Control
   * Hypen seperator for hours and minutes
+  <img src="https://user-images.githubusercontent.com/33874247/117596818-3617f700-b112-11eb-8664-d567a0c0ae57.png" width="400"/>
 * It also includes different patterns/lighting effects
   * Static/Solid
   * Rainbow
