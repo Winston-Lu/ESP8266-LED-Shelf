@@ -126,7 +126,7 @@ subnet | Subnet address of your home address. If you don't know what this is, yo
 
 
 # Setting up the ESP8266
-Run this code in some folder you want to save this code if you have git installed. Otherwise just download the repo zip in the top right and extract:
+Run this command if you have git installed. Otherwise just download the repo zip file in the top right and extract:
 ```cmd
 git clone https://github.com/Winston-Lu/LED-Clock
 ```
@@ -237,3 +237,6 @@ struct grid2d | Meant to represent the lights in a more 2d way split into a vert
 
 ### Functional (Based on threads in the original repo)
 1. DHT22 temperature & humidity sensor support
+2. Port to Arduino Nano?
+   * Version without the webserver but all segments
+   * Version without the webserver and original segments (Only support clock lighting effects)
