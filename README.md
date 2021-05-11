@@ -43,7 +43,6 @@ Rainbow clock with solid background | Rainbow Everything
 * Support for 24-hour format
   * (Mostly untested) Requires some configuration modifications (See **Setting to 24hr layout** below). Should work fine since the code would break for the 12hr version if the 24hr version wouldn't also work due to the less readable but modular code
 * Expandable to larger shelf sizes
-  * (Untested) The Arduino code is much more modular than the web page. Setting sizes in `Config.h` should work, but the webpage support for solid spotlights is not. The Arduino code should still work fine, but I don't have the resources to test this.
 
 This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings for timezones or setting FPS as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
@@ -55,7 +54,7 @@ This thing runs at 30+ fps relatively consistently. It usually runs at 60+ fps, 
 **If you need help on any configuration, go to the discussions tab and ask there**
 
 ## Setting to 24hr layout (Optional)
-To switch to 24hr mode, you need to change a line in `./data/script.js` website file and on the first line, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to code in the spotlight modification yourself. I didn't make this as modular as I would have liked as I wanted to avoid using frameworks like AngularJS ng-repeat since I'm not the best front-end designer.
+To switch to 24hr mode, you need to change a line in `./data/config.js` file and on the first line of code, change it to `const enable24HR = true;`. This will allow for an extra column of spotlights if you added them. If you have a setup with a setup larger than >2x7, then you will need to configure it yourself, but it is as simple as changing 2 numbers in the `config.js` file.
 
 In the C++ code, comment out \_12_HR_CLOCK and uncomment \_24_HR_CLOCK in `Config.h`. Width and Height should automatically reconfigure to support this. If you wired everything exactly as I did (see image below), you don't need to make any more configuration changes in the C++ code. Otherwise, follow the steps below.
 
