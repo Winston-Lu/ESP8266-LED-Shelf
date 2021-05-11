@@ -4,14 +4,14 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 
 
 # Gallery
-My camera quality sucks, but these effects look a lot better in-person
- Red-Blue gradient with static clock segments and rainbow spotlights | Red-Blue gradient clock with sparkles
+I didnt show the Loop or Rain effect since they suck in picture form. They look better in video
+Original solid clock with solid spotlights | Red-Blue gradient with static clock segments | 
  ---------|-------------
-<img src="https://user-images.githubusercontent.com/33874247/117893135-d6435c80-b287-11eb-8dfa-f48fb644b0df.jpeg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117598132-2221c480-b115-11eb-9e56-4f58b783ef2c.jpg" width="450" />
-Orange-Blue gradient fire | Rain (A static picture doesnt make this look nice, it looks better in person)
-<img src="https://user-images.githubusercontent.com/33874247/117598135-22ba5b00-b115-11eb-978f-af09b5b8a68b.jpg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117599779-8d20ca80-b118-11eb-8c4c-dae912767604.jpg" width="450" />
+<img src="https://user-images.githubusercontent.com/33874247/117893747-ffb0b800-b288-11eb-8dbf-2c267bfcc9c8.jpeg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117893135-d6435c80-b287-11eb-8dfa-f48fb644b0df.jpeg" width="450" /> 
+Red-Blue gradient clock with sparkles | Orange-Blue gradient fire 
+<img src="https://user-images.githubusercontent.com/33874247/117893891-46061700-b289-11eb-802c-af8668fb3ec0.jpeg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117893837-2ff85680-b289-11eb-9148-193d16b76e50.jpeg" width="450" />
 Rainbow clock with solid background | Rainbow Everything
-<img src="https://user-images.githubusercontent.com/33874247/117598139-24841e80-b115-11eb-89c1-5fec7226d7cb.jpg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117599774-8bef9d80-b118-11eb-9dce-f1d0e9d2e6b2.jpg"  width="450" />
+<img src="https://user-images.githubusercontent.com/33874247/117893957-5d450480-b289-11eb-8505-665b879ab45a.jpeg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117894023-7d74c380-b289-11eb-9c90-c91d9f62cbe2.jpeg"  width="450" />
 
 
 
