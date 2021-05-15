@@ -81,10 +81,9 @@ Located at the bottom of the webpage once you have everything setup. If you forg
 settings | For debug, shows all settings stored on the device | `settings`
 utcoffset | Sets your UTC offset in hours. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8 `
 rainbowrate | This changes how rainbow-y the rainbow is. By default, this value is 5  | `rainbowrate 3`
-fps | Set the frames per second of the display. Default is 30, I don't think its fast enough to do 60. All effect speeds are fps-dependent | `fps 24`
+fps | Set the frames per second of the display. Default is 30, Its fast enough to do 60, but all effect speeds are fps-dependent | `fps 24`
 reset | Factory Reset settings, including UTC offset | `reset`
 resetprofile | Factory Reset lighting settings, but doesnt reset UTC offset | `resetProfile`
-loading | Plays the loading effect. This plays when the shelf is connecting to WiFi, but if you like it, you can set it here | `loading`
 hyphen | Sets the hyphen width for the hours/minutes seperator | `hyphen 9`
 hyphencolor | Sets the hyphen color | `hyphencolor ffa400`
 save | Saves all settings without waiting for the save counter | `save`
