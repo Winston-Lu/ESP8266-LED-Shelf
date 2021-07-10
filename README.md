@@ -153,8 +153,6 @@ On the ESP8266, I soldered one of the LED strip 3-pin male header onto it so I c
 
 Connect 2 red wires to the 5V line on the LED strip, one connected to the 5v power supply and 1 to the LED strip female header red wire. Do the same for the black wires: 2 coming from the GND pad on the LED strip, one to GND on the power supply and 1 to the GND pin on the female LED strip connector. For data, we only need 1 wire coming from the LED strip data line into the female connector (usually in the middle). Once you get that setup, you should be able to hotswap the module in case you want to do any testing and don't want to setup Arduino OTA uploads. If you don't want to hotswap, you can just solder directly onto the board's VIN, GND, and D8
 
-# Hardware
-Add pictures later
 ## Bill of Materials and tools
 * A 3D printer. Any cheap printer would work, but it would need a bed size of at least 150mm x 150mm to print the wall segments. The wall piece is about 180mm long
 * Screwdrivers and/or a drill helps
@@ -232,7 +230,9 @@ struct grid2d | Meant to represent the lights in a more 2d way split into a vert
 ## To Do
 
 ### Lighting
-1. Feel free to suggest any effects in the discussions
+1. Time-based auto dimming
+2. Timer/counter
+3. Offline time support (If connection drops, use built-in time instead)
 
 ### Functional (Based on threads in the original repo)
 1. DHT22 temperature & humidity sensor support
