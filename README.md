@@ -232,7 +232,6 @@ struct grid2d | Meant to represent the lights in a more 2d way split into a vert
 ### Lighting
 1. Time-based auto dimming
 2. Timer/counter
-3. Offline time support (If connection drops, use built-in time instead)
 
 ### Functional (Based on threads in the original repo)
 1. DHT22 temperature & humidity sensor support
