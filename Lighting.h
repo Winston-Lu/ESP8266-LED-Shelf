@@ -9,6 +9,7 @@ const int PROGMEM NUM_SEGMENTS = 2*WIDTH*HEIGHT + WIDTH + HEIGHT;
 
 //Love me some global variables
 extern CRGB leds[NUM_LEDS];
+extern CRGB spotlightLed[WIDTH*HEIGHT]; //dedicated spotlight array if on seperate pin
 extern int rainbowRate;
 extern uint32_t lastUpdate;
 extern bool updateSettings;
@@ -62,8 +63,10 @@ extern CRGB hyphenColor;
 void clearDisplay();
 void applySegmentBrightness();
 void applySpotlightBrightness();
+void applySpotlightBrightnessDedicated();
 void dimSegments(byte val);
 void dimSpotlights(byte val);
+void dimSpotlightsDedicated(byte val);
 void dimLed(int index, byte val);
 void dimSegment(int segment, byte val);
 
@@ -84,6 +87,7 @@ void addSegmentColor(int segment, CRGB color, byte transparency);
 void setSpotlightColor(int index, CRGB color);
 void solidSegments(CRGB color);
 void solidSpotlights(CRGB color);
+void solidSpotlightsDedicated(CRGB color);
 void gradientSegment(int segment, CRGB color1, CRGB color2);
 void gradientSegment(int segment, CRGB color1, CRGB color2, byte transparency);
 void gradientSpotlights(CRGB color1, CRGB color2);
@@ -102,6 +106,7 @@ void loadingEffect(CRGB color);
 byte segmentLightingOffset(int index);
 strip segmentToLedIndex(int index);
 int spotlightToLedIndex(int index);
+int spotlightToLedIndexDedicated(int index);
 CRGB dimColor(CRGB color,byte amount);
 uint8_t sevenSegment(int num);
 void storeEEPROM();

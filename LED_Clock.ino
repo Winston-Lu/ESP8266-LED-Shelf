@@ -15,7 +15,10 @@ void setup(){
   Serial.println("\n\n\n\n\n"); //get rid of the jiberish from boot
   
   //FastLED Setup
-  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS);         
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS);  
+  #ifdef SPOTLIGHTPIN
+  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT);
+  #endif
   FastLED.setDither(false);
   FastLED.setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(255);
@@ -60,6 +63,9 @@ void loop() {
 
   if (power == 0) {
     fill_solid(leds, NUM_LEDS, CRGB::Black);
+    #ifdef SPOTLIGHTPIN
+    fill_solid(spotlightLed, WIDTH*HEIGHT, CRGB::Black);
+    #endif
     FastLED.show();
     delay(1000 / FRAMES_PER_SECOND);
     return;

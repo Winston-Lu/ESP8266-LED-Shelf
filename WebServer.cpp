@@ -208,6 +208,7 @@ void setupServer(){
     setSpotlightColor(index-1,color);
     if(index==1) setSpotlight1(color);
     else if(index==2) setSpotlight2(color);
+    
     lightingChanges.spotlights[index-1] = true;
     lastUpdate = 0;
     updateSettings = true;

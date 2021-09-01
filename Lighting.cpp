@@ -6,6 +6,7 @@
 
 CRGB off_color = CRGB::Black;
 CRGB leds[NUM_LEDS]; //array that gets rendered
+CRGB spotlightLed[WIDTH*HEIGHT]; //dedicated spotlight array if on seperate pin
 CRGB spotlights[WIDTH * HEIGHT]; //array to keep track of spotlight colors that we set on the web server
 
 //default background colors
@@ -112,16 +113,47 @@ void showLightingEffects() {
   }
   if(autobrightness){
     double val = (analogRead(LIGHT_SENSOR)/1024.0)*2; //Between 0-2
-    segmentBrightness = min(max((int)(50.0 * val*val*val),5),150);//Clamp between 5 and 150, median 50
-    backgroundBrightness = min(max((int)(30.0 * val*val*val * 0.8),2),100); //Clamp between 2 and 100, median 30
+    segmentBrightness = min(max((int)(40.0 * val*val*val),5),150);//Clamp between 5 and 150, median 50
+    backgroundBrightness = min(max((int)(12.0 * val*val*val * 0.8),2),100); //Clamp between 2 and 100, median 30
     spotlightBrightness = min(max((int)(80*(val*val*val)*2),30),255); //Clamp between 30 and 255, median 160
   }
   //Spotlights
+  #ifdef SPOTLIGHTPIN // if dedicated spotlight pin
   switch (spotlightPattern) {
     case 0: //off
-      solidSpotlights(CRGB::Black); break;
+      solidSpotlightsDedicated(CRGB::Black);break;
     case 1: //Solid
-      for (int i = 0; i < WIDTH * HEIGHT; i++) leds[spotlightToLedIndex(i)] = spotlights[i]; //cant call solidSpotlights since they each have their own color value
+      for (int i = 0; i < WIDTH * HEIGHT; i++) spotlightLed[spotlightToLedIndexDedicated(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
+      applySpotlightBrightnessDedicated();
+      break;
+    case 2: //rainbow
+      rainbowSpotlights();
+      applySpotlightBrightnessDedicated();
+      break;
+    case 3: //gradient
+      gradientSpotlights(spotlights[0], spotlights[1]);
+      applySpotlightBrightnessDedicated();
+      break;
+    case 4: //rain
+      rain(30, CRGB::Black, spotlights[0]);
+      dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
+      break;
+    case 5: //sparkle
+      sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
+      dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
+      break;
+    case 6: //fire
+      fire();
+      dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
+      break;
+  }
+  #else
+  switch (spotlightPattern) {
+    case 0: //off
+      solidSpotlights(CRGB::Black);
+      break;
+    case 1: //Solid
+      for (int i = 0; i < WIDTH * HEIGHT; i++) leds[spotlightToLedIndex(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
       applySpotlightBrightness();
       break;
     case 2: //rainbow
@@ -145,6 +177,7 @@ void showLightingEffects() {
       dimSpotlights(max(spotlightBrightness / 8, 2));
       break;
   }
+  #endif
   //Background
   switch (backgroundPattern) {
     case 0: //off
@@ -228,9 +261,14 @@ void showLightingEffects() {
       }
     }
   }
+  
+  //Change rainbow color
   hueOffset += rainbowRate;
+  
+  //Compensate for different segment diffusion if it is configured/exists
   for(int i=0;i<sizeof(segmentBrightnessCompensation)/sizeof(segmentBrightnessCompensation[0]);i++)
     if(segmentBrightnessCompensation[i]!=0) dimSegment(i,segmentBrightnessCompensation[i]);
+    
   FastLED.show();
 }
 
@@ -238,12 +276,14 @@ void showLightingEffects() {
 //              Display Functions                 //
 //************************************************//
 
-void clearDisplay() {               fill_solid(leds, NUM_LEDS, CRGB::Black); }
-void applySegmentBrightness() {     fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , 255 - segmentBrightness  );}
-void applySpotlightBrightness() {   fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , 255 - spotlightBrightness);}
-void dimSegments(byte val) {        fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , val);}
-void dimSpotlights(byte val) {      fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , val);}
-void dimLed(int index, byte val) {  fadeToBlackBy(&leds[index]                                , 1                                , val);}
+void clearDisplay() {                     fill_solid(leds, NUM_LEDS, CRGB::Black); }
+void applySegmentBrightness() {           fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , 255 - segmentBrightness  );}
+void applySpotlightBrightness() {         fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , 255 - spotlightBrightness);}
+void applySpotlightBrightnessDedicated() {fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , 255 - spotlightBrightness);}
+void dimSegments(byte val) {              fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , val);}
+void dimSpotlights(byte val) {            fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , val);}
+void dimSpotlightsDedicated(byte val){    fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , val);}
+void dimLed(int index, byte val) {        fadeToBlackBy(&leds[index]                                , 1                                , val);}
 void dimSegment(int segment, byte val) {
   if (segment == -1) return;
   strip segmentStruct = segmentToLedIndex(segment);
@@ -398,6 +438,10 @@ void solidSpotlights(CRGB color) {
   for (int i = 0; i < WIDTH * HEIGHT; i++)
     leds[LEDS_PER_LINE * NUM_SEGMENTS + i ] = color;
 }
+void solidSpotlightsDedicated(CRGB color) {
+  for (int i = 0; i < WIDTH * HEIGHT; i++)
+    spotlightLed[i] = color;
+}
 
 void gradientSegment(int segment, CRGB color1, CRGB color2) {gradientSegment(segment, color1, color2, 255);}
 void gradientSegment(int segment, CRGB color1, CRGB color2, byte transparency) {
@@ -446,7 +490,11 @@ void gradientSpotlights(CRGB color1, CRGB color2) {
     color.red   = (byte)(( color2.red    * increment * (offset + 1)) +  (color1.red    *  ( increment * (maxLedVal - offset - 2 ) ) ));
     color.green = (byte)(( color2.green  * increment * (offset + 1)) +  (color1.green  *  ( increment * (maxLedVal - offset - 2 ) ) ));
     color.blue  = (byte)(( color2.blue   * increment * (offset + 1)) +  (color1.blue   *  ( increment * (maxLedVal - offset - 2 ) ) ));
+    #ifdef SPOTLIGHTPIN
+    spotlightLed[spotlightToLedIndexDedicated(i)] = color;
+    #else
     leds[spotlightToLedIndex(i)] = color;
+    #endif
   }
 }
 
@@ -486,8 +534,13 @@ void rainbowSpotlights(){
     for(int x=0 ; x<WIDTH ; x++){
       //                current color | segmentOffset*amount of color changed/segment | 
       byte totalHueOffset = hueOffset + (x+y)*rainbowRate*LEDS_PER_LINE               + rainbowRate*LEDS_PER_LINE/2;
+
+      #ifdef SPOTLIGHTPIN
+      fill_rainbow(&spotlightLed[spotlightToLedIndexDedicated(y*WIDTH+x)], 1,    totalHueOffset ,          0);
+      #else
       fill_rainbow(&leds[spotlightToLedIndex(y*WIDTH+x)], 1,    totalHueOffset ,          0);
       //            spotlight LED index              # of LEDS    Hue offset        Delta (since its only 1 LED, 0 is fine)
+      #endif
     }
   }
 }
@@ -502,9 +555,15 @@ void sparkle(int chance, CRGB color, int ledStart, int len, byte dim) {
     //If you have a really large array of LED's and you want to increase this, change random8(128) to a lower value like random8(64) for a ~8 particle spawn per iteration
     if (chance > randomVal) {
       uint16_t randNum = random16(len); //pick random index within the specified range
-      leds[ledStart + randNum] = color;
       chance -= randomVal; //decrement counter so we could spawn more than 1 per iteration
+      leds[ledStart + randNum] = color;
       dimLed(ledStart + randNum, dim); //Apply initial brightness/dim LED when spawned
+      #ifdef SPOTLIGHTPIN
+      if(ledStart + randNum > LEDS_PER_LINE*NUM_SEGMENTS){
+        spotlightLed[(ledStart + randNum) % (WIDTH*HEIGHT)] = color;
+        fadeToBlackBy(&spotlightLed[(ledStart + randNum) % (WIDTH*HEIGHT)], 1, dim);
+      }
+      #endif
     } else break;
   }
 }
@@ -599,7 +658,11 @@ void rain(byte chance, CRGB color, CRGB spotlightColor) {
         newColor.r = spotlightColor.r * (avgTTL/(LEDS_PER_LINE+1)/LEDS_PER_LINE);
         newColor.g = spotlightColor.g * (avgTTL/(LEDS_PER_LINE+1)/LEDS_PER_LINE);
         newColor.b = spotlightColor.b * (avgTTL/(LEDS_PER_LINE+1)/LEDS_PER_LINE);
+        #ifdef SPOTLIGHTPIN
+        spotlightLed[spotlightToLedIndexDedicated(y*WIDTH + x)] = newColor ;
+        #else
         leds[spotlightToLedIndex(y*WIDTH + x)] = newColor ;
+        #endif
       }
     }
   }
@@ -661,7 +724,11 @@ void fire(){
           color.b = spotlights[0].b*((float)spotlightHeight/avgHeight) + spotlights[1].b*(1 - ((float)spotlightHeight/avgHeight));
         }
         spotlightHeight += LEDS_PER_LINE;
+        #ifdef SPOTLIGHTPIN
+        spotlightLed[spotlightToLedIndexDedicated((HEIGHT-1-y)*WIDTH + x)] = color;
+        #else
         leds[spotlightToLedIndex((HEIGHT-1-y)*WIDTH + x)] = color;
+        #endif
       }
     }
   }
@@ -762,14 +829,26 @@ strip segmentToLedIndex(int index) {
 }
 
 int spotlightToLedIndex(int index) {
-  //Assume zig-zag wiring
-  if ((index / WIDTH) % 2 == 0) { //forward direction
-    //        spotlight offset         +   vertical offset   +  index
-    return (NUM_SEGMENTS * LEDS_PER_LINE + (index / WIDTH) * WIDTH + index);
-  } else { //reverse direction
-    //        spotlight offset         +   vertical offset   +   reverse index
-    return (NUM_SEGMENTS * LEDS_PER_LINE + (index / WIDTH) * WIDTH + WIDTH - index % WIDTH - 1);
+  for(int i=0;i<WIDTH*HEIGHT;i++){
+    if(spotlightWiringOrder[i] == index) return(NUM_SEGMENTS * LEDS_PER_LINE + i);
   }
+  return -1;
+  
+  //Assume zig-zag wiring (Works for wiring that I did, but this algoritm is hard coded)
+//  if ((index / WIDTH) % 2 == 0) { //forward direction
+//    //        spotlight offset         +   vertical offset   +  index
+//    return (NUM_SEGMENTS * LEDS_PER_LINE + (index / WIDTH) * WIDTH + index);
+//  } else { //reverse direction
+//    //        spotlight offset         +   vertical offset   +   reverse index
+//    return (NUM_SEGMENTS * LEDS_PER_LINE + (index / WIDTH) * WIDTH + WIDTH - index % WIDTH - 1);
+//  }
+
+}
+int spotlightToLedIndexDedicated(int index) {
+  for(int i=0;i<WIDTH*HEIGHT;i++){
+    if(spotlightWiringOrder[i] == index) return(i);
+  }
+  return -1;
 }
 
 CRGB dimColor(CRGB color, byte amount) {
