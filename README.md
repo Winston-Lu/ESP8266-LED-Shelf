@@ -103,6 +103,7 @@ FRAMES_PER_SECOND    | Shouldn't be above 30 or else some timing stuff may lag b
 \_24_HR_CLOCK         | 24-hour clock layout. Requires additional segments and LEDs. See **Setting to 24hr layout** above to change the layout to 24hr
 LIGHT_SENSOR         | Should be connected to A0, since thats the only analog pin on the board
 **DATAPIN**              | Connected to D8 on my NodeMCU v0.9 (pin 15)
+SPOTLIGHTPIN         | If following the original instructions, they use a seperate pin for the spotlights. If so, uncomment this line and set to the respective pin number
 LED_TYPE             | Should be WS2812B's in most cases
 COLOR_ORDER          | WS2812B's are GRB. If colors act weird or you are using other LED_TYPE's, you may need to switch to RGB
 NAME                 | Name of the ESP8266 device (used to connect or as an identifier so you know what device is which in the routers "device" page
