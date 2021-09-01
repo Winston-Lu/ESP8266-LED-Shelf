@@ -5,6 +5,7 @@ An improved version of [this LED shelf by DIY Machines on Youtube](https://www.y
 
 # Gallery
 I didnt show the Loop or Rain effect since they suck in picture form. They look better in video
+
 Original solid clock with solid spotlights | Red-Blue gradient with static clock segments | 
  ---------|-------------
 <img src="https://user-images.githubusercontent.com/33874247/117893747-ffb0b800-b288-11eb-8dbf-2c267bfcc9c8.jpeg" width="450" /> | <img src="https://user-images.githubusercontent.com/33874247/117893135-d6435c80-b287-11eb-8dfa-f48fb644b0df.jpeg" width="450" /> 
@@ -231,8 +232,7 @@ struct grid2d | Meant to represent the lights in a more 2d way split into a vert
 ## To Do
 
 ### Lighting
-1. Time-based auto dimming
-2. Timer/counter
+1. Timer/counter
 
 ### Functional (Based on threads in the original repo)
 1. DHT22 temperature & humidity sensor support
