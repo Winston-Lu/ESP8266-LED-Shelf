@@ -26,26 +26,30 @@ extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Acce
 //numbers here are what the wiring maps to the abstracted array below. Index is what LED segment they are. Add +1 to give 0 a +- sign
 //Wiring Index
 #ifdef _12_HR_CLOCK
+  //1-indexed
   const int PROGMEM segmentWiringOrder[] = {-7,1,8,-14,20,27,-21,15,-9,-2,3,10,-16,22,-28,29,-23,17,-11,-4,5,12,-18,24,-30,31,-25,19,-13,-6,26,-32}; 
   const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,11,10,9,8,7,6};
+  //0-indexed
   const int PROGMEM hyphenSegment = 15;
-  //indexes of the digits
+  //indexes of the digits (0-indexed)
   const int PROGMEM m_one[] = {5,11,12,18,24,25,31}; 
   const int PROGMEM m_ten[] = {3,9,10,16,22,23,29};
   const int PROGMEM h_one[] = {1,7,8,14,20,21,27};
   const int PROGMEM h_ten[] = {-1,-1,6,-1,-1,19,-1}; //-1 means undefined since 12hr doesnt have this segment
 #endif
 #ifdef _24_HR_CLOCK
+  //1-indexed
   const int PROGMEM segmentWiringOrder[] = {-8,1,9,-16,23,31,-24,17,-10,-2,3,11,-18,25,-32,33,-26,19,-12,-4,5,13,-20,27,-34,35,-28,21,-14,-6,7,15,-22,29,-36,37,-30}; 
   const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,6,13,12,11,10,9,8,7};
+  //0-indexed
   const int PROGMEM hyphenSegment = 18;
-  //indexes of the digits
+  //indexes of the digits (0-indexed)
   const int PROGMEM m_one[] = {6,13,14,21,28,29,36}; 
   const int PROGMEM m_ten[] = {4,11,12,19,26,27,34};
   const int PROGMEM h_one[] = {2,9,10,17,24,25,32};
   const int PROGMEM h_ten[] = {0,7,8,15,22,23,30};
 #endif
-/* Index reference for segmentWiringOrder. 
+/* 1-Index reference for segmentWiringOrder. 
 12hr
   __1_  __2_  __3_  __4_  __5_  __6_ 
 _7    _8    _9    10    11    12    13
