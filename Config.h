@@ -12,7 +12,7 @@
 
 #define LIGHT_SENSOR  17 //A0
 #define DATAPIN       15
-//#define SPOTLIGHTPIN  5  //Uncomment if you use a seperate pin for spotlights
+#define SPOTLIGHTPIN  5  //Uncomment if you use a seperate pin for spotlights
 #define LED_TYPE      WS2812B
 #define COLOR_ORDER   GRB
 

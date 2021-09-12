@@ -67,20 +67,18 @@ void loop() {
     fill_solid(spotlightLed, WIDTH*HEIGHT, CRGB::Black);
     #endif
     FastLED.show();
-    delay(1000 / FRAMES_PER_SECOND);
-    return;
+  }else{
+    showLightingEffects();
+    if(counter>=FRAMES_PER_SECOND*5){
+      unsigned long microsecondsPerFrame = micros()-frameStart;
+      char buff[70];
+      sprintf(buff, "Maximum FPS: %.1f     Milliseconds per frame: %.2f",1000000.0/microsecondsPerFrame,microsecondsPerFrame/1000.0);
+      Serial.println(buff);
+      counter = 0;
+    }
+    counter++;
   }
-  showLightingEffects();
-
-  if(counter>=FRAMES_PER_SECOND*5){
-    unsigned long microsecondsPerFrame = micros()-frameStart;
-    char buff[70];
-    sprintf(buff, "Maximum FPS: %.1f     Milliseconds per frame: %.2f",1000000.0/microsecondsPerFrame,microsecondsPerFrame/1000.0);
-    Serial.println(buff);
-    counter = 0;
-  }
-  counter++;
-
+  
   // insert a delay to keep the framerate modest
   FastLED.delay(1000 / FRAMES_PER_SECOND);
 }
