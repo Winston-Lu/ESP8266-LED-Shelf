@@ -73,7 +73,6 @@ boolean autobrightness = false;
 
 int rainbowRate = 5;
 uint32_t clockRefreshTimer = 0;
-bool firstRun = true;
 uint32_t lastUpdate = 0;
 bool updateSettings = false;
 uint32_t loadingCursorPosition = 0; 
@@ -108,8 +107,12 @@ const int PROGMEM nine  = 0b01111011;
 //           Show Selected Lighting               //
 //************************************************//
 void showLightingEffects() {
-  if (firstRun) {
-    firstRun = false;
+  if(power == 0){
+    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    #ifdef SPOTLIGHTPIN
+    fill_solid(spotlightLed, WIDTH*HEIGHT, CRGB::Black);
+    #endif
+    return;
   }
   if(autobrightness){
     double val = (analogRead(LIGHT_SENSOR)/1024.0)*2; //Between 0-2
@@ -183,7 +186,7 @@ void showLightingEffects() {
     case 0: //off
       solidSegments(CRGB::Black); break;
     case 1: //solid
-      solidSegments(bg); //I have a solidSegments() function, but this seems faster
+      solidSegments(bg); 
       dimSegments(255 - backgroundBrightness);
       break;
     case 2: //rainbow
@@ -269,7 +272,6 @@ void showLightingEffects() {
   for(int i=0;i<sizeof(segmentBrightnessCompensation)/sizeof(segmentBrightnessCompensation[0]);i++)
     if(segmentBrightnessCompensation[i]!=0) dimSegment(i,segmentBrightnessCompensation[i]);
     
-  FastLED.show();
 }
 
 //************************************************//

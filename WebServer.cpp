@@ -28,7 +28,8 @@ void setupWiFi(){
     //Show pattern while trying to connect to Wi-Fi
     for(int i=0 ; i<60 ; i++){
       loadingEffect(CRGB::White);
-      FastLED.delay(17);
+      delay(17);
+      FastLED.show();
     }
     Serial.print(".");
   }
@@ -39,22 +40,17 @@ void setupWiFi(){
 
 void updateServer(){
   webServer.handleClient();
-  MDNS.update();
   
   static bool hasConnected = false;
   EVERY_N_SECONDS(1) {
     if (WiFi.status() != WL_CONNECTED) {hasConnected = false;}
     else if (!hasConnected) {
       hasConnected = true;
-      MDNS.begin(NAME);
-      MDNS.setHostname(NAME);
       webServer.begin();
       Serial.println("HTTP web server started");
       Serial.print("Connected! Open http://");
       Serial.print(WiFi.localIP());
-      Serial.print(" or http://");
-      Serial.print(NAME);
-      Serial.println(".local in your browser");
+      Serial.println(" in your browser");
     }
   }
 }
@@ -335,11 +331,7 @@ void setupServer(){
     }
   });
 
-
   webServer.serveStatic("/", LittleFS, "/", "max-age=86400");
-
-  MDNS.begin(NAME);
-  MDNS.setHostname(NAME);
 
   webServer.begin();
   Serial.println("HTTP web server initialized");

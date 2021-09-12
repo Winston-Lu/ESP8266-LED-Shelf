@@ -4,7 +4,12 @@
 #include <FastLED.h>
 #include "Config.h"
 
+#ifdef SPOTLIGHTPIN
+const int PROGMEM NUM_LEDS = LEDS_PER_LINE * (2*WIDTH*HEIGHT + WIDTH + HEIGHT);
+#elif
 const int PROGMEM NUM_LEDS = LEDS_PER_LINE * (2*WIDTH*HEIGHT + WIDTH + HEIGHT) + WIDTH*HEIGHT;
+#endif
+
 const int PROGMEM NUM_SEGMENTS = 2*WIDTH*HEIGHT + WIDTH + HEIGHT;
 
 //Love me some global variables

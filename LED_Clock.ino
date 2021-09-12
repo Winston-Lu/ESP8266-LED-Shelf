@@ -4,23 +4,22 @@
 #include "Lighting.h"
 #include "WebServer.h" 
 
-byte FRAMES_PER_SECOND = 30; //will be overwritten later on by EEPROM or default settings
+byte FRAMES_PER_SECOND = 10; //will be overwritten later on by EEPROM or default settings
 unsigned long frameStart; //For fps counter
 
 void setup(){
   Serial.begin(115200);
-  random16_add_entropy((uint16_t)random16());
-  for(int i=0;i<10;i++) random16_add_entropy(random(65535));
   pinMode(LIGHT_SENSOR,INPUT);
   Serial.println("\n\n\n\n\n"); //get rid of the jiberish from boot
+  random16_add_entropy((uint16_t)random16());
+  for(int i=0;i<10;i++) random16_add_entropy(random(65535));
   
   //FastLED Setup
-  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS);  
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); 
   #ifdef SPOTLIGHTPIN
-  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT);
+  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT).setCorrection(TypicalLEDStrip);
   #endif
   FastLED.setDither(false);
-  FastLED.setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(255);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
   fill_solid(leds, NUM_LEDS, CRGB::Black);
@@ -52,7 +51,18 @@ void setup(){
 uint16_t counter = 0;
 void loop() {
   if (counter==FRAMES_PER_SECOND*5) frameStart = micros();
+  
   updateServer();
+  showLightingEffects();
+  
+  if(counter>=FRAMES_PER_SECOND*5){
+    unsigned long microsecondsPerFrame = micros()-frameStart;
+    char buff[60];
+    sprintf(buff, "Maximum FPS: %.1f     Milliseconds per frame: %.2f",1000000.0/microsecondsPerFrame,microsecondsPerFrame/1000.0);
+    Serial.println(buff);
+    counter = 0;
+  }
+  counter++;
   
   lastUpdate++;
   if(lastUpdate >= EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND && updateSettings){
@@ -60,25 +70,9 @@ void loop() {
     updateSettings = false;
     storeEEPROM();
   }
-
-  if (power == 0) {
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
-    #ifdef SPOTLIGHTPIN
-    fill_solid(spotlightLed, WIDTH*HEIGHT, CRGB::Black);
-    #endif
-    FastLED.show();
-  }else{
-    showLightingEffects();
-    if(counter>=FRAMES_PER_SECOND*5){
-      unsigned long microsecondsPerFrame = micros()-frameStart;
-      char buff[70];
-      sprintf(buff, "Maximum FPS: %.1f     Milliseconds per frame: %.2f",1000000.0/microsecondsPerFrame,microsecondsPerFrame/1000.0);
-      Serial.println(buff);
-      counter = 0;
-    }
-    counter++;
-  }
   
-  // insert a delay to keep the framerate modest
+  // insert a delay to maintain framerate. Also does FastLED.show()
+  Serial.printf("Before: %d %d %d\n",leds[0].r,leds[0].g,leds[0].b);
   FastLED.delay(1000 / FRAMES_PER_SECOND);
+  Serial.printf("After: %d %d %d\n\n",leds[0].r,leds[0].g,leds[0].b);
 }

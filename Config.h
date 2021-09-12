@@ -11,8 +11,8 @@
 //#define _24_HR_CLOCK
 
 #define LIGHT_SENSOR  17 //A0
-#define DATAPIN       15
-#define SPOTLIGHTPIN  5  //Uncomment if you use a seperate pin for spotlights
+#define DATAPIN       15 //15 = D8 on a NodeMCU
+#define SPOTLIGHTPIN  4 //4 = D2 on a NodeMCU. Uncomment if you use a seperate pin for spotlights
 #define LED_TYPE      WS2812B
 #define COLOR_ORDER   GRB
 
