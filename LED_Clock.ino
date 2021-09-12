@@ -4,7 +4,7 @@
 #include "Lighting.h"
 #include "WebServer.h" 
 
-byte FRAMES_PER_SECOND = 10; //will be overwritten later on by EEPROM or default settings
+byte FRAMES_PER_SECOND = 30; //will be overwritten later on by EEPROM or default settings
 unsigned long frameStart; //For fps counter
 
 void setup(){
@@ -72,7 +72,5 @@ void loop() {
   }
   
   // insert a delay to maintain framerate. Also does FastLED.show()
-  Serial.printf("Before: %d %d %d\n",leds[0].r,leds[0].g,leds[0].b);
   FastLED.delay(1000 / FRAMES_PER_SECOND);
-  Serial.printf("After: %d %d %d\n\n",leds[0].r,leds[0].g,leds[0].b);
 }
