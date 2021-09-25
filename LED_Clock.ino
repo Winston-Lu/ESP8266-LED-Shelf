@@ -15,10 +15,13 @@ void setup(){
   for(int i=0;i<10;i++) random16_add_entropy(random(65535));
   
   //FastLED Setup
-  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); 
   #ifdef SPOTLIGHTPIN
-  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS - (WIDTH*HEIGHT) + 1).setCorrection(TypicalLEDStrip); 
+  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT+1).setCorrection(TypicalLEDStrip);
+  #else
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS+1).setCorrection(TypicalLEDStrip); 
   #endif
+  
   FastLED.setDither(false);
   FastLED.setBrightness(255);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
@@ -70,7 +73,21 @@ void loop() {
     updateSettings = false;
     storeEEPROM();
   }
-  
+  //if we have a sacrifice LED, shift all LED's down by 1 and set first to black (probably wont end up being black)
+  #ifdef SACRIFICELED
+    #ifdef SPOTLIGHTPIN
+      for(int i=NUM_LEDS - (WIDTH*HEIGHT); i > 0 ;i--)
+        leds[i] = leds[i-1];
+      leds[0] = CRGB::Black;
+      for(int i=WIDTH*HEIGHT; i>0 ;i--)
+        spotlightLed[i] = spotlightLed[i-1];
+      spotlightLed[0] = CRGB::Black;
+    #else
+      for(int i=NUM_LEDS; i > 0 ;i--)
+        leds[i] = leds[i-1];
+      leds[0] = CRGB::Black;
+    #endif
+  #endif
   // insert a delay to maintain framerate. Also does FastLED.show()
   FastLED.delay(1000 / FRAMES_PER_SECOND);
 }

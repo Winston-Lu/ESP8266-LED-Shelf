@@ -13,8 +13,8 @@ const int PROGMEM NUM_LEDS = LEDS_PER_LINE * (2*WIDTH*HEIGHT + WIDTH + HEIGHT) +
 const int PROGMEM NUM_SEGMENTS = 2*WIDTH*HEIGHT + WIDTH + HEIGHT;
 
 //Love me some global variables
-extern CRGB leds[NUM_LEDS];
-extern CRGB spotlightLed[WIDTH*HEIGHT]; //dedicated spotlight array if on seperate pin
+extern CRGB leds[NUM_LEDS+1];
+extern CRGB spotlightLed[WIDTH*HEIGHT+1]; //dedicated spotlight array if on seperate pin
 extern int rainbowRate;
 extern uint32_t lastUpdate;
 extern bool updateSettings;

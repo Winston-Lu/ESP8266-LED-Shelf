@@ -5,8 +5,8 @@
 #include "NTPTime.h"
 
 CRGB off_color = CRGB::Black;
-CRGB leds[NUM_LEDS]; //array that gets rendered
-CRGB spotlightLed[WIDTH*HEIGHT]; //dedicated spotlight array if on seperate pin
+CRGB leds[NUM_LEDS+1]; //array that gets rendered, +1 for sacrifice LED in case its needed
+CRGB spotlightLed[WIDTH*HEIGHT+1]; //dedicated spotlight array if on seperate pin, +1 for sacrifice LED in case its needed
 CRGB spotlights[WIDTH * HEIGHT]; //array to keep track of spotlight colors that we set on the web server
 
 //default background colors
