@@ -9,23 +9,44 @@ unsigned long frameStart; //For fps counter
 
 void setup(){
   Serial.begin(115200);
-  pinMode(LIGHT_SENSOR,INPUT);
   Serial.println("\n\n\n\n\n"); //get rid of the jiberish from boot
+
+
+  Serial.println("Config Settings");
+  Serial.print("Number of segments: "); Serial.println(NUM_SEGMENTS);
+  Serial.print("LED's on segment pin: "); Serial.println(NUM_LEDS);
+  #ifdef SPOTLIGHTPIN
+    Serial.print("LED's on spotlight pin: "); Serial.println(WIDTH*HEIGHT);
+    Serial.print("Total LED's:"); Serial.println(NUM_LEDS+WIDTH*HEIGHT);
+  #endif
+  Serial.print("Seperate pin for spotlights: ");
+  #ifdef SPOTLIGHTPIN
+    Serial.print("Pin "); Serial.println(SPOTLIGHTPIN);
+  #elif 
+    Serial.println("Not defined");
+  #endif
+  Serial.print("Clock mode: ");
+  #ifdef _12_HR_CLOCK
+    Serial.println("12 Hour");
+  #elif 
+    Serial.println("24 Hour");
+  #endif
+  #ifdef SACRIFICELED
+    Serial.println("Sacrifice LED Enabled");
+  #endif
+  Serial.println("\n");
+
+  pinMode(LIGHT_SENSOR,INPUT);
   random16_add_entropy((uint16_t)random16());
   for(int i=0;i<10;i++) random16_add_entropy(random(65535));
   
   //FastLED Setup
-  #ifdef SPOTLIGHTPIN
-  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS - (WIDTH*HEIGHT) + 1).setCorrection(TypicalLEDStrip); 
-  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT+1).setCorrection(TypicalLEDStrip);
-  #else
-  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS+1).setCorrection(TypicalLEDStrip); 
-  #endif
-  
+  fastLEDInit();
   FastLED.setDither(false);
   FastLED.setBrightness(255);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  solidSegments(CRGB::Black);
+  solidSpotlights(CRGB::Black);
   
   Serial.println("Initializing data structures for lighting effects");
   lightingInit();
@@ -39,7 +60,7 @@ void setup(){
     size_t fileSize = dir.fileSize();
     Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), String(fileSize).c_str());
   }
-  Serial.printf("\n");
+  Serial.println("\n");
   //WiFi Setup
   Serial.println("Setting up Wi-Fi");
   setupWiFi();
@@ -75,18 +96,7 @@ void loop() {
   }
   //if we have a sacrifice LED, shift all LED's down by 1 and set first to black (probably wont end up being black)
   #ifdef SACRIFICELED
-    #ifdef SPOTLIGHTPIN
-      for(int i=NUM_LEDS - (WIDTH*HEIGHT); i > 0 ;i--)
-        leds[i] = leds[i-1];
-      leds[0] = CRGB::Black;
-      for(int i=WIDTH*HEIGHT; i>0 ;i--)
-        spotlightLed[i] = spotlightLed[i-1];
-      spotlightLed[0] = CRGB::Black;
-    #else
-      for(int i=NUM_LEDS; i > 0 ;i--)
-        leds[i] = leds[i-1];
-      leds[0] = CRGB::Black;
-    #endif
+  shiftLedsByOne();
   #endif
   // insert a delay to maintain framerate. Also does FastLED.show()
   FastLED.delay(1000 / FRAMES_PER_SECOND);

@@ -4,17 +4,15 @@
 #include <FastLED.h>
 #include "Config.h"
 
-#ifdef SPOTLIGHTPIN
-const int PROGMEM NUM_LEDS = LEDS_PER_LINE * (2*WIDTH*HEIGHT + WIDTH + HEIGHT);
-#elif
-const int PROGMEM NUM_LEDS = LEDS_PER_LINE * (2*WIDTH*HEIGHT + WIDTH + HEIGHT) + WIDTH*HEIGHT;
-#endif
-
 const int PROGMEM NUM_SEGMENTS = 2*WIDTH*HEIGHT + WIDTH + HEIGHT;
 
+#ifdef SPOTLIGHTPIN
+const int PROGMEM NUM_LEDS = LEDS_PER_LINE * NUM_SEGMENTS;
+#elif
+const int PROGMEM NUM_LEDS = LEDS_PER_LINE * NUM_SEGMENTS + WIDTH*HEIGHT;
+#endif
+
 //Love me some global variables
-extern CRGB leds[NUM_LEDS+1];
-extern CRGB spotlightLed[WIDTH*HEIGHT+1]; //dedicated spotlight array if on seperate pin
 extern int rainbowRate;
 extern uint32_t lastUpdate;
 extern bool updateSettings;
@@ -63,6 +61,7 @@ extern byte spotlightPattern;
 extern bool updateSettings;
 extern byte hyphenLength;
 extern CRGB hyphenColor;
+
 
 //Display Functions
 void clearDisplay();
@@ -120,6 +119,7 @@ void saveAllSettings();
 double getUtcOffset();
 void clearLightingCache();
 String getCurrentSettings(String seperator);
+void shiftLedsByOne();
 
 //Web-Server Functions
 String parseSettings();
@@ -135,6 +135,7 @@ String numToHex(byte num);
 void deleteSettings();
 
 //Initialization function
+void fastLEDInit();
 void defaultSettings();
 void lightingInit();
 void showLights();

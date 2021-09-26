@@ -108,7 +108,7 @@ const int PROGMEM nine  = 0b01111011;
 //************************************************//
 void showLightingEffects() {
   if(power == 0){
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    fill_solid(leds, NUM_LEDS+1, CRGB::Black);
     #ifdef SPOTLIGHTPIN
     fill_solid(spotlightLed, WIDTH*HEIGHT, CRGB::Black);
     #endif
@@ -269,7 +269,7 @@ void showLightingEffects() {
   hueOffset += rainbowRate;
   
   //Compensate for different segment diffusion if it is configured/exists
-  for(int i=0;i<sizeof(segmentBrightnessCompensation)/sizeof(segmentBrightnessCompensation[0]);i++)
+  for(size_t i=0;i<sizeof(segmentBrightnessCompensation)/sizeof(segmentBrightnessCompensation[0]);i++)
     if(segmentBrightnessCompensation[i]!=0) dimSegment(i,segmentBrightnessCompensation[i]);
     
 }
@@ -437,8 +437,10 @@ void solidSegments(CRGB color) {
     leds[i] = color;
 }
 void solidSpotlights(CRGB color) {
+  #ifndef SPOTLIGHTPIN
   for (int i = 0; i < WIDTH * HEIGHT; i++)
     leds[LEDS_PER_LINE * NUM_SEGMENTS + i ] = color;
+  #endif
 }
 void solidSpotlightsDedicated(CRGB color) {
   for (int i = 0; i < WIDTH * HEIGHT; i++)
@@ -811,7 +813,7 @@ byte segmentLightingOffset(int index) {
 strip segmentToLedIndex(int index) {
   //map from the abstracted segment index to the actual wiring index
   //go through entire segmentWiringOrder array
-  for (int i = 0; i < sizeof(segmentWiringOrder) / sizeof(int); i++) {
+  for (size_t i = 0; i < sizeof(segmentWiringOrder) / sizeof(int); i++) {
     //If at the segmentWiringOrder index, we find the index of the abstracted segment index, return the wiring position
     if (abs(segmentWiringOrder[i]) - 1 == index) { //subtract 1 since we start at 1 (0 cant be given a positive or negative sign)
       convert.start = i * LEDS_PER_LINE;
@@ -874,6 +876,7 @@ uint8_t sevenSegment(int num) {
     case 8: return (eight);
     case 9: return (nine);
   }
+  return(zero);
 }
 void storeUtcOffset(double value){
   EEPROM.begin(512);
@@ -964,6 +967,21 @@ String getCurrentSettings(String seperator){
   return ans;
 }
 
+void shiftLedsByOne(){
+  #ifdef SPOTLIGHTPIN
+    for(int i=NUM_LEDS - (WIDTH*HEIGHT); i > 0 ;i--)
+      leds[i] = leds[i-1];
+    leds[0] = CRGB::Black;
+    for(int i=WIDTH*HEIGHT; i>0 ;i--)
+      spotlightLed[i] = spotlightLed[i-1];
+    spotlightLed[0] = CRGB::Black;
+  #else
+    for(int i=NUM_LEDS; i > 0 ;i--)
+      leds[i] = leds[i-1];
+    leds[0] = CRGB::Black;
+  #endif
+}
+
 //************************************************//
 //             WebServer Functions                //
 //************************************************//
@@ -1045,12 +1063,22 @@ String numToHex(byte num) {
     case 15:
       return "f";
   }
+  return "0";
 }
 void deleteSettings(){EEPROM.begin(512); EEPROM.write(0,0); EEPROM.commit();}
 
 //************************************************//
 //              Initialize variables              //
 //************************************************//
+void fastLEDInit(){
+  #ifdef SPOTLIGHTPIN
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS - (WIDTH*HEIGHT) + 1).setCorrection(TypicalLEDStrip); 
+  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT+1).setCorrection(TypicalLEDStrip);
+  #else
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS+1).setCorrection(TypicalLEDStrip); 
+  #endif
+}
+
 void defaultSettings(){
   Serial.println("Setting options to default settings");
   power = 1;
@@ -1082,7 +1110,6 @@ void loadEEPROM(){
   Serial.println("Loading EEPROM");
   EEPROM.begin(512);
   byte addr = 3; //first byte is checking if data is written, next 2 bytes are for utcOffset
-  byte val = 0;
   //power
   power = EEPROM.read(addr++);
   //clock transparency

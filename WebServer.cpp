@@ -33,7 +33,8 @@ void setupWiFi(){
     }
     Serial.print(".");
   }
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  solidSegments(CRGB::Black);
+  solidSpotlights(CRGB::Black);
   Serial.println();
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 }
@@ -60,7 +61,9 @@ void setupServer(){
 
   //Runs when site is loaded
   webServer.on("/getsettings", HTTP_GET, []() {
-    String value = parseSettings();
+    String value;
+    value.reserve(250);
+    value = parseSettings();
     Serial.println("Sending: " + value);
     webServer.sendHeader("Access-Control-Allow-Origin", "*");
     webServer.send(200, "text/plain", value);
@@ -332,9 +335,7 @@ void setupServer(){
   });
 
   webServer.serveStatic("/", LittleFS, "/", "max-age=86400");
-
   webServer.begin();
-  Serial.println("HTTP web server initialized");
 }
 
 byte hexToByte(String hex){
