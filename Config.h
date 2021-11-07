@@ -6,6 +6,11 @@
 #define LEDS_PER_LINE 9
 #define MILLI_AMPS 5500 // Set the max milli-Amps of your power supply 
 
+//Enable sacrifice LED. The first LED can sometimes flash inconsistently for reasons currently unknown, so
+// enabling this will allow a 'dummy' LED be the sacrifice LED to take in the bad data and provide the sequential
+// LED's with valid data
+//#define SACRIFICELED //comment out to disable
+
 //Clock format
 #define _12_HR_CLOCK
 //#define _24_HR_CLOCK

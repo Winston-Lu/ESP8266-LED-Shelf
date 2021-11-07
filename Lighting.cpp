@@ -3,10 +3,11 @@
 #include "Lighting.h"
 #include "Config.h"
 #include "NTPTime.h"
+#include "TimedEffects.h"
 
 CRGB off_color = CRGB::Black;
-CRGB leds[NUM_LEDS]; //array that gets rendered
-CRGB spotlightLed[WIDTH*HEIGHT]; //dedicated spotlight array if on seperate pin
+CRGB leds[NUM_LEDS+1]; //array that gets rendered, +1 for sacrifice LED in case its needed
+CRGB spotlightLed[WIDTH*HEIGHT+1]; //dedicated spotlight array if on seperate pin, +1 for sacrifice LED in case its needed
 CRGB spotlights[WIDTH * HEIGHT]; //array to keep track of spotlight colors that we set on the web server
 
 //default background colors
@@ -43,7 +44,6 @@ struct grid{
    * [3,0]   [3,1]    [3,2]   [3,3]   [3,4]   [3,5]
    *      - -      - -     - -     - -     - - 
    */
-   
   int horizontalSegments[HEIGHT+1][WIDTH * LEDS_PER_LINE];
   /* horizontalSegment at these 2d indexes refer to the following LED's  (with LEDS_PER_LINE = 2):
    *   [0,0][0,1]   [0,2][0,3]   [0,4][0,5]   [0,6][0,7]   [0,8][0,9]
@@ -75,6 +75,7 @@ int rainbowRate = 5;
 uint32_t clockRefreshTimer = 0;
 uint32_t lastUpdate = 0;
 bool updateSettings = false;
+bool autoEffect = false;
 uint32_t loadingCursorPosition = 0; 
 byte hyphenLength = 0;
 CRGB hyphenColor = CRGB::Black;
@@ -120,131 +121,136 @@ void showLightingEffects() {
     backgroundBrightness = min(max((int)(12.0 * val*val*val * 0.8),2),100); //Clamp between 2 and 100, median 30
     spotlightBrightness = min(max((int)(80*(val*val*val)*2),30),255); //Clamp between 30 and 255, median 160
   }
-  //Spotlights
-  #ifdef SPOTLIGHTPIN // if dedicated spotlight pin
-  switch (spotlightPattern) {
-    case 0: //off
-      solidSpotlightsDedicated(CRGB::Black);break;
-    case 1: //Solid
-      for (int i = 0; i < WIDTH * HEIGHT; i++) spotlightLed[spotlightToLedIndexDedicated(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
-      applySpotlightBrightnessDedicated();
-      break;
-    case 2: //rainbow
-      rainbowSpotlights();
-      applySpotlightBrightnessDedicated();
-      break;
-    case 3: //gradient
-      gradientSpotlights(spotlights[0], spotlights[1]);
-      applySpotlightBrightnessDedicated();
-      break;
-    case 4: //rain
-      rain(30, CRGB::Black, spotlights[0]);
-      dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
-      break;
-    case 5: //sparkle
-      sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
-      dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
-      break;
-    case 6: //fire
-      fire();
-      dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
-      break;
-  }
-  #else
-  switch (spotlightPattern) {
-    case 0: //off
-      solidSpotlights(CRGB::Black);
-      break;
-    case 1: //Solid
-      for (int i = 0; i < WIDTH * HEIGHT; i++) leds[spotlightToLedIndex(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
-      applySpotlightBrightness();
-      break;
-    case 2: //rainbow
-      rainbowSpotlights();
-      applySpotlightBrightness();
-      break;
-    case 3: //gradient
-      gradientSpotlights(spotlights[0], spotlights[1]);
-      applySpotlightBrightness();
-      break;
-    case 4: //rain
-      rain(30, CRGB::Black, spotlights[0]);
-      dimSpotlights(max(spotlightBrightness / 8, 2));
-      break;
-    case 5: //sparkle
-      sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
-      dimSpotlights(max(spotlightBrightness / 8, 2));
-      break;
-    case 6: //fire
-      fire();
-      dimSpotlights(max(spotlightBrightness / 8, 2));
-      break;
-  }
-  #endif
-  //Background
-  switch (backgroundPattern) {
-    case 0: //off
-      solidSegments(CRGB::Black); break;
-    case 1: //solid
-      solidSegments(bg); 
-      dimSegments(255 - backgroundBrightness);
-      break;
-    case 2: //rainbow
-      for (int i = 0; i < NUM_SEGMENTS; i++) rainbowSegment(i, segmentLightingOffset(i)*LEDS_PER_LINE * rainbowRate, rainbowRate);
-      dimSegments(255 - backgroundBrightness);
-      break;
-    case 3: //gradient
-      for (int i = 0; i < NUM_SEGMENTS; i++) gradientSegment(i, bg, bg2);
-      dimSegments(255 - backgroundBrightness);
-      break;
-    case 4: //rain
-      rain(15, bg, CRGB::Black);
-      dimSegments(max(backgroundBrightness / 10, 50));
-      break;
-    case 5: //sparkle
-      sparkle(100 , bg , 0 , NUM_SEGMENTS * LEDS_PER_LINE, 255 - backgroundBrightness); //100 chance seems fine. Note this isnt 100% or 100/255% chance. See sparkle() for how the chance works
-      dimSegments(max(backgroundBrightness / 10, 2));
-      break;
-    case 6: //fire
-      if(spotlightPattern != 6) fire(); //call the effect if it hasnt been called already
-      dimSegments(max(backgroundBrightness / 8, 2));
-      break;
-    case 255: //Loading effect from manual config
-      loadingEffect(bg);
-      dimSpotlights(50);
-      break;
-  }
-  //Foreground
-  switch (foregroundPattern) {
-    case 0:
-      break;//do nothing. Just here to acknowledge this option exists
-    case 1: //solid
-      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
-      #ifdef _12_HR_CLOCK
-      render_clock_to_display(getHour12(), getMinute(), 255 - segmentBrightness);
-      #elif _24_HR_CLOCK
-      render_clock_to_display(getHour24(), getMinute(), 255 - segmentBrightness);
-      #endif
-      clockRefreshTimer++;
-      break;
-    case 2: //rainbow
-      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
-      #ifdef _12_HR_CLOCK
-      render_clock_to_display_rainbow(getHour12(), getMinute(), 255 - segmentBrightness);
-      #elif _24_HR_CLOCK
-      render_clock_to_display_rainbow(getHour24(), getMinute(), 255 - segmentBrightness);
-      #endif
-      clockRefreshTimer++;
-      break;
-    case 3: //gradient
-      if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
-      #ifdef _12_HR_CLOCK
-      render_clock_to_display_gradient(getHour12(), getMinute(), 255 - segmentBrightness);
-      #elif _24_HR_CLOCK
-      render_clock_to_display_gradient(getHour24(), getMinute(), 255 - segmentBrightness);
-      #endif
-      clockRefreshTimer++;
-      break;
+  //If we toggle on time-scheduled effects
+  if(autoEffect) scheduleLighting();
+  //Regular lighting behaviour
+  else{
+    //Spotlights
+    #ifdef SPOTLIGHTPIN // if dedicated spotlight pin
+    switch (spotlightPattern) {
+      case 0: //off
+        solidSpotlightsDedicated(CRGB::Black);break;
+      case 1: //Solid
+        solidUniqueSpotlightsDedicated();
+        applySpotlightBrightnessDedicated();
+        break;
+      case 2: //rainbow
+        rainbowSpotlights();
+        applySpotlightBrightnessDedicated();
+        break;
+      case 3: //gradient
+        gradientSpotlights(spotlights[0], spotlights[1]);
+        applySpotlightBrightnessDedicated();
+        break;
+      case 4: //rain
+        rain(30, CRGB::Black, spotlights[0]);
+        dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
+        break;
+      case 5: //sparkle
+        sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
+        dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
+        break;
+      case 6: //fire
+        fire();
+        dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
+        break;
+    }
+    #else
+    switch (spotlightPattern) {
+      case 0: //off
+        solidSpotlights(CRGB::Black);
+        break;
+      case 1: //Solid
+        solidUniqueSpotlights();
+        applySpotlightBrightness();
+        break;
+      case 2: //rainbow
+        rainbowSpotlights();
+        applySpotlightBrightness();
+        break;
+      case 3: //gradient
+        gradientSpotlights(spotlights[0], spotlights[1]);
+        applySpotlightBrightness();
+        break;
+      case 4: //rain
+        rain(30, CRGB::Black, spotlights[0]);
+        dimSpotlights(max(spotlightBrightness / 8, 2));
+        break;
+      case 5: //sparkle
+        sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
+        dimSpotlights(max(spotlightBrightness / 8, 2));
+        break;
+      case 6: //fire
+        fire();
+        dimSpotlights(max(spotlightBrightness / 8, 2));
+        break;
+    }
+    #endif
+    //Background
+    switch (backgroundPattern) {
+      case 0: //off
+        solidSegments(CRGB::Black); break;
+      case 1: //solid
+        solidSegments(bg); 
+        dimSegments(255 - backgroundBrightness);
+        break;
+      case 2: //rainbow
+        for (int i = 0; i < NUM_SEGMENTS; i++) rainbowSegment(i, segmentLightingOffset(i)*LEDS_PER_LINE * rainbowRate, rainbowRate);
+        dimSegments(255 - backgroundBrightness);
+        break;
+      case 3: //gradient
+        for (int i = 0; i < NUM_SEGMENTS; i++) gradientSegment(i, bg, bg2);
+        dimSegments(255 - backgroundBrightness);
+        break;
+      case 4: //rain
+        rain(15, bg, CRGB::Black);
+        dimSegments(max(backgroundBrightness / 10, 50));
+        break;
+      case 5: //sparkle
+        sparkle(100 , bg , 0 , NUM_SEGMENTS * LEDS_PER_LINE, 255 - backgroundBrightness); //100 chance seems fine. Note this isnt 100% or 100/255% chance. See sparkle() for how the chance works
+        dimSegments(max(backgroundBrightness / 10, 2));
+        break;
+      case 6: //fire
+        if(spotlightPattern != 6) fire(); //call the effect if it hasnt been called already
+        dimSegments(max(backgroundBrightness / 8, 2));
+        break;
+      case 255: //Loading effect from manual config
+        loadingEffect(bg);
+        dimSpotlights(50);
+        break;
+    }
+    //Foreground
+    switch (foregroundPattern) {
+      case 0:
+        break;//do nothing. Just here to acknowledge this option exists
+      case 1: //solid
+        if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+        #ifdef _12_HR_CLOCK
+        render_clock_to_display(getHour12(), getMinute(), 255 - segmentBrightness);
+        #elif _24_HR_CLOCK
+        render_clock_to_display(getHour24(), getMinute(), 255 - segmentBrightness);
+        #endif
+        clockRefreshTimer++;
+        break;
+      case 2: //rainbow
+        if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+        #ifdef _12_HR_CLOCK
+        render_clock_to_display_rainbow(getHour12(), getMinute(), 255 - segmentBrightness);
+        #elif _24_HR_CLOCK
+        render_clock_to_display_rainbow(getHour24(), getMinute(), 255 - segmentBrightness);
+        #endif
+        clockRefreshTimer++;
+        break;
+      case 3: //gradient
+        if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+        #ifdef _12_HR_CLOCK
+        render_clock_to_display_gradient(getHour12(), getMinute(), 255 - segmentBrightness);
+        #elif _24_HR_CLOCK
+        render_clock_to_display_gradient(getHour24(), getMinute(), 255 - segmentBrightness);
+        #endif
+        clockRefreshTimer++;
+        break;
+    }
   }
   //Hyphen segment if enabled
   if(hyphenColor.r != 0 || hyphenColor.g != 0 || hyphenColor.b != 0){
@@ -443,6 +449,14 @@ void solidSpotlights(CRGB color) {
 void solidSpotlightsDedicated(CRGB color) {
   for (int i = 0; i < WIDTH * HEIGHT; i++)
     spotlightLed[i] = color;
+}
+void solidUniqueSpotlights(){
+  for (int i = 0; i < WIDTH * HEIGHT; i++) 
+    spotlightLed[spotlightToLedIndexDedicated(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
+}
+void solidUniqueSpotlightsDedicated(){
+  for (int i = 0; i < WIDTH * HEIGHT; i++) 
+    leds[spotlightToLedIndex(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
 }
 
 void gradientSegment(int segment, CRGB color1, CRGB color2) {gradientSegment(segment, color1, color2, 255);}
@@ -874,6 +888,7 @@ uint8_t sevenSegment(int num) {
     case 8: return (eight);
     case 9: return (nine);
   }
+  return 0;
 }
 void storeUtcOffset(double value){
   EEPROM.begin(512);
@@ -964,6 +979,23 @@ String getCurrentSettings(String seperator){
   return ans;
 }
 
+void shiftLedsByOne(){
+  #ifdef SPOTLIGHTPIN
+    for(int i=NUM_LEDS - (WIDTH*HEIGHT); i > 0 ;i--)
+      leds[i] = leds[i-1];
+    leds[0] = CRGB::Black;
+    for(int i=WIDTH*HEIGHT; i>0 ;i--)
+      spotlightLed[i] = spotlightLed[i-1];
+    spotlightLed[0] = CRGB::Black;
+  #else
+    for(int i=NUM_LEDS; i > 0 ;i--)
+      leds[i] = leds[i-1];
+    leds[0] = CRGB::Black;
+  #endif
+}
+
+int timeToMinutes(int h, int m){return h*60 + m;}
+
 //************************************************//
 //             WebServer Functions                //
 //************************************************//
@@ -1045,12 +1077,22 @@ String numToHex(byte num) {
     case 15:
       return "f";
   }
+  return "0";
 }
 void deleteSettings(){EEPROM.begin(512); EEPROM.write(0,0); EEPROM.commit();}
 
 //************************************************//
 //              Initialize variables              //
 //************************************************//
+void fastLEDInit(){
+  #ifdef SPOTLIGHTPIN
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS - (WIDTH*HEIGHT) + 1).setCorrection(TypicalLEDStrip); 
+  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT+1).setCorrection(TypicalLEDStrip);
+  #else
+  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS+1).setCorrection(TypicalLEDStrip); 
+  #endif
+}
+
 void defaultSettings(){
   Serial.println("Setting options to default settings");
   power = 1;

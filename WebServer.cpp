@@ -33,7 +33,8 @@ void setupWiFi(){
     }
     Serial.print(".");
   }
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  solidSegments(CRGB::Black);
+  solidSpotlights(CRGB::Black);
   Serial.println();
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 }
@@ -130,6 +131,7 @@ void setupServer(){
     bg = color;
     lightingChanges.bg = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -142,6 +144,7 @@ void setupServer(){
     bg2 = color;
     lightingChanges.bg2 = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -154,6 +157,7 @@ void setupServer(){
     h_ten_color = color;
     lightingChanges.h_ten_color = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -166,6 +170,7 @@ void setupServer(){
     h_one_color = color;
     lightingChanges.h_one_color = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -179,6 +184,7 @@ void setupServer(){
     m_ten_color = color;
     lightingChanges.m_ten_color = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -191,6 +197,7 @@ void setupServer(){
     m_one_color = color;
     lightingChanges.m_one_color = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -207,6 +214,7 @@ void setupServer(){
     
     lightingChanges.spotlights[index-1] = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -219,6 +227,7 @@ void setupServer(){
     else if(pattern == "gradient") foregroundPattern = 3;
     lightingChanges.foregroundPattern = true;
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -236,6 +245,7 @@ void setupServer(){
     lightingChanges.backgroundPattern = true;
     clearLightingCache();
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -252,6 +262,7 @@ void setupServer(){
     lightingChanges.spotlightPattern = true;
     clearLightingCache();
     lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
@@ -261,7 +272,7 @@ void setupServer(){
     setNewOffset();
     webServer.send(200, "text/plain", "1");
   });
-  
+   
   webServer.on("/cmd", HTTP_GET, []() {
     String command = webServer.arg("c");
     String val = webServer.arg("v");
@@ -270,10 +281,11 @@ void setupServer(){
                                         "utcoffset ## - Set UTF offset in hours for clock [current offset: " + String(getOffset()) + "]<br>" +
                                         "rainbowrate ## - Set how rainbowy the rainbow is [current rate: " + String(rainbowRate) + "]<br>" +
                                         "fps ## - Sets frames per second [current rate: " + String(FRAMES_PER_SECOND) + "]<br>" +
-                                        "reset - Reset all settings<br>" +
-                                        "resetprofile - Reset lighting settings<br>" +
+                                        "effecttimer ## - Turns on or off scheduled time configurations. [current value: " + String(autoEffect) + "]<br>" +
                                         "hyphen ## - Sets the length of the hyphen seperator. 0 Disables hyphen. [current length: " + String(hyphenLength) + "]<br>" +
                                         "hyphencolor HEX - Sets the hyphen color (format should be RRGGBB in hex, like FFA400). [current color: " + String(crgbToCss(hyphenColor)) + "]<br>" +
+                                        "reset - Reset all settings<br>" +
+                                        "resetprofile - Reset lighting settings<br>" +
                                         "save - Saves all current settings<br>" +
                                         "reboot - Reboots the device after 3 seconds" 
                                         ));
@@ -317,6 +329,9 @@ void setupServer(){
       lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
       updateSettings = true;
       webServer.send(200, "text/plain", "Set hyphen color to " + String(crgbToCss(hyphenColor)));
+    }else if(command="effecttimer"){
+      autoEffect = (val.toInt() != 0); //force bool cast
+      webServer.send(200, "text/plain", "Set effecttimer to " + String(autoEffect));
     }else if(command=="save"){
       saveAllSettings();
       webServer.send(200, "text/plain", "Saved Settings");

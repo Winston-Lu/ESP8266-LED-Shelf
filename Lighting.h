@@ -13,8 +13,6 @@ const int PROGMEM NUM_LEDS = LEDS_PER_LINE * (2*WIDTH*HEIGHT + WIDTH + HEIGHT) +
 const int PROGMEM NUM_SEGMENTS = 2*WIDTH*HEIGHT + WIDTH + HEIGHT;
 
 //Love me some global variables
-extern CRGB leds[NUM_LEDS];
-extern CRGB spotlightLed[WIDTH*HEIGHT]; //dedicated spotlight array if on seperate pin
 extern int rainbowRate;
 extern uint32_t lastUpdate;
 extern bool updateSettings;
@@ -51,6 +49,7 @@ extern changelist lightingChanges;
 //Web-Server global variables
 extern int power;
 extern boolean autobrightness;
+extern boolean autoEffect;
 extern CRGB h_ten_color;
 extern CRGB h_one_color;
 extern CRGB m_ten_color;
@@ -63,6 +62,7 @@ extern byte spotlightPattern;
 extern bool updateSettings;
 extern byte hyphenLength;
 extern CRGB hyphenColor;
+extern uint32_t clockRefreshTimer; 
 
 //Display Functions
 void clearDisplay();
@@ -93,6 +93,8 @@ void setSpotlightColor(int index, CRGB color);
 void solidSegments(CRGB color);
 void solidSpotlights(CRGB color);
 void solidSpotlightsDedicated(CRGB color);
+void solidUniqueSpotlights();
+void solidUniqueSpotlightsDedicated();
 void gradientSegment(int segment, CRGB color1, CRGB color2);
 void gradientSegment(int segment, CRGB color1, CRGB color2, byte transparency);
 void gradientSpotlights(CRGB color1, CRGB color2);
@@ -120,6 +122,8 @@ void saveAllSettings();
 double getUtcOffset();
 void clearLightingCache();
 String getCurrentSettings(String seperator);
+void shiftLedsByOne();
+int timeToMinutes(int h, int m);
 
 //Web-Server Functions
 String parseSettings();
@@ -135,6 +139,7 @@ String numToHex(byte num);
 void deleteSettings();
 
 //Initialization function
+void fastLEDInit();
 void defaultSettings();
 void lightingInit();
 void showLights();
