@@ -44,6 +44,7 @@ Rainbow clock with solid background and 1 pixel wide hyphen | Rainbow Everything
 * Support for 24-hour format
   * (Mostly untested) Requires some configuration modifications (See **Setting to 24hr layout** below). Should work fine since the code would break for the 12hr version if the 24hr version wouldn't also work due to the less readable but modular code
 * Expandable to larger shelf sizes
+* Scheduling effects/brightnesses for different times of day
 
 This should work if you decide to not add spotlight LED's. I kept the more common configuration changes such as lighting effects easily accessable from the web-server, while less common configurations such as changing UTF offset for daylight savings for timezones or setting FPS as a webserver command. Other typically non-changing variables such as the # of LEDS, display width/height, and others are coded in `Config.h`. The configurations are persistent on restart, so all effects will be saved on a power loss or restart.
 
