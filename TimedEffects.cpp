@@ -102,6 +102,42 @@ void scheduleLighting(){
     //---------------------------------------------------------------------//
   }
   //Add other timed effects below here
+
+
+
+
+
+
+
+
+
+
+  //------------------------------------//
+  else{ //If a timeframe has not been specified, fall back to this setup
+    const byte spotEffect = 2; //rainbow
+    CRGB slcolor1 = CRGB(0,0,0); //Wont affect the rainbow, just here for the function parameters
+    CRGB slcolor2 = CRGB(0,0,0); 
+    spotBrightness = 100;
+    const byte bgEffect = 2;
+    CRGB bgcolor1 = CRGB(0,0,0); //Wont affect the background
+    CRGB bgcolor2 = CRGB(0,0,0);
+    bgBrightness = 30;
+    const byte segEffect = 1;
+    CRGB segcolor1 = CRGB(255,255,255); //White
+    CRGB segcolor2 = CRGB(255,255,255); //White
+    CRGB segcolor3 = CRGB(0,255,255); //Cyan
+    CRGB segcolor4 = CRGB(0,255,255); //Cyan
+    segBrightness = 60;
+    setSpotlightBrightness(spotBrightness); //0-255. 0 is off, 255 is full brightness
+    setBackgroundBrightness(bgBrightness); //0-255. 0 is off, 255 is full brightness
+    setSegmentBrightness(segBrightness); //0-255. 0 is off, 255 is full brightness
+    setSpotlightEffect(spotEffect,slcolor1,slcolor2);
+    applyAutoSpotlightBrightness(spotEffect); 
+    setSpotlightEffect(bgEffect,bgcolor1,bgcolor2);
+    applyAutoSpotlightBrightness(bgEffect);  
+    setSegmentEffect(segEffect,segcolor1,segcolor2,segcolor3,segcolor4);
+    //---------------------------------------------------------------------//
+  }
 }
 
 void applyAutoSpotlightBrightness(byte effect){
