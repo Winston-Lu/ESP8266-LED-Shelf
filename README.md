@@ -49,6 +49,11 @@ This should work if you decide to not add spotlight LED's. I kept the more commo
 
 This thing runs at 30+ fps relatively consistently. It usually runs at 60+ fps, but if you choose the heaviest load with gradient everything, it gets fairly computationally heavy and unoptimized. This is at 80MHz CPU, so you can get higher FPS with 160MHz. Note that all effect speeds are framerate reliant, so speeding up the FPS makes the effects faster
 
+# Dependencies
+You would need to have the following libraries:
+* FastLED
+* LittleFS 
+
 
 # Configuration
 
