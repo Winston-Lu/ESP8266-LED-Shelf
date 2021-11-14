@@ -6,7 +6,7 @@
 #define LEDS_PER_LINE 9
 #define MILLI_AMPS 5500 // Set the max milli-Amps of your power supply 
 
-//Enable sacrifice LED. The first LED can sometimes flash inconsistently for reasons currently unknown, so
+//Enable sacrifice LED. The first LED can sometimes flash inconsistently when WiFi events happen for some reason, so
 // enabling this will allow a 'dummy' LED be the sacrifice LED to take in the bad data and provide the sequential
 // LED's with valid data
 //#define SACRIFICELED //comment out to disable
@@ -17,7 +17,7 @@
 
 #define LIGHT_SENSOR  17 //A0
 #define DATAPIN       15 //15 = D8 on a NodeMCU
-#define SPOTLIGHTPIN  4 //4 = D2 on a NodeMCU. Uncomment if you use a seperate pin for spotlights
+//#define SPOTLIGHTPIN  4 //4 = D2 on a NodeMCU. Uncomment if you use a seperate pin for spotlights
 #define LED_TYPE      WS2812B
 #define COLOR_ORDER   GRB
 
