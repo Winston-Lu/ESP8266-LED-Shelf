@@ -69,5 +69,6 @@ void loop() {
   }
   
   // insert a delay to maintain framerate. Also does FastLED.show()
+  FastLED.show();
   FastLED.delay(1000 / FRAMES_PER_SECOND);
 }
