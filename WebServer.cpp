@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
 #include <ESP8266mDNS.h>
 #include <FastLED.h>
 #include <LittleFS.h> //for file system
@@ -18,7 +17,8 @@ IPAddress primaryDNS(8,8,8,8);
 IPAddress secondaryDNS(8,8,4,4);
 
 ESP8266WebServer webServer(80);
-ESP8266HTTPUpdateServer httpUpdateServer;
+
+const String deviceName = "ledshelf";
 
 void setupWiFi(){
   if (!WiFi.config(ip, gateway, subnet, primaryDNS, secondaryDNS)) {Serial.println("STA Failed to configure");}  
@@ -33,36 +33,48 @@ void setupWiFi(){
     }
     Serial.print(".");
   }
+  Serial.println();
+  if(MDNS.begin("deviceName")){
+    Serial.print("mDNS set up. You can connect to "); 
+    Serial.print(deviceName) ;
+    Serial.println(".local to connect instead of the IP");
+  }else{
+    Serial.println("mDNS failed to setup. You must connect using the device IP.");
+  }
   solidSegments(CRGB::Black);
   #ifdef SPOTLIGHTPIN
   solidSpotlightsDedicated(CRGB::Black);
   #else
   solidSpotlights(CRGB::Black);
   #endif
-  Serial.println();
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 }
 
 void updateServer(){
   webServer.handleClient();
   
-  static bool hasConnected = false;
-  EVERY_N_SECONDS(1) {
+  static bool hasConnected = true;
+  EVERY_N_SECONDS(30) {
     if (WiFi.status() != WL_CONNECTED) {hasConnected = false;}
     else if (!hasConnected) {
       hasConnected = true;
       webServer.begin();
-      Serial.println("HTTP web server started");
-      Serial.print("Connected! Open http://");
+      Serial.println("HTTP web server reconnected");
+      Serial.print("Reconnected! Open http://");
       Serial.print(WiFi.localIP());
       Serial.println(" in your browser");
+      if(MDNS.begin("deviceName")){
+        Serial.print("mDNS set up. You can connect to "); 
+        Serial.print(deviceName) ;
+        Serial.println(".local to connect instead of the IP");
+      }else{
+        Serial.println("mDNS failed to setup. You must connect using the device IP.");
+      }
     }
   }
 }
 
 void setupServer(){
-  httpUpdateServer.setup(&webServer);
-
   //Runs when site is loaded
   webServer.on("/getsettings", HTTP_GET, []() {
     String value = parseSettings();
