@@ -15,14 +15,11 @@ void setup(){
   for(int i=0;i<10;i++) random16_add_entropy(random(65535));
   
   //FastLED Setup
-  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); 
-  #ifdef SPOTLIGHTPIN
-  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT).setCorrection(TypicalLEDStrip);
-  #endif
+  fastLEDInit();
   FastLED.setDither(false);
   FastLED.setBrightness(255);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
-  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  solidSegments(CRGB::Black);
   
   Serial.println("Initializing data structures for lighting effects");
   lightingInit();
