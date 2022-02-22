@@ -150,7 +150,7 @@ void showLights();
   const uint32_t PROGMEM ones_h[7] = {1,WIDTH+1,WIDTH+2,2*WIDTH+1,3*WIDTH+1,3*WIDTH+2,4*WIDTH+1};
   const uint32_t PROGMEM tens_m[7] = {3,WIDTH+3,WIDTH+4,2*WIDTH+3,3*WIDTH+3,3*WIDTH+4,4*WIDTH+3};
   const uint32_t PROGMEM ones_m[7] = {5,WIDTH+5,WIDTH+6,2*WIDTH+5,3*WIDTH+5,3*WIDTH+6,4*WIDTH+5};
-#elif _24_HR_CLOCK
+#elif defined(_24_HR_CLOCK)
   const uint32_t PROGMEM tens_h[7] = {0,WIDTH  ,WIDTH+1,2*WIDTH  ,3*WIDTH  ,3*WIDTH+1,4*WIDTH  };
   const uint32_t PROGMEM ones_h[7] = {2,WIDTH+2,WIDTH+3,2*WIDTH+2,3*WIDTH+2,3*WIDTH+3,4*WIDTH+2};
   const uint32_t PROGMEM tens_m[7] = {4,WIDTH+4,WIDTH+5,2*WIDTH+4,3*WIDTH+4,3*WIDTH+5,4*WIDTH+4};

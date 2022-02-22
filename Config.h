@@ -12,8 +12,8 @@
 //#define SACRIFICELED //comment out to disable
 
 //Clock format
-#define _12_HR_CLOCK
-//#define _24_HR_CLOCK
+//#define _12_HR_CLOCK
+#define _24_HR_CLOCK
 
 #define LIGHT_SENSOR  17 //A0
 #define DATAPIN       15 //15 = D8 on a NodeMCU
@@ -114,7 +114,7 @@ const byte segmentBrightnessCompensation[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 #ifdef _12_HR_CLOCK
   #define WIDTH 6 
   #define HEIGHT 2
-#elif  _24_HR_CLOCK
+#elif  defined(_24_HR_CLOCK)
   #define WIDTH 7 
   #define HEIGHT 2
 #else

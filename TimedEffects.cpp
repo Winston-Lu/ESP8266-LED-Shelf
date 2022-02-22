@@ -228,7 +228,7 @@ void setSegmentEffect(byte effect, CRGB c1, CRGB c2, CRGB c3, CRGB c4){
         if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display(getHour12(), getMinute(), 255 - segBrightness);
-        #elif _24_HR_CLOCK
+        #elif defined(_24_HR_CLOCK)
         render_clock_to_display(getHour24(), getMinute(), 255 - segBrightness);
         #endif
         clockRefreshTimer++;
@@ -237,7 +237,7 @@ void setSegmentEffect(byte effect, CRGB c1, CRGB c2, CRGB c3, CRGB c4){
         if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display_rainbow(getHour12(), getMinute(), 255 - segBrightness);
-        #elif _24_HR_CLOCK
+        #elif defined(_24_HR_CLOCK)
         render_clock_to_display_rainbow(getHour24(), getMinute(), 255 - segBrightness);
         #endif
         clockRefreshTimer++;
@@ -246,7 +246,7 @@ void setSegmentEffect(byte effect, CRGB c1, CRGB c2, CRGB c3, CRGB c4){
         if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display_gradient(getHour12(), getMinute(), 255 - segBrightness);
-        #elif _24_HR_CLOCK
+        #elif defined(_24_HR_CLOCK)
         render_clock_to_display_gradient(getHour24(), getMinute(), 255 - segBrightness);
         #endif
         clockRefreshTimer++;

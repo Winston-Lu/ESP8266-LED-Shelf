@@ -227,7 +227,7 @@ void showLightingEffects() {
         if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display(getHour12(), getMinute(), 255 - segmentBrightness);
-        #elif _24_HR_CLOCK
+        #elif defined(_24_HR_CLOCK)
         render_clock_to_display(getHour24(), getMinute(), 255 - segmentBrightness);
         #endif
         clockRefreshTimer++;
@@ -236,7 +236,7 @@ void showLightingEffects() {
         if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display_rainbow(getHour12(), getMinute(), 255 - segmentBrightness);
-        #elif _24_HR_CLOCK
+        #elif defined(_24_HR_CLOCK)
         render_clock_to_display_rainbow(getHour24(), getMinute(), 255 - segmentBrightness);
         #endif
         clockRefreshTimer++;
@@ -245,7 +245,7 @@ void showLightingEffects() {
         if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display_gradient(getHour12(), getMinute(), 255 - segmentBrightness);
-        #elif _24_HR_CLOCK
+        #elif defined(_24_HR_CLOCK)
         render_clock_to_display_gradient(getHour24(), getMinute(), 255 - segmentBrightness);
         #endif
         clockRefreshTimer++;
