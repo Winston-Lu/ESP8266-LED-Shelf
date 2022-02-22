@@ -130,6 +130,9 @@ ip | Static IP Configuration so you can connect using a 192.168.#.# address
 gateway | IP address of your router
 subnet | Subnet address of your home address. If you don't know what this is, you probably wont need to touch it
 
+## Other Config Recommendations
+When the Wi-Fi module sends/recieves data, it flashes the first LED in the strip. I am unable to trace exactly where this is coming from, so I recommond having a sacrifical "Wi-Fi status" LED right before the strip. All you need to do is uncomment the `#define SACRIFICELED` line to enable. Otherwise, the flashing should be fairly infrequent except for NTP time updates and webserver actions.
+
 
 
 # Setting up the ESP8266
