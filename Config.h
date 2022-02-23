@@ -25,6 +25,9 @@
 
 #define EEPROM_UPDATE_DELAY 15 //in seconds so we dont update constantly to prolong EEPROM lifespan. We will write to EEPROM after this many seconds if a change has been made
 
+//If we need to clear EEPROM. Recommended to clear EEPROM before the first run, comment out after
+//#define RESET_EEPROM
+
 extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
                                 // Originally constant, but can be changed using commands
 

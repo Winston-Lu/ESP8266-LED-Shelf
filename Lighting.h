@@ -118,6 +118,7 @@ CRGB dimColor(CRGB color,byte amount);
 uint8_t sevenSegment(int num);
 void storeEEPROM();
 void storeUtcOffset(double value);
+void resetEEPROM();
 void saveAllSettings();
 double getUtcOffset();
 void clearLightingCache();

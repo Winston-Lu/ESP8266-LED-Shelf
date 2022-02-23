@@ -14,6 +14,11 @@ void setup(){
   random16_add_entropy((uint16_t)random16());
   for(int i=0;i<10;i++) random16_add_entropy(random(65535));
   
+  //Wipe EEPROM if specified
+  #ifdef RESET_EEPROM
+  resetEEPROM();
+  #endif
+  
   //FastLED Setup
   fastLEDInit();
   FastLED.setDither(false);

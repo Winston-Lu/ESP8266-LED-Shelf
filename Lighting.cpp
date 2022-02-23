@@ -904,6 +904,20 @@ double getUtcOffset(){
   Serial.println("UTC Offset: " + String(ans/60));
   return (ans/60.0);
 }
+
+void resetEEPROM(){
+  Serial.println("RESETTING EEPROM TO 0'S. ALL EEPROM SETTINGS WILL BE WIPED");
+  EEPROM.begin(512);
+  for(int i=0;i<512;i++)
+    EEPROM.write(i,0);
+  EEPROM.commit();
+  Serial.println("EEPROM data:");
+  for(int i=0;i<512;i++){
+    Serial.print(String(EEPROM.read(i)) + " ");
+    if(i%32==31) Serial.println();
+  }
+  Serial.println();
+}
 void saveAllSettings(){
   lightingChanges.power = true;
   lightingChanges.foregroundTransparency = true;
@@ -1118,6 +1132,8 @@ void defaultSettings(){
   FRAMES_PER_SECOND = 30;
   hyphenLength = 0;
   hyphenColor = CRGB::Black;
+  utcOffset = 0;
+  setNewOffset();
 }
 
 void loadEEPROM(){
