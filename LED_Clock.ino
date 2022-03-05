@@ -42,10 +42,10 @@ void setup(){
   //WiFi Setup
   Serial.println("Setting up Wi-Fi");
   setupWiFi();
-  Serial.println("Showing lights");
-  showLightingEffects();
   Serial.println("Initializing real-time clock...");
   initClock();
+  Serial.println("Showing lights");
+  showLightingEffects();
   Serial.println("Getting webserver started...");
   setupServer();
 }

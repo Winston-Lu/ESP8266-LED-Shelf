@@ -10,15 +10,12 @@ double utcOffset;
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", (int)(utcOffset*3600));
+NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
 void initClock(){
+  timeClient.begin();
   utcOffset = getUtcOffset();
   setNewOffset();
-  Serial.println("Timeclient starting...");
-  Serial.println(utcOffset);
-  timeClient.begin();
-  Serial.println("updating time");
   updateTime();
   Serial.println("Time updated");
 }

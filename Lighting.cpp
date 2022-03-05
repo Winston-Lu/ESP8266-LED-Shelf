@@ -414,9 +414,14 @@ void render_clock_to_display_gradient(int h, int m, byte dim) {
 //                 Color Effects                  //
 //************************************************//
 
+//convert from abstract segment index to wiring LED positions
+//Segment index 1 should be the first horizontal segment in the top-left, but may not be the segment
+//  that is wired first to the ESP. This function gets that abstract index, references it with how
+//  the segment is wired according to segmentWiringOrder in Config.h, then sets that segments colour
+//  to the colour specified in the parameter.
 void setSegmentColor(int segment, CRGB color) {
-  stripSegment = segmentToLedIndex(segment); //convert from abstract segment index to wiring LED positions
   if (segment == -1) return;
+  stripSegment = segmentToLedIndex(segment); 
   if (stripSegment.reverse && stripSegment.start != -1) {
     for (int i = 0; i < LEDS_PER_LINE; i++) {
       leds[stripSegment.start - i] = color;
@@ -428,6 +433,9 @@ void setSegmentColor(int segment, CRGB color) {
   }
 }
 
+//Adds a translucent colour layer on top of the existing colour for that LED segment.
+//Used for effects such as clock transparency where we may not want the clock to be a solid colour,
+//  but instead a translucent layer that the background effect can still show under.
 void addSegmentColor(int segment, CRGB color, byte transparency) {
   if (segment == -1) return;
   stripSegment = segmentToLedIndex(segment); //convert from abstract segment index to wiring LED positions
@@ -474,6 +482,10 @@ void solidUniqueSpotlightsDedicated(){
     leds[spotlightToLedIndex(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
 }
 
+//Creates a gradient segment. transparency=255 is solid, 0 is transparent
+//colour1 is the colour in the top left, colour2 is the colour in the bottom right
+//This function then regresses the gradient direction and colour shift based on the segment
+//  index position
 void gradientSegment(int segment, CRGB color1, CRGB color2) {gradientSegment(segment, color1, color2, 255);}
 void gradientSegment(int segment, CRGB color1, CRGB color2, byte transparency) {
   const int maxLedVal = (WIDTH + HEIGHT) * LEDS_PER_LINE; //max value to use for division
@@ -837,9 +849,9 @@ byte segmentLightingOffset(int index) {
   }
 }
 
+//Map from the abstracted segment index to the actual wiring index
+//  based on the data set in the segmentWiringOrder array in Config.h
 strip segmentToLedIndex(int index) {
-  //map from the abstracted segment index to the actual wiring index
-  //go through entire segmentWiringOrder array
   for (int i = 0; i < sizeof(segmentWiringOrder) / sizeof(int); i++) {
     //If at the segmentWiringOrder index, we find the index of the abstracted segment index, return the wiring position
     if (abs(segmentWiringOrder[i]) - 1 == index) { //subtract 1 since we start at 1 (0 cant be given a positive or negative sign)
@@ -859,21 +871,13 @@ strip segmentToLedIndex(int index) {
   return (convert);
 }
 
+//Map from the abstracted spotlight index to the actual wiring index
+//  based on the data set in the spotlightWiringOrder array in Config.h
 int spotlightToLedIndex(int index) {
   for(int i=0;i<WIDTH*HEIGHT;i++){
     if(spotlightWiringOrder[i] == index) return(NUM_SEGMENTS * LEDS_PER_LINE + i);
   }
   return -1;
-  
-  //Assume zig-zag wiring (Works for wiring that I did, but this algoritm is hard coded)
-//  if ((index / WIDTH) % 2 == 0) { //forward direction
-//    //        spotlight offset         +   vertical offset   +  index
-//    return (NUM_SEGMENTS * LEDS_PER_LINE + (index / WIDTH) * WIDTH + index);
-//  } else { //reverse direction
-//    //        spotlight offset         +   vertical offset   +   reverse index
-//    return (NUM_SEGMENTS * LEDS_PER_LINE + (index / WIDTH) * WIDTH + WIDTH - index % WIDTH - 1);
-//  }
-
 }
 int spotlightToLedIndexDedicated(int index) {
   for(int i=0;i<WIDTH*HEIGHT;i++){
@@ -882,6 +886,7 @@ int spotlightToLedIndexDedicated(int index) {
   return -1;
 }
 
+//Shift the colour closer to black. amount=0 does not change anything, 255 sets the colour to bnlack
 CRGB dimColor(CRGB color, byte amount) {
   CRGB newColor;
   newColor.red   = (byte)(color.red  * (1 - amount / 255.0));
@@ -890,6 +895,8 @@ CRGB dimColor(CRGB color, byte amount) {
   return newColor;
 }
 
+//Convert the integer digit to a byte containing which segments to light
+//  up to display that digit.
 uint8_t sevenSegment(int num) {
   switch (num) {
     case 0: return (zero);
@@ -905,6 +912,8 @@ uint8_t sevenSegment(int num) {
   }
   return 0;
 }
+
+//Save UTC offset data to emulated EEPROM
 void storeUtcOffset(double value){
   EEPROM.begin(512);
   int16_t toStore = (int16_t)value*60; //store in minutes
@@ -915,7 +924,7 @@ void storeUtcOffset(double value){
 
 double getUtcOffset(){
   EEPROM.begin(512);
-  int16_t ans = EEPROM.read(1)*256 + EEPROM.read(2);
+  int16_t ans = EEPROM.read(1)<<8 + EEPROM.read(2);
   Serial.println("UTC Offset: " + String(ans/60));
   return (ans/60.0);
 }
@@ -933,6 +942,8 @@ void resetEEPROM(){
   }
   Serial.println();
 }
+
+//Stage all settings to be saved to EEPROM
 void saveAllSettings(){
   lightingChanges.power = true;
   lightingChanges.foregroundTransparency = true;
@@ -962,7 +973,7 @@ void saveAllSettings(){
 }
 
 void clearLightingCache(){
-  //Clear TTL cache
+  //Clear TTL cache (Time to live, for effects like rain)
   for(int y=0;y<HEIGHT;y++){
     for(int x=0;x<WIDTH*LEDS_PER_LINE;x++){
       grid2d.horizontalLedTTL[y][x] = 0;
@@ -981,6 +992,7 @@ void clearLightingCache(){
   solidSegments(CRGB::Black);
 }
 
+//Debug settings
 String getCurrentSettings(String seperator){
   String ans = "Power: " + String(power ? "On" : "Off") + seperator;
   ans +=  "Foreground Transparency: " + String(foregroundTransparency*100/255) + "%" + seperator;
@@ -1008,6 +1020,7 @@ String getCurrentSettings(String seperator){
   return ans;
 }
 
+//Used to shift LEDs colours by 1 to accomidate a sacrificial LED
 void shiftLedsByOne(){
   #ifdef SPOTLIGHTPIN
     for(int i=NUM_LEDS - (WIDTH*HEIGHT); i > 0 ;i--)
@@ -1081,6 +1094,7 @@ String parseSettings() {
   Serial.println("Done getting settings");
   return settings;
 }
+//Webserver function calls
 void setSegmentBrightness(byte brightness)    {segmentBrightness    = brightness;}
 void setSpotlightBrightness(byte brightness)  {spotlightBrightness  = brightness;}
 void setBackgroundBrightness(byte brightness) {backgroundBrightness = brightness;}
@@ -1114,11 +1128,9 @@ void deleteSettings(){EEPROM.begin(512); EEPROM.write(0,0); EEPROM.commit();}
 //              Initialize variables              //
 //************************************************//
 void fastLEDInit(){
-  #ifdef SPOTLIGHTPIN
-  FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS - (WIDTH*HEIGHT) + 1).setCorrection(TypicalLEDStrip); 
-  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT+1).setCorrection(TypicalLEDStrip);
-  #else
   FastLED.addLeds<LED_TYPE, DATAPIN, COLOR_ORDER>(leds, NUM_LEDS+1).setCorrection(TypicalLEDStrip); 
+  #ifdef SPOTLIGHTPIN
+  FastLED.addLeds<LED_TYPE, SPOTLIGHTPIN, COLOR_ORDER>(spotlightLed, WIDTH*HEIGHT+1).setCorrection(TypicalLEDStrip);
   #endif
 }
 
@@ -1137,7 +1149,11 @@ void defaultSettings(){
   bg = CRGB::Gray;
   bg2 = CRGB::White;
   for(int i=0;i<WIDTH*HEIGHT;i++){
+    #ifdef SPOTLIGHTPIN
+    spotlightLed[i] = CRGB::White;
+    #elif
     leds[spotlightToLedIndex(i)] = CRGB::White;
+    #endif
     spotlights[i] = CRGB::White;
   }
   foregroundPattern = 1;
