@@ -15,6 +15,10 @@
 //#define _12_HR_CLOCK
 #define _24_HR_CLOCK
 
+//Show leading zeros in time. Will show 01:25 instead of 1:25 if set to true. 
+//If commented out, default is true for 24hr format, false for 12hr format
+//#define DISPLAY_ZERO_IN_TENS_DIGIT true; 
+
 #define LIGHT_SENSOR  17 //A0
 #define DATAPIN       15 //15 = D8 on a NodeMCU
 #define SPOTLIGHTPIN  4 //4 = D2 on a NodeMCU. Uncomment if you use a seperate pin for spotlights
@@ -45,6 +49,7 @@ extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Acce
   const int PROGMEM m_ten[] = {3,9,10,16,22,23,29};
   const int PROGMEM h_one[] = {1,7,8,14,20,21,27};
   const int PROGMEM h_ten[] = {-1,-1,6,-1,-1,19,-1}; //-1 means undefined since 12hr doesnt have this segment
+
 #endif
 #ifdef _24_HR_CLOCK
   //1-indexed
@@ -117,9 +122,15 @@ const byte segmentBrightnessCompensation[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 #ifdef _12_HR_CLOCK
   #define WIDTH 6 
   #define HEIGHT 2
-#elif  defined(_24_HR_CLOCK)
+  #ifndef DISPLAY_ZERO_IN_TENS_DIGIT
+  #define DISPLAY_ZERO_IN_TENS_DIGIT false;
+  #endif
+#elif defined(_24_HR_CLOCK)
   #define WIDTH 7 
   #define HEIGHT 2
+  #ifndef DISPLAY_ZERO_IN_TENS_DIGIT
+  #define DISPLAY_ZERO_IN_TENS_DIGIT true;
+  #endif
 #else
   #warning "Some settings not work, Time format not selected. Define your own WIDTH, HEIGHT, wiring orders, and segments in Config.h if you have custom dimensions"
   #warning "Defaulting to 12 hour format"

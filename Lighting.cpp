@@ -326,7 +326,7 @@ void render_clock_to_display(int h, int m, byte dim) {
   //Set the digits we want to the color
   for (int i = 0; i < 7; i++) {
     //Change hours tens LEDS
-    if (light_tens_h & 0b01000000 >> i && h/10) { //use bitmask to see if the segment is supposed to be on for that digit
+    if (light_tens_h & 0b01000000 >> i && (h/10 || DISPLAY_ZERO_IN_TENS_DIGIT)) { //use bitmask to see if the segment is supposed to be on for that digit
       CRGB segmentColor = dimColor(h_ten_color, dim);
       addSegmentColor(h_ten[i], segmentColor, foregroundTransparency);
     }
@@ -357,7 +357,7 @@ void render_clock_to_display_rainbow(int h, int m, byte dim) {
   //Set the digits we want to the color
   for (int i = 0; i < 7; i++) {
     //Change hours tens LEDS
-    if (light_tens_h & 0b01000000 >> i && h/10 ) { //use bitmask to see if the segment is supposed to be on for that digit
+    if (light_tens_h & 0b01000000 >> i && (h/10 || DISPLAY_ZERO_IN_TENS_DIGIT) ) { //use bitmask to see if the segment is supposed to be on for that digit
       rainbowSegment(h_ten[i], (byte)segmentLightingOffset(h_ten[i])*rainbowRate * LEDS_PER_LINE, rainbowRate, foregroundTransparency);
       dimSegment(h_ten[i], dim);
     }
@@ -388,7 +388,7 @@ void render_clock_to_display_gradient(int h, int m, byte dim) {
   //Set the digits we want to the color
   for (int i = 0; i < 7; i++) {
     //Change hours tens LEDS
-    if (light_tens_h & 0b01000000 >> i && h/10) { //use bitmask to see if the segment is supposed to be on for that digit
+    if (light_tens_h & 0b01000000 >> i && (h/10 || DISPLAY_ZERO_IN_TENS_DIGIT)) { //use bitmask to see if the segment is supposed to be on for that digit
       gradientSegment(h_ten[i], h_ten_color, h_one_color, foregroundTransparency);
       dimSegment(h_ten[i], dim);
     }
