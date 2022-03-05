@@ -52,11 +52,14 @@ void setup(){
 
 uint16_t counter = 0;
 void loop() {
+  //Track FPS
   if (counter==FRAMES_PER_SECOND*5) frameStart = micros();
-  
+
+  //Pretty much the only 2 lines that get called aside from the last 2 FastLED calls
   updateServer();
   showLightingEffects();
-  
+
+  //Track FPS
   if(counter>=FRAMES_PER_SECOND*5){
     unsigned long microsecondsPerFrame = micros()-frameStart;
     char buff[60];
@@ -65,7 +68,8 @@ void loop() {
     counter = 0;
   }
   counter++;
-  
+
+  //Track EEPROM updates
   lastUpdate++;
   if(lastUpdate >= EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND && updateSettings){
     lastUpdate = 0;
@@ -73,7 +77,7 @@ void loop() {
     storeEEPROM();
   }
   
-  // insert a delay to maintain framerate. Also does FastLED.show()
+  // insert a delay to maintain framerate.
   FastLED.show();
   FastLED.delay(1000 / FRAMES_PER_SECOND);
 }

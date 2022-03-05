@@ -141,19 +141,6 @@ void scheduleLighting(){
 }
 
 void applyAutoSpotlightBrightness(byte effect){
-  #ifdef SPOTLIGHTPIN // if dedicated spotlight pin
-  switch(effect){
-    case 0: case 1: case 2: case 3:
-      setSpotlightBrightness(spotBrightness);
-      applySpotlightBrightnessDedicated(); break;
-    case 4: 
-      dimSpotlightsDedicated(rainDimmingSpot()); break;
-    case 5: 
-      dimSpotlightsDedicated(sparkleDimmingSpot()); break;
-    case 6:
-      dimSpotlightsDedicated(fireDimmingSpot()); break;
-  }
-  #else
   switch(effect){
     case 0: case 1: case 2: case 3:
       setSpotlightBrightness(spotBrightness);
@@ -165,7 +152,6 @@ void applyAutoSpotlightBrightness(byte effect){
     case 6:
       dimSpotlights(fireDimmingSpot()); break;
   }
-  #endif
 }
 void applyAutoBackgroundBrightness(byte effect){
   switch(effect){
@@ -183,27 +169,15 @@ void applyAutoBackgroundBrightness(byte effect){
 }
 
 void setSpotlightEffect(byte effect, CRGB c1, CRGB c2){
-  #ifdef SPOTLIGHTPIN // if dedicated spotlight pin
-    switch (effect) {
-      case 0: solidSpotlightsDedicated(c1); break;
-      case 1: solidUniqueSpotlightsDedicated(); break;
-      case 2: rainbowSpotlights(); break;
-      case 3: gradientSpotlights(c1, c2);break;
-      case 4: rain(30, CRGB::Black, c1); break; //note that 30 is the threshold for spawning. A random number (0-128) is subtracted from that number per frame until it can no longer be subtracted to stay >0.
-      case 5: sparkle(10 , c1 , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotBrightness); break; //note that 10 is the threshold for spawning. A random number (0-128) is subtracted from that number per frame until it can no longer be subtracted to stay >0.
-      case 6: fire(); break;
-    }
-    #else
-    switch (spotlightPattern) {
-      case 0: solidSpotlights(c1); break;
-      case 1: solidUniqueSpotlights(); break;
-      case 2: rainbowSpotlights(); break;
-      case 3: gradientSpotlights(c1, c2); break;
-      case 4: rain(30, CRGB::Black, c1); break; //note that 30 is the threshold for spawning. A random number (0-128) is subtracted from that number per frame until it can no longer be subtracted to stay >0.
-      case 5: sparkle(10 , c1 , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotBrightness); break; //note that 10 is the threshold for spawning. A random number (0-128) is subtracted from that number per frame until it can no longer be subtracted to stay >0.
-      case 6: fire() ;break;
-    }
-    #endif
+  switch (spotlightPattern) {
+    case 0: solidSpotlights(c1); break;
+    case 1: solidUniqueSpotlights(); break;
+    case 2: rainbowSpotlights(); break;
+    case 3: gradientSpotlights(c1, c2); break;
+    case 4: rain(30, CRGB::Black, c1); break; //note that 30 is the threshold for spawning. A random number (0-128) is subtracted from that number per frame until it can no longer be subtracted to stay >0.
+    case 5: sparkle(10 , c1 , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotBrightness); break; //note that 10 is the threshold for spawning. A random number (0-128) is subtracted from that number per frame until it can no longer be subtracted to stay >0.
+    case 6: fire() ;break;
+  }
 }
 void setBackgroundEffect(byte effect, CRGB c1, CRGB c2){
   switch (effect) {

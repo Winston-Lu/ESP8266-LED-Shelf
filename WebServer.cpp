@@ -42,11 +42,7 @@ void setupWiFi(){
     Serial.println("mDNS failed to setup. You must connect using the device IP.");
   }
   solidSegments(CRGB::Black);
-  #ifdef SPOTLIGHTPIN
-  solidSpotlightsDedicated(CRGB::Black);
-  #else
   solidSpotlights(CRGB::Black);
-  #endif
   WiFi.setSleepMode(WIFI_NONE_SLEEP);
 }
 
@@ -310,6 +306,7 @@ void setupServer(){
     }else if(command=="utcoffset"){
       utcOffset = val.toDouble();
       setNewOffset();
+      updateTime();
       storeUtcOffset(utcOffset);
       webServer.send(200, "text/plain", "Set UTC offset to " + String(getUtcOffset()));
     }else if(command=="rainbowrate"){

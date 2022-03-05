@@ -127,38 +127,8 @@ void showLightingEffects() {
   //If we toggle on time-scheduled effects
   if(autoEffect) scheduleLighting();
   //Regular lighting behaviour
+  
   else{
-    //Spotlights
-    #ifdef SPOTLIGHTPIN // if dedicated spotlight pin
-    switch (spotlightPattern) {
-      case 0: //off
-        solidSpotlightsDedicated(CRGB::Black);break;
-      case 1: //Solid
-        solidUniqueSpotlightsDedicated();
-        applySpotlightBrightnessDedicated();
-        break;
-      case 2: //rainbow
-        rainbowSpotlights();
-        applySpotlightBrightnessDedicated();
-        break;
-      case 3: //gradient
-        gradientSpotlights(spotlights[0], spotlights[1]);
-        applySpotlightBrightnessDedicated();
-        break;
-      case 4: //rain
-        rain(30, CRGB::Black, spotlights[0]);
-        dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
-        break;
-      case 5: //sparkle
-        sparkle(10 , spotlights[0] , NUM_SEGMENTS * LEDS_PER_LINE , WIDTH * HEIGHT, 255 - spotlightBrightness); //10 chance seems fine. Note this isnt 10% or 10/255% chance. See sparkle() for how the chance works
-        dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
-        break;
-      case 6: //fire
-        fire();
-        dimSpotlightsDedicated(max(spotlightBrightness / 8, 2));
-        break;
-    }
-    #else
     switch (spotlightPattern) {
       case 0: //off
         solidSpotlights(CRGB::Black);
@@ -188,7 +158,6 @@ void showLightingEffects() {
         dimSpotlights(max(spotlightBrightness / 8, 2));
         break;
     }
-    #endif
     //Background
     switch (backgroundPattern) {
       case 0: //off
@@ -280,7 +249,11 @@ void showLightingEffects() {
   //Compensate for different segment diffusion if it is configured/exists
   for(int i=0;i<sizeof(segmentBrightnessCompensation)/sizeof(segmentBrightnessCompensation[0]);i++)
     if(segmentBrightnessCompensation[i]!=0) dimSegment(i,segmentBrightnessCompensation[i]);
-    
+
+  //Shift LED's by 1 if enabled sacrifice LED
+  #ifdef SACRIFICELED
+  shiftLedsByOne();
+  #endif
 }
 
 //************************************************//
@@ -288,20 +261,33 @@ void showLightingEffects() {
 //************************************************//
 //Sets each LED in the segments to black (does not toch the splotlights)
 void clearDisplay() {                     
-    fill_solid(leds, NUM_LEDS, CRGB::Black); 
+    fill_solid(leds, NUM_LEDS+1, CRGB::Black); 
     #ifdef SPOTLIGHTPIN
     fill_solid(spotlightLed, WIDTH*HEIGHT+1, CRGB::Black);
     #endif
 }
 //Dim all segments/spotlights proportional to brightness. segmentBrightness = 255 means no dimming. The Dedicated function 
 //  is for spotlights with their own dedicated data pin instead of being at the end of the segment LED's
-void applySegmentBrightness() {           fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , 255 - segmentBrightness  );}
-void applySpotlightBrightness() {         fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , 255 - spotlightBrightness);}
-void applySpotlightBrightnessDedicated() {fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , 255 - spotlightBrightness);}
+void applySegmentBrightness() {           
+  fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , 255 - segmentBrightness  );
+}
+void applySpotlightBrightness() { 
+  #ifndef SPOTLIGHTPIN        
+  fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , 255 - spotlightBrightness);
+  #else
+  fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , 255 - spotlightBrightness);
+  #endif
+}
+
 //Dims all segments/spotlights by a certain amount. val=0 is no dimming (original brightness), val=255 is full black
 void dimSegments(byte val) {              fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , val);}
-void dimSpotlights(byte val) {            fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , val);}
-void dimSpotlightsDedicated(byte val){    fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , val);}
+void dimSpotlights(byte val) {            
+  #ifndef SPOTLIGHTPIN
+  fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , val);
+  #else
+  fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , val);
+  #endif
+}
 //Dim a single LED. Don't think this is used
 void dimLed(int index, byte val) {        fadeToBlackBy(&leds[index]                                , 1                                , val);}
 //Dim a single segment instead of all segments. 
@@ -465,21 +451,28 @@ void solidSegments(CRGB color) {
   for (int i = 0; i < NUM_SEGMENTS*LEDS_PER_LINE; i++)
     leds[i] = color;
 }
+
+//Set all spotlights to a single colour.
+//Used to turn all LEDS to black, so don't write to spotlights[]
+//  with the data, keep the original colour data
 void solidSpotlights(CRGB color) {
-  for (int i = 0; i < WIDTH * HEIGHT; i++)
+  #ifndef SPOTLIGHTPIN
+  for (int i = 0; i < WIDTH * HEIGHT; i++){
     leds[LEDS_PER_LINE * NUM_SEGMENTS + i ] = color;
-}
-void solidSpotlightsDedicated(CRGB color) {
+  #else
   for (int i = 0; i < WIDTH * HEIGHT; i++)
     spotlightLed[i] = color;
+  #endif
 }
+
 void solidUniqueSpotlights(){
+  #ifndef SPOTLIGHTPIN
+  for (int i = 0; i < WIDTH * HEIGHT; i++) 
+    leds[spotlightToLedIndex(i)] = spotlights[i]; //Set spotlight color to the dedicated array of 
+  #else
   for (int i = 0; i < WIDTH * HEIGHT; i++) 
     spotlightLed[spotlightToLedIndexDedicated(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
-}
-void solidUniqueSpotlightsDedicated(){
-  for (int i = 0; i < WIDTH * HEIGHT; i++) 
-    leds[spotlightToLedIndex(i)] = spotlights[i]; //Set spotlight color to the dedicated array of spotlights
+  #endif
 }
 
 //Creates a gradient segment. transparency=255 is solid, 0 is transparent
@@ -599,13 +592,18 @@ void sparkle(int chance, CRGB color, int ledStart, int len, byte dim) {
     if (chance > randomVal) {
       uint16_t randNum = random16(len); //pick random index within the specified range
       chance -= randomVal; //decrement counter so we could spawn more than 1 per iteration
-      leds[ledStart + randNum] = color;
-      dimLed(ledStart + randNum, dim); //Apply initial brightness/dim LED when spawned
       #ifdef SPOTLIGHTPIN
-      if(ledStart + randNum > LEDS_PER_LINE*NUM_SEGMENTS){
+      //Spotlights
+      if(ledStart >= NUM_LEDS || len >= NUM_LEDS)
         spotlightLed[(ledStart + randNum) % (WIDTH*HEIGHT)] = color;
-        fadeToBlackBy(&spotlightLed[(ledStart + randNum) % (WIDTH*HEIGHT)], 1, dim);
+      //segments
+      if(ledStart < NUM_LEDS){
+        leds[(ledStart + randNum) % NUM_LEDS] = color; //apply sparkle to segments and spotlights if the value of ledStart and len permit
+      dimLed((ledStart + randNum) % NUM_LEDS, dim); //Apply initial brightness/dim LED when spawned
       }
+      #else
+      leds[ledStart + randNum] = color; //apply sparkle to segments and spotlights if the value of ledStart and len permit
+      dimLed(ledStart + randNum, dim); //Apply initial brightness/dim LED when spawned
       #endif
     } else break;
   }
@@ -1022,17 +1020,13 @@ String getCurrentSettings(String seperator){
 
 //Used to shift LEDs colours by 1 to accomidate a sacrificial LED
 void shiftLedsByOne(){
+  for(int i=NUM_LEDS ; i > 0 ; i--)
+    leds[i] = leds[i-1];
+  leds[0] = CRGB::Black;
   #ifdef SPOTLIGHTPIN
-    for(int i=NUM_LEDS - (WIDTH*HEIGHT); i > 0 ;i--)
-      leds[i] = leds[i-1];
-    leds[0] = CRGB::Black;
     for(int i=WIDTH*HEIGHT; i>0 ;i--)
       spotlightLed[i] = spotlightLed[i-1];
     spotlightLed[0] = CRGB::Black;
-  #else
-    for(int i=NUM_LEDS; i > 0 ;i--)
-      leds[i] = leds[i-1];
-    leds[0] = CRGB::Black;
   #endif
 }
 
