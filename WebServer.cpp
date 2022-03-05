@@ -10,7 +10,7 @@
 #include "NTPTime.h"
 
 //IP config
-IPAddress ip(192,168,1,52);     //Device IP
+IPAddress ip(192,168,1,51);     //Device IP
 IPAddress gateway(192,168,1,1); //IP of router
 IPAddress subnet(255,255,255,0);
 IPAddress primaryDNS(8,8,8,8);
@@ -288,6 +288,8 @@ void setupServer(){
   webServer.on("/cmd", HTTP_GET, []() {
     String command = webServer.arg("c");
     String val = webServer.arg("v");
+    command.toLowerCase();
+    val.toLowerCase();
     if(command=="help" || command=="?"){
       webServer.send(200, "text/plain", String("Available commands:<br> settings - Gets the current settings<br>" + String("") +  //Doesnt like it when I just do *char[] + *char[] here, so I need to do this
                                         "utcoffset ## - Set UTF offset in hours for clock [current offset: " + String(getOffset()) + "]<br>" +
@@ -342,9 +344,6 @@ void setupServer(){
       lastUpdate = EEPROM_UPDATE_DELAY*FRAMES_PER_SECOND;
       updateSettings = true;
       webServer.send(200, "text/plain", "Set hyphen color to " + String(crgbToCss(hyphenColor)));
-    }else if(command="effecttimer"){
-      autoEffect = (val.toInt() != 0); //force bool cast
-      webServer.send(200, "text/plain", "Set effecttimer to " + String(autoEffect));
     }else if(command=="save"){
       saveAllSettings();
       webServer.send(200, "text/plain", "Saved Settings");
@@ -354,6 +353,9 @@ void setupServer(){
       
       ESP.wdtEnable(3000); // Turn on watchdog then let program hang. Im not sure if the 15ms is actually implemented in the ESP source code
       for(;;) {} //Make watchdog reset the device
+    }else if(command="effecttimer"){
+      autoEffect = (val.toInt() != 0); //force bool cast
+      webServer.send(200, "text/plain", "Set effecttimer to " + String(autoEffect));
     }else{
       webServer.send(200, "text/plain", "Command not found");
     }

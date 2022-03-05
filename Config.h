@@ -12,8 +12,8 @@
 //#define SACRIFICELED //comment out to disable
 
 //Clock format
-//#define _12_HR_CLOCK
-#define _24_HR_CLOCK
+#define _12_HR_CLOCK
+//#define _24_HR_CLOCK
 
 //Show leading zeros in time. Will show 01:25 instead of 1:25 if set to true. 
 //If commented out, default is true for 24hr format, false for 12hr format
@@ -21,7 +21,7 @@
 
 #define LIGHT_SENSOR  17 //A0
 #define DATAPIN       15 //15 = D8 on a NodeMCU
-#define SPOTLIGHTPIN  4 //4 = D2 on a NodeMCU. Uncomment if you use a seperate pin for spotlights
+//#define SPOTLIGHTPIN  4 //4 = D2 on a NodeMCU. Uncomment if you use a seperate pin for spotlights
 #define LED_TYPE      WS2812B
 #define COLOR_ORDER   GRB
 

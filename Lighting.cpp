@@ -922,7 +922,7 @@ void storeUtcOffset(double value){
 
 double getUtcOffset(){
   EEPROM.begin(512);
-  int16_t ans = EEPROM.read(1)<<8 + EEPROM.read(2);
+  int16_t ans = (int16_t)(EEPROM.read(1)<<8 | EEPROM.read(2));
   Serial.println("UTC Offset: " + String(ans/60));
   return (ans/60.0);
 }
