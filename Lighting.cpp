@@ -6,9 +6,9 @@
 #include "TimedEffects.h"
 
 CRGB off_color = CRGB::Black;
-CRGB leds[NUM_LEDS+1]; //array that gets rendered, +1 for sacrifice LED in case its needed
-CRGB spotlightLed[WIDTH*HEIGHT+1]; //dedicated spotlight array if on seperate pin, +1 for sacrifice LED in case its needed
-CRGB spotlights[WIDTH * HEIGHT]; //array to keep track of spotlight colors that we set on the web server
+CRGB *leds = new CRGB[NUM_LEDS+1]; //array that gets rendered, +1 for sacrifice LED in case its needed
+CRGB *spotlightLed = new CRGB[WIDTH*HEIGHT+1]; //dedicated spotlight array if on seperate pin, +1 for sacrifice LED in case its needed
+CRGB *spotlights = new CRGB[WIDTH * HEIGHT]; //array to keep track of spotlight colors that we set on the web server
 
 //default background colors
 CRGB h_ten_color;
@@ -196,7 +196,7 @@ void showLightingEffects() {
       case 0:
         break;//do nothing. Just here to acknowledge this option exists
       case 1: //solid
-        if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+        if (clockRefreshTimer == FRAMES_PER_SECOND * 30) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display(getHour12(), getMinute(), 255 - segmentBrightness);
         #elif defined(_24_HR_CLOCK)
@@ -205,7 +205,7 @@ void showLightingEffects() {
         clockRefreshTimer++;
         break;
       case 2: //rainbow
-        if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+        if (clockRefreshTimer == FRAMES_PER_SECOND * 30) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display_rainbow(getHour12(), getMinute(), 255 - segmentBrightness);
         #elif defined(_24_HR_CLOCK)
@@ -214,7 +214,7 @@ void showLightingEffects() {
         clockRefreshTimer++;
         break;
       case 3: //gradient
-        if (clockRefreshTimer == FRAMES_PER_SECOND * 3) { updateTime();clockRefreshTimer = 0;}
+        if (clockRefreshTimer == FRAMES_PER_SECOND * 30) { updateTime();clockRefreshTimer = 0;}
         #ifdef _12_HR_CLOCK
         render_clock_to_display_gradient(getHour12(), getMinute(), 255 - segmentBrightness);
         #elif defined(_24_HR_CLOCK)

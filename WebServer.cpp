@@ -10,7 +10,7 @@
 #include "NTPTime.h"
 
 //IP config
-IPAddress ip(192,168,1,51);     //Device IP
+IPAddress ip(192,168,1,52);     //Device IP
 IPAddress gateway(192,168,1,1); //IP of router
 IPAddress subnet(255,255,255,0);
 IPAddress primaryDNS(8,8,8,8);
