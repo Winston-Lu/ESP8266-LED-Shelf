@@ -17,7 +17,7 @@
 
 //Show leading zeros in time. Will show 01:25 instead of 1:25 if set to true. 
 //If commented out, default is true for 24hr format, false for 12hr format
-//#define DISPLAY_ZERO_IN_TENS_DIGIT true; 
+//#define DISPLAY_ZERO_IN_TENS_DIGIT true
 
 #define LIGHT_SENSOR  17 //A0
 #define DATAPIN       15 //15 = D8 on a NodeMCU
@@ -123,13 +123,13 @@ const byte segmentBrightnessCompensation[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
   #define WIDTH 6 
   #define HEIGHT 2
   #ifndef DISPLAY_ZERO_IN_TENS_DIGIT
-  #define DISPLAY_ZERO_IN_TENS_DIGIT false;
+  #define DISPLAY_ZERO_IN_TENS_DIGIT false
   #endif
 #elif defined(_24_HR_CLOCK)
   #define WIDTH 7 
   #define HEIGHT 2
   #ifndef DISPLAY_ZERO_IN_TENS_DIGIT
-  #define DISPLAY_ZERO_IN_TENS_DIGIT true;
+  #define DISPLAY_ZERO_IN_TENS_DIGIT true
   #endif
 #else
   #warning "Some settings not work, Time format not selected. Define your own WIDTH, HEIGHT, wiring orders, and segments in Config.h if you have custom dimensions"
