@@ -457,7 +457,7 @@ void solidSegments(CRGB color) {
 //  with the data, keep the original colour data
 void solidSpotlights(CRGB color) {
   #ifndef SPOTLIGHTPIN
-  for (int i = 0; i < WIDTH * HEIGHT; i++){
+  for (int i = 0; i < WIDTH * HEIGHT; i++)
     leds[LEDS_PER_LINE * NUM_SEGMENTS + i ] = color;
   #else
   for (int i = 0; i < WIDTH * HEIGHT; i++)
@@ -1145,7 +1145,7 @@ void defaultSettings(){
   for(int i=0;i<WIDTH*HEIGHT;i++){
     #ifdef SPOTLIGHTPIN
     spotlightLed[i] = CRGB::White;
-    #elif
+    #else
     leds[spotlightToLedIndex(i)] = CRGB::White;
     #endif
     spotlights[i] = CRGB::White;
