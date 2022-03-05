@@ -92,7 +92,7 @@ uint16_t debugPrintCounter = 0;
   4   5
   # 6 #
 */
-//                  x0123456  which segment needs to be up for that number
+//                          x0123456  which segment needs to be up for that number
 const int PROGMEM zero  = 0b01110111;
 const int PROGMEM one   = 0b00010010;
 const int PROGMEM two   = 0b01011101;
@@ -107,6 +107,9 @@ const int PROGMEM nine  = 0b01111011;
 //************************************************//
 //           Show Selected Lighting               //
 //************************************************//
+//Pushes the leds[] colour array to the physical LED's with the applied settings
+/*  Renders the spotlights first, then the background, then the clock, then the hyphen if enabled
+ */
 void showLightingEffects() {
   if(power == 0){
     fill_solid(leds, NUM_LEDS, CRGB::Black);
@@ -283,15 +286,26 @@ void showLightingEffects() {
 //************************************************//
 //              Display Functions                 //
 //************************************************//
-
-void clearDisplay() {                     fill_solid(leds, NUM_LEDS, CRGB::Black); }
+//Sets each LED in the segments to black (does not toch the splotlights)
+void clearDisplay() {                     
+    fill_solid(leds, NUM_LEDS, CRGB::Black); 
+    #ifdef SPOTLIGHTPIN
+    fill_solid(spotlightLed, WIDTH*HEIGHT+1, CRGB::Black);
+    #endif
+}
+//Dim all segments/spotlights proportional to brightness. segmentBrightness = 255 means no dimming. The Dedicated function 
+//  is for spotlights with their own dedicated data pin instead of being at the end of the segment LED's
 void applySegmentBrightness() {           fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , 255 - segmentBrightness  );}
 void applySpotlightBrightness() {         fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , 255 - spotlightBrightness);}
 void applySpotlightBrightnessDedicated() {fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , 255 - spotlightBrightness);}
+//Dims all segments/spotlights by a certain amount. val=0 is no dimming (original brightness), val=255 is full black
 void dimSegments(byte val) {              fadeToBlackBy(leds                                        , NUM_SEGMENTS * LEDS_PER_LINE     , val);}
 void dimSpotlights(byte val) {            fadeToBlackBy(&leds[NUM_SEGMENTS * LEDS_PER_LINE]         , WIDTH * HEIGHT                   , val);}
 void dimSpotlightsDedicated(byte val){    fadeToBlackBy(spotlightLed                                , WIDTH * HEIGHT                   , val);}
+//Dim a single LED. Don't think this is used
 void dimLed(int index, byte val) {        fadeToBlackBy(&leds[index]                                , 1                                , val);}
+//Dim a single segment instead of all segments. 
+//Uses the 1-indexed segment index. See Config.h under "1-Index reference for segmentWiringOrder"
 void dimSegment(int segment, byte val) {
   if (segment == -1) return;
   strip segmentStruct = segmentToLedIndex(segment);
@@ -300,8 +314,9 @@ void dimSegment(int segment, byte val) {
 }
 
 //************************************************//
-//                  Clock Effect                  //
+//                  Clock Effects                 //
 //************************************************//
+//Adds the clock colour data into the leds[] array
 void render_clock_to_display(int h, int m) {render_clock_to_display(h, m, 0);}
 void render_clock_to_display(int h, int m, byte dim) {
   const uint8_t light_tens_h = sevenSegment(h / 10);
@@ -342,7 +357,7 @@ void render_clock_to_display_rainbow(int h, int m, byte dim) {
   //Set the digits we want to the color
   for (int i = 0; i < 7; i++) {
     //Change hours tens LEDS
-    if (light_tens_h & 0b01000000 >> i && h/10 == 1) { //use bitmask to see if the segment is supposed to be on for that digit
+    if (light_tens_h & 0b01000000 >> i && h/10 ) { //use bitmask to see if the segment is supposed to be on for that digit
       rainbowSegment(h_ten[i], (byte)segmentLightingOffset(h_ten[i])*rainbowRate * LEDS_PER_LINE, rainbowRate, foregroundTransparency);
       dimSegment(h_ten[i], dim);
     }
@@ -373,7 +388,7 @@ void render_clock_to_display_gradient(int h, int m, byte dim) {
   //Set the digits we want to the color
   for (int i = 0; i < 7; i++) {
     //Change hours tens LEDS
-    if (light_tens_h & 0b01000000 >> i && h/10 == 1) { //use bitmask to see if the segment is supposed to be on for that digit
+    if (light_tens_h & 0b01000000 >> i && h/10) { //use bitmask to see if the segment is supposed to be on for that digit
       gradientSegment(h_ten[i], h_ten_color, h_one_color, foregroundTransparency);
       dimSegment(h_ten[i], dim);
     }
@@ -414,8 +429,8 @@ void setSegmentColor(int segment, CRGB color) {
 }
 
 void addSegmentColor(int segment, CRGB color, byte transparency) {
-  stripSegment = segmentToLedIndex(segment); //convert from abstract segment index to wiring LED positions
   if (segment == -1) return;
+  stripSegment = segmentToLedIndex(segment); //convert from abstract segment index to wiring LED positions
   if (stripSegment.reverse && stripSegment.start != -1) {
     for (int i = 0; i < LEDS_PER_LINE; i++) {
       CRGB newColor;

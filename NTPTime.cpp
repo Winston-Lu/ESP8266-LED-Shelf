@@ -15,8 +15,12 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", (int)(utcOffset*3600));
 void initClock(){
   utcOffset = getUtcOffset();
   setNewOffset();
+  Serial.println("Timeclient starting...");
+  Serial.println(utcOffset);
   timeClient.begin();
+  Serial.println("updating time");
   updateTime();
+  Serial.println("Time updated");
 }
 void updateTime(){timeClient.update();}
 void setNewOffset(){timeClient.setTimeOffset((int)(utcOffset*3600));}
