@@ -120,9 +120,9 @@ void showLightingEffects() {
   }
   if(autobrightness){
     double val = (analogRead(LIGHT_SENSOR)/1024.0)*2; //Between 0-2
-    segmentBrightness = min(max((int)(40.0 * val*val*val),5),150);//Clamp between 5 and 150, median 50
-    backgroundBrightness = min(max((int)(12.0 * val*val*val * 0.8),2),100); //Clamp between 2 and 100, median 30
-    spotlightBrightness = min(max((int)(80*(val*val*val)*2),30),255); //Clamp between 30 and 255, median 160
+    segmentBrightness =    min(max((int)( 40.0 * val*val ), 5),150); //Clamp between 5 and 150, median 40
+    backgroundBrightness = min(max((int)( 20.0 * val*val ), 2),100); //Clamp between 2 and 100, median 20
+    spotlightBrightness =  min(max((int)(160.0 * val*val ),30),255); //Clamp between 30 and 255, median 160
   }
   //If we toggle on time-scheduled effects
   if(autoEffect) scheduleLighting();
