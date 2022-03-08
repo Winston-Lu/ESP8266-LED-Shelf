@@ -1,6 +1,8 @@
 #ifndef NPTTIME_H
 #define NPTTIME_H
 extern double utcOffset; 
+
+void setupWiFi();
 void initClock();
 void updateTime();
 void setNewOffset();

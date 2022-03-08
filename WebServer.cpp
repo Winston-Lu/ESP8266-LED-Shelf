@@ -1,73 +1,15 @@
-#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 #include <FastLED.h>
 #include <LittleFS.h> //for file system
-#include "Config.h"
 #include "WebServer.h"
-#include "Secrets.h"
 #include "Lighting.h"
 #include "NTPTime.h"
 
-//IP config
-IPAddress ip(192,168,1,51);     //Device IP
-IPAddress gateway(192,168,1,1); //IP of router
-IPAddress subnet(255,255,255,0);
-IPAddress primaryDNS(8,8,8,8);
-IPAddress secondaryDNS(8,8,4,4);
-
 ESP8266WebServer webServer(80);
 
-const String deviceName = "ledshelf";
-
-void setupWiFi(){
-  if (!WiFi.config(ip, gateway, subnet, primaryDNS, secondaryDNS)) {Serial.println("STA Failed to configure");}  
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  while (WiFi.status()!=WL_CONNECTED){
-    //Show pattern while trying to connect to Wi-Fi
-    for(int i=0 ; i<60 ; i++){
-      loadingEffect(CRGB::White);
-      delay(17);
-      FastLED.show();
-    }
-    Serial.print(".");
-  }
-  Serial.println();
-  if(MDNS.begin("deviceName")){
-    Serial.print("mDNS set up. You can connect to "); 
-    Serial.print(deviceName) ;
-    Serial.println(".local to connect instead of the IP");
-  }else{
-    Serial.println("mDNS failed to setup. You must connect using the device IP.");
-  }
-  solidSegments(CRGB::Black);
-  solidSpotlights(CRGB::Black);
-  WiFi.setSleepMode(WIFI_NONE_SLEEP);
-}
 
 void updateServer(){
   webServer.handleClient();
-  
-  static bool hasConnected = true;
-  EVERY_N_SECONDS(30) {
-    if (WiFi.status() != WL_CONNECTED) {hasConnected = false;}
-    else if (!hasConnected) {
-      hasConnected = true;
-      webServer.begin();
-      Serial.println("HTTP web server reconnected");
-      Serial.print("Reconnected! Open http://");
-      Serial.print(WiFi.localIP());
-      Serial.println(" in your browser");
-      if(MDNS.begin("deviceName")){
-        Serial.print("mDNS set up. You can connect to "); 
-        Serial.print(deviceName) ;
-        Serial.println(".local to connect instead of the IP");
-      }else{
-        Serial.println("mDNS failed to setup. You must connect using the device IP.");
-      }
-    }
-  }
 }
 
 void setupServer(){

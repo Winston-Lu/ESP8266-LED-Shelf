@@ -40,10 +40,8 @@ void setup(){
   }
   Serial.printf("\n");
   //WiFi Setup
-  Serial.println("Setting up Wi-Fi");
+  Serial.println("Setting up Wi-Fi and NTP Connection");
   setupWiFi();
-  Serial.println("Initializing real-time clock...");
-  initClock();
   Serial.println("Showing lights");
   showLightingEffects();
   Serial.println("Getting webserver started...");
