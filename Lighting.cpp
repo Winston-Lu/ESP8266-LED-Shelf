@@ -1051,18 +1051,9 @@ String parseSettings() {
   settings += crgbToCss(m_one_color) + '|';
   settings += crgbToCss(bg) + '|';
   settings += crgbToCss(bg2) + '|';
-  settings += crgbToCss(spotlights[0]) + '|';
-  settings += crgbToCss(spotlights[1]) + '|';
-  settings += crgbToCss(spotlights[2]) + '|';
-  settings += crgbToCss(spotlights[3]) + '|';
-  settings += crgbToCss(spotlights[4]) + '|';
-  settings += crgbToCss(spotlights[5]) + '|';
-  settings += crgbToCss(spotlights[6]) + '|';
-  settings += crgbToCss(spotlights[7]) + '|';
-  settings += crgbToCss(spotlights[8]) + '|';
-  settings += crgbToCss(spotlights[9]) + '|';
-  settings += crgbToCss(spotlights[10]) + '|';
-  settings += crgbToCss(spotlights[11]) + '|';
+  for(int i=0;i<WIDTH*HEIGHT;i++){
+    settings += crgbToCss(spotlights[i]) + '|';
+  }
   Serial.println("Getting selected pattern in settings");
   Serial.println("FG: " + String(effectNames[foregroundPattern]) + " (" + String(foregroundPattern) + "/" + String(sizeof(effectNames)/sizeof(effectNames[0])) + 
                ") BG: " + String(effectNames[backgroundPattern]) + " (" + String(foregroundPattern) + "/" + String(sizeof(effectNames)/sizeof(effectNames[0])) + 
