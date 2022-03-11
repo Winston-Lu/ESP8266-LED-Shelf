@@ -42,7 +42,7 @@ Rainbow clock with solid background and 1 pixel wide hyphen | Rainbow Everything
   * 32 Segments for the 12hr version (compared to the original 23). 37 Segments for the 24hr version
   * 12 Spotlights for the 12hr version. 14 Spotlights for the 24hr version
 * Support for 24-hour format
-  * Requires some configuration modifications (See **Setting to 24hr layout** below). Should work fine since the code would break for the 12hr version if the 24hr version wouldn't also work due to the less readable but modular code
+  * Requires some configuration modifications (See **Setting to 24hr layout** below).
 * Expandable to larger shelf sizes
 * Scheduling effects/brightnesses for different times of day
 
