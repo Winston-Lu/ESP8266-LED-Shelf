@@ -122,13 +122,14 @@ EEPROM_UPDATE_DELAY  | How many seconds to wait after a change before saving it 
 **h_one[]** | segment indicies for the ones digit for the hours
 **h_ten[]** | segment indicies for the tens digit for the hours
 
-## In WebServer.cpp (Mostly Required)
+## In NTPTime.cpp (Mostly Required)
 You may need to change the settings if you use a 192.168.0.# local IP address or want to change to a different static IP address. I would not recommend using DHCP since I usually find more success connecting via IP address instead of the hostname (you would need to modify more code if you wanted to use DHCP anyways). To find your IP, you can type "ipconfig" on Windows in cmd or "ifconfig" on Mac/Linux in terminal to find this IP. Usually it is 192.168.0.1 or 192.168.1.1 for home networks.
 Variable | Description
 ---------|---------
 ip | Static IP Configuration so you can connect using a 192.168.#.# address
 gateway | IP address of your router
 subnet | Subnet address of your home address. If you don't know what this is, you probably wont need to touch it
+deviceName | The domain in use for mDNS. Default is `ledshelf.local` for `deviceName = "ledshelf"` 
 
 ## Other Config Recommendations
 When the Wi-Fi module sends/recieves data, it flashes the first LED in the strip. I am unable to trace exactly where this is coming from, so I recommond having a sacrifical "Wi-Fi status" LED right before the strip. All you need to do is uncomment the `#define SACRIFICELED` line to enable. Otherwise, the flashing should be fairly infrequent except for NTP time updates and webserver actions.
@@ -153,7 +154,7 @@ git clone https://github.com/Winston-Lu/LED-Clock
 11.  Click on it and let it upload the webserver code
 12.  Create a `Secrets.h` file and modify the settings accordingly. Read above for how to configure your Wi-Fi settings and other important settings.
 13.  Upload the Arduino code by clicking the right-facing arrow near the top left. 
-14.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.51), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
+14.  After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default http://LEDShelf.local or 192.168.1.52), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
 
 # Wiring
 <div>
