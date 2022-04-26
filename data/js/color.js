@@ -1,3 +1,4 @@
+//Settings for 24hr option
 if(enable24HR && HEIGHT===0 && WIDTH===0){
     HEIGHT = 2;
     WIDTH  = 7;
@@ -28,7 +29,14 @@ for(let i=0;i<HEIGHT;i++){
     }
     container.appendChild(newRow);
 }
-
+//Settings for backlight option
+const elements = document.getElementsByClassName('backlightOptions');
+for(let i=0; i < elements.length ; i++){
+    if(enableBacklight){
+        elements[i].style.visibility = "visible";
+        elements[i].style.height = "100%";
+    }
+}
 
 const pickers = document.getElementsByTagName('hex-color-picker');
 for(let i=0;i<pickers.length;i++){

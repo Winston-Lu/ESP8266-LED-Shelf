@@ -3,6 +3,7 @@
 #include "NTPTime.h"
 #include "Lighting.h"
 #include "WebServer.h" 
+#include "Backlight.h"
 
 byte FRAMES_PER_SECOND = 30; //will be overwritten later on by EEPROM or default settings
 unsigned long frameStart; //For fps counter
@@ -28,6 +29,9 @@ void setup(){
   
   Serial.println("Initializing data structures for lighting effects");
   lightingInit();
+  #ifdef BACKLIGHT
+  initBacklight();
+  #endif
 
   //Website filesystem setup
   LittleFS.begin();
@@ -56,6 +60,9 @@ void loop() {
   //Pretty much the only 2 lines that get called aside from the last 2 FastLED calls
   updateServer();
   showLightingEffects();
+  #ifdef BACKLIGHT
+  showBacklight();
+  #endif
 
   //Track FPS
   if(counter>=FRAMES_PER_SECOND*5){
@@ -73,6 +80,9 @@ void loop() {
     lastUpdate = 0;
     updateSettings = false;
     storeEEPROM();
+    #ifdef BACKLIGHT
+    saveBLEEPROM();
+    #endif
   }
   
   // insert a delay to maintain framerate.

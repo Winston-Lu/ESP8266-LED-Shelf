@@ -14,6 +14,7 @@ const int PROGMEM NUM_SEGMENTS = 2*WIDTH*HEIGHT + WIDTH + HEIGHT;
 
 //Love me some global variables
 extern int rainbowRate;
+extern int hueOffset;
 extern uint32_t lastUpdate;
 extern bool updateSettings;
 

@@ -21,7 +21,10 @@ body {
 .spotlightRow > .spotlightContainer{
     padding: 5px;
 }
-
+.backlightOptions{
+    visibility: hidden;
+    height: 0px;
+}
 
 .colorPickerRow{
     display: flex;

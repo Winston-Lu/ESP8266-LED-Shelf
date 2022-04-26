@@ -4,6 +4,7 @@
 #include "WebServer.h"
 #include "Lighting.h"
 #include "NTPTime.h"
+#include "Backlight.h"
 
 ESP8266WebServer webServer(80);
 
@@ -30,7 +31,7 @@ void setupServer(){
   });
   
   webServer.on("/transparency", HTTP_GET, []() {
-    setForegroundTransparency((byte)webServer.arg("value").toInt());
+    setForegroundTransparency((byte)webServer.arg("value").toInt()%256);
     lightingChanges.foregroundTransparency = true;
     lastUpdate = 0;
     updateSettings = true;
@@ -38,7 +39,7 @@ void setupServer(){
   });
 
   webServer.on("/autobrightness", HTTP_GET, []() {
-    autobrightness = (webServer.arg("value")=="true");
+    autobrightness = (webServer.arg("value")=="true")%256;
     lightingChanges.autobrightness = true;
     lastUpdate = 0;
     updateSettings = true;
@@ -46,7 +47,7 @@ void setupServer(){
   });
 
   webServer.on("/brightness", HTTP_GET, []() {
-    setSegmentBrightness((byte)webServer.arg("value").toInt());
+    setSegmentBrightness((byte)webServer.arg("value").toInt()%256);
     lightingChanges.segmentBrightness = true;
     lastUpdate = 0;
     updateSettings = true;
@@ -54,7 +55,7 @@ void setupServer(){
   });
 
   webServer.on("/spotlightbrightness", HTTP_GET, []() {
-    setSpotlightBrightness((byte)webServer.arg("value").toInt());
+    setSpotlightBrightness((byte)webServer.arg("value").toInt()%256);
     lightingChanges.spotlightBrightness = true;
     lastUpdate = 0;
     updateSettings = true;
@@ -62,7 +63,7 @@ void setupServer(){
   });
 
   webServer.on("/backgroundbrightness", HTTP_GET, []() {
-    setBackgroundBrightness((byte)webServer.arg("value").toInt());
+    setBackgroundBrightness((byte)webServer.arg("value").toInt()%256);
     lightingChanges.backgroundBrightness = true;
     lastUpdate = 0;
     updateSettings = true;
@@ -70,7 +71,7 @@ void setupServer(){
   });
   
   webServer.on("/foregroundTransparency", HTTP_GET, []() {
-    setForegroundTransparency((byte)webServer.arg("value").toInt());
+    setForegroundTransparency((byte)webServer.arg("value").toInt()%256);
     lightingChanges.foregroundTransparency = true;
     lastUpdate = 0;
     updateSettings = true;
@@ -79,9 +80,9 @@ void setupServer(){
 
   webServer.on("/bgcolor", HTTP_GET, []() {
     CRGB color = CRGB::Black;
-    color.red = webServer.arg("red").toInt();
-    color.green = webServer.arg("green").toInt();
-    color.blue = webServer.arg("blue").toInt();
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
     bg = color;
     lightingChanges.bg = true;
     lastUpdate = 0;
@@ -92,9 +93,9 @@ void setupServer(){
 
   webServer.on("/bg2color", HTTP_GET, []() {
     CRGB color = CRGB::Black;
-    color.red = webServer.arg("red").toInt();
-    color.green = webServer.arg("green").toInt();
-    color.blue = webServer.arg("blue").toInt();
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
     bg2 = color;
     lightingChanges.bg2 = true;
     lastUpdate = 0;
@@ -105,9 +106,9 @@ void setupServer(){
 
   webServer.on("/h1color", HTTP_GET, []() {
     CRGB color = CRGB::Black;
-    color.red = webServer.arg("red").toInt();
-    color.green = webServer.arg("green").toInt();
-    color.blue = webServer.arg("blue").toInt();
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
     h_ten_color = color;
     lightingChanges.h_ten_color = true;
     lastUpdate = 0;
@@ -118,9 +119,9 @@ void setupServer(){
 
   webServer.on("/h2color", HTTP_GET, []() {
     CRGB color = CRGB::Black;
-    color.red = webServer.arg("red").toInt();
-    color.green = webServer.arg("green").toInt();
-    color.blue = webServer.arg("blue").toInt();
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
     h_one_color = color;
     lightingChanges.h_one_color = true;
     lastUpdate = 0;
@@ -132,9 +133,9 @@ void setupServer(){
   
   webServer.on("/m1color", HTTP_GET, []() {
     CRGB color = CRGB::Black;
-    color.red = webServer.arg("red").toInt();
-    color.green = webServer.arg("green").toInt();
-    color.blue = webServer.arg("blue").toInt();
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
     m_ten_color = color;
     lightingChanges.m_ten_color = true;
     lastUpdate = 0;
@@ -145,9 +146,9 @@ void setupServer(){
 
   webServer.on("/m2color", HTTP_GET, []() {
     CRGB color = CRGB::Black;
-    color.red = webServer.arg("red").toInt();
-    color.green = webServer.arg("green").toInt();
-    color.blue = webServer.arg("blue").toInt();
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
     m_one_color = color;
     lightingChanges.m_one_color = true;
     lastUpdate = 0;
@@ -159,9 +160,10 @@ void setupServer(){
   webServer.on("/spotcolor", HTTP_GET, []() {
     CRGB color = CRGB::Black;
     int index = webServer.arg("value").toInt();
-    color.red = webServer.arg("red").toInt();
-    color.green = webServer.arg("green").toInt();
-    color.blue = webServer.arg("blue").toInt();
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
+    if(index >= WIDTH*HEIGHT){webServer.send(400, "text/plain", index + " not supported"); return;}
     setSpotlightColor(index-1,color);
     if(index==1) setSpotlight1(color);
     else if(index==2) setSpotlight2(color);
@@ -179,6 +181,7 @@ void setupServer(){
     else if(pattern == "solid") foregroundPattern = 1;
     else if(pattern == "rainbow") foregroundPattern = 2;
     else if(pattern == "gradient") foregroundPattern = 3;
+    else{webServer.send(400, "text/plain", pattern + " not supported"); return;}
     lightingChanges.foregroundPattern = true;
     lastUpdate = 0;
     autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
@@ -196,6 +199,7 @@ void setupServer(){
     else if(pattern == "sparkle") backgroundPattern = 5;
     else if(pattern == "fire") backgroundPattern = 6;
     else if(pattern == "loop") backgroundPattern = 255;
+    else{webServer.send(400, "text/plain", pattern + " not supported"); return;}
     lightingChanges.backgroundPattern = true;
     clearLightingCache();
     lastUpdate = 0;
@@ -213,6 +217,7 @@ void setupServer(){
     else if(pattern == "rain") spotlightPattern = 4;
     else if(pattern == "sparkle") spotlightPattern = 5;
     else if(pattern == "fire") spotlightPattern = 6;
+    else{webServer.send(400, "text/plain", pattern + " not supported"); return;}
     lightingChanges.spotlightPattern = true;
     clearLightingCache();
     lastUpdate = 0;
@@ -220,7 +225,52 @@ void setupServer(){
     updateSettings = true;
     webServer.send(200, "text/plain", "1");
   });
-
+  #ifdef BACKLIGHT
+  webServer.on("/effectbl", HTTP_GET, []() {
+    String pattern = webServer.arg("value");
+    if(pattern == "off") setBacklightEffectID(0);
+    else if(pattern == "solid") setBacklightEffectID(1);
+    else if(pattern == "rainbow") setBacklightEffectID(2);
+    else if(pattern == "gradient") setBacklightEffectID(3);
+    else if(pattern == "rain") setBacklightEffectID(4);
+    else if(pattern == "sparkle") setBacklightEffectID(5);
+    else if(pattern == "fire") setBacklightEffectID(6);
+    else if(pattern == "loop") setBacklightEffectID(255);
+    else{webServer.send(400, "text/plain", pattern + " not supported"); return;}
+    lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
+    updateSettings = true;
+    webServer.send(200, "text/plain", "1");
+  });
+  webServer.on("/blcolor", HTTP_GET, []() {
+    CRGB color = CRGB::Black;
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
+    setBacklightColor(0, color);
+    lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
+    updateSettings = true;
+    webServer.send(200, "text/plain", "1");
+  });
+  webServer.on("/bl2color", HTTP_GET, []() {
+    CRGB color = CRGB::Black;
+    color.red = webServer.arg("red").toInt()%256;
+    color.green = webServer.arg("green").toInt()%256;
+    color.blue = webServer.arg("blue").toInt()%256;
+    setBacklightColor(1, color);
+    lastUpdate = 0;
+    autoEffect = 0; //turn off scheduled lighting effects and toggle back on regular effects
+    updateSettings = true;
+    webServer.send(200, "text/plain", "1");
+  });
+  webServer.on("/backlightbrightness", HTTP_GET, []() {
+    setBacklightBrightness((byte)webServer.arg("value").toInt()%256);
+    lastUpdate = 0;
+    updateSettings = true;
+    webServer.send(200, "text/plain", "1");
+  });
+  #endif
   webServer.on("/utcoffset", HTTP_GET, []() {
     storeUtcOffset(webServer.arg("value").toDouble());
     setNewOffset();
@@ -233,7 +283,7 @@ void setupServer(){
     command.toLowerCase();
     val.toLowerCase();
     if(command=="help" || command=="?"){
-      webServer.send(200, "text/plain", String("Available commands:<br> settings - Gets the current settings<br>" + String("") +  //Doesnt like it when I just do *char[] + *char[] here, so I need to do this
+      String resp = String("Available commands:<br> settings - Gets the current settings<br>" + String("") +  //Doesnt like it when I just do *char[] + *char[] here, so I need to do this
                                         "utcoffset ## - Set UTF offset in hours for clock [current offset: " + String(getOffset()) + "]<br>" +
                                         "rainbowrate ## - Set how rainbowy the rainbow is [current rate: " + String(rainbowRate) + "]<br>" +
                                         "fps ## - Sets frames per second [current rate: " + String(FRAMES_PER_SECOND) + "]<br>" +
@@ -243,8 +293,8 @@ void setupServer(){
                                         "reset - Reset all settings<br>" +
                                         "resetprofile - Reset lighting settings<br>" +
                                         "save - Saves all current settings<br>" +
-                                        "reboot - Reboots the device after 3 seconds" 
-                                        ));
+                                        "reboot - Reboots the device after 3 seconds");
+      webServer.send(200, "text/plain", resp);
     }else if(command=="settings"){
       webServer.send(200, "text/plain", getCurrentSettings("<br>"));
     }else if(command=="utcoffset"){

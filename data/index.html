@@ -55,6 +55,12 @@
             <input type="range" min="0" max="255" value="255" class="rowslider" id="spotlightBrightnessSlider"onchange="updateClock('/spotlightbrightness')">
         </div>
     </div>
+    <div class="rangeBox backlightOptions">
+        <h3>Backlight Brightness: <span id="sbacklightBrightness"></span></h3> 
+        <div class="rowslidecontainer">
+            <input type="range" min="0" max="255" value="255" class="rowslider" id="backlightBrightnessSlider"onchange="updateClock('/backlightbrightness')">
+        </div>
+    </div>
 
 
 
@@ -88,6 +94,18 @@
         </div>
         <h2 id="slTitle">Spotlights</h2>
         <div id="spotlightSection"></div>
+
+        <div class="backlightOptions">
+            <h2 id="blTitle">Backlight</h2>
+            <div class="colorPickerRow">
+                <div class="item" id="bl1">
+                    <hex-color-picker class="/blcolor"></hex-color-picker>
+                </div>
+                <div class="item" id="bl2">
+                    <hex-color-picker class="/bl2color"></hex-color-picker>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="divider">Effects</div>
@@ -122,6 +140,19 @@
             <option value="gradient">Gradient</option>
             <option value="rain">Rain</option>
             <option value="sparkle">Sparkle</option>
+            <option value="fire">Fire</option>
+        </select>
+    </div>
+    <div class="rangeBox backlightOptions">
+        <h3 style="align-self: center;">Backlight</h3>
+        <select id="backlight" onchange="updateClock('/effectbl')">
+            <option value="off">None</option>
+            <option value="solid" selected>Solid</option>
+            <option value="rainbow">Rainbow</option>
+            <option value="gradient">Gradient</option>
+            <option value="rain">Rain</option>
+            <option value="sparkle">Sparkle</option>
+            <option value="loop">Loop</option>
             <option value="fire">Fire</option>
         </select>
     </div>

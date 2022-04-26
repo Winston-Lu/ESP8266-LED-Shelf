@@ -22,12 +22,16 @@ function updateClock(functionCall,value=""){
             value = document.getElementById("spotlightBrightnessSlider").value; break;
         case "/backgroundbrightness":
             value = document.getElementById("backgroundBrightnessSlider").value; break;
+        case "/backlightbrightness":
+            value = document.getElementById("backgroundBrightnessSlider").value; break;
         case "/h1color":
         case "/h2color":
         case "/m1color":
         case "/m2color":
         case "/bgcolor":
         case "/bg2color":
+        case "/blcolor":
+        case "/bl2color":
             value = rgbFromCSS(0,value);
             break;
         case "/effectfg":
@@ -40,6 +44,10 @@ function updateClock(functionCall,value=""){
             break;
         case "/effectsl":
             value = document.getElementById("spotlightEffect").value; 
+            modifySiteState();
+            break;
+        case "/effectbl":
+            value = document.getElementById("backlight").value; 
             modifySiteState();
             break;
         default:
@@ -66,8 +74,8 @@ function sendData(functionCall,value=""){
             if(functionCall == "/cmd")
                 document.getElementById("cmdresponse").innerHTML="Success: " + this.responseText;
         }else if(this.readyState == 4 && this.status == 404){
-            console.log("404: No GET request for " + functionCall + value);
-            document.getElementById("cmdresponse").innerHTML="404 on " + functionCall + value;
+            console.log("404: No GET request for " +  functionCall +"?value=" + value);
+            document.getElementById("cmdresponse").innerHTML="404 on " + functionCall +"?value=" + value;
         }
     };
     if(value!=="") xhttp.open("GET", functionCall + "?value=" + value, true);
@@ -202,6 +210,35 @@ function modifySiteState(){
             break;
         default:
             console.log("Did not find slPattern for case " + slPattern);
+    }
+
+    const blPattern = document.getElementById("backlight").value;
+    function showBL(){
+        document.getElementById("blTitle").style.display = "";
+        document.getElementById("bl1").style.display = "";
+    }
+    switch(blPattern){
+        case ("off"):
+        case ("rainbow"):
+            document.getElementById("blTitle").style.display = "none";
+            document.getElementById("bl1").style.display = "none";
+            document.getElementById("bl2").style.display = "none";
+            break;
+        case ("gradient"):
+        case ("fire"):
+            showBL();
+            document.getElementById("bl2").style.display = "";
+            break;
+        //show all
+        case ("solid"):
+        case ("rain"):
+        case ("sparkle"):
+        case ("loop"):
+            showBL();
+            document.getElementById("bl2").style.display = "none";
+            break;
+        default:
+            console.log("Did not find blPattern for case " + bgPattern);
     }
 }
 

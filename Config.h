@@ -35,6 +35,26 @@
 extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
                                 // Originally constant, but can be changed using commands
 
+/*  Optional Backlight Example:
+ *  Width: 11
+ *  Height: 3
+ *          top left clockwise led0 >> 0  1  2  3  4  5  6  7  8  9  10 << top right counterclockwise led0
+ * top left counterclockwise led0 >> 27                                11 << top right clockwise led0
+ *                                   26                                12
+ *                                   25                                13
+ *                                     24 23 22 21 20 19 18 17 16 15 14       */
+#define BACKLIGHT //If you have backlight behind the clock, define here
+#ifdef BACKLIGHT
+  #define BACKLIGHT_PIN  14  //D5 on a NodeMCU
+  //Where the wiring starts
+  #define BACKLIGHT_TOP_LEFT //Options: BACKLIGHT_TOP_LEFT, BACKLIGHT_TOP_RIGHT
+  //Wiring direction
+  #define BACKLIGHT_CLOCKWISE //Options: BACKLIGHT_CLOCKWISE, BACKLIGHT_COUNTERCLOCKWISE
+  //Dimensions
+  #define BACKLIGHT_WIDTH 120 //Number of horizontal LED's on the top and bottom
+  #define BACKLIGHT_HEIGHT 60 //Number of vertical LED's on the left and right side
+#endif
+
 //Assume direction is from top left to bottom right. Negative if pointing in opposite direction
 //numbers here are what the wiring maps to the abstracted array below. Index is what LED segment they are. Add +1 to give 0 a +- sign
 //Wiring Index
@@ -49,7 +69,6 @@ extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Acce
   const int PROGMEM m_ten[] = {3,9,10,16,22,23,29};
   const int PROGMEM h_one[] = {1,7,8,14,20,21,27};
   const int PROGMEM h_ten[] = {-1,-1,6,-1,-1,19,-1}; //-1 means undefined since 12hr doesnt have this segment
-
 #endif
 #ifdef _24_HR_CLOCK
   //1-indexed
