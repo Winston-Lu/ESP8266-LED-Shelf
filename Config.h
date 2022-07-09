@@ -59,9 +59,18 @@ extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Acce
 //numbers here are what the wiring maps to the abstracted array below. Index is what LED segment they are. Add +1 to give 0 a +- sign
 //Wiring Index
 #ifdef _12_HR_CLOCK
-  //1-indexed
+  //-----The following wiring orders are 1-indexed-----//
+  //Wiring order in the README (Only have one of these uncommented)
   const int PROGMEM segmentWiringOrder[] = {-7,1,8,-14,20,27,-21,15,-9,-2,3,10,-16,22,-28,29,-23,17,-11,-4,5,12,-18,24,-30,31,-25,19,-13,-6,26,-32}; 
+  //Wiring order used by DIYMachines
+  //const int PROGMEM segmentWiringOrder[] = {-13,-6,12,19,26,-32,-25,-11,-4,10,17,24,-30,-23,-9,-2,8,15,22,-28,-21,7,20,1,3,5,14,16,18,27,29,31};
+
+  //Wiring order in the README (Only have one of these uncommented)
   const int PROGMEM spotlightWiringOrder[] = {0,1,2,3,4,5,11,10,9,8,7,6};
+  //Wiring order used by DIYMachines
+  //const int PROGMEM spotlightWiringOrder[] = {5,4,3,2,1,0,6,7,8,9,10,11};
+  //------------------------//
+
   //0-indexed
   const int PROGMEM hyphenSegment = 15;
   //indexes of the digits (0-indexed)
