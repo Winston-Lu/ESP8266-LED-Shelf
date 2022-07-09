@@ -43,7 +43,7 @@ extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Acce
  *                                   26                                12
  *                                   25                                13
  *                                     24 23 22 21 20 19 18 17 16 15 14       */
-#define BACKLIGHT //If you have backlight behind the clock, define here
+//#define BACKLIGHT //If you have backlight behind the clock, define here
 #ifdef BACKLIGHT
   #define BACKLIGHT_PIN  14  //D5 on a NodeMCU
   //Where the wiring starts
