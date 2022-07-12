@@ -5,6 +5,10 @@
 #include "NTPTime.h"
 #include "TimedEffects.h"
 
+//autobrightness stuff
+#define AUTOBRIGHTNESS_DELAY 60 //seconds per brightness update
+#define AUTOBRIGHTNESS_SAMPLES 10 //number of samples to average
+
 CRGB off_color = CRGB::Black;
 CRGB *leds = new CRGB[NUM_LEDS+1]; //array that gets rendered, +1 for sacrifice LED in case its needed
 CRGB *spotlightLed = new CRGB[WIDTH*HEIGHT+1]; //dedicated spotlight array if on seperate pin, +1 for sacrifice LED in case its needed
@@ -104,6 +108,12 @@ const int PROGMEM seven = 0b01010010;
 const int PROGMEM eight = 0b01111111;
 const int PROGMEM nine  = 0b01111011;
 
+
+short lightSensorValues[AUTOBRIGHTNESS_SAMPLES];
+long lastBrightnessUpdate = 0;
+double goalLightValue = 0;
+
+
 //************************************************//
 //           Show Selected Lighting               //
 //************************************************//
@@ -119,10 +129,28 @@ void showLightingEffects() {
     return;
   }
   if(autobrightness){
-    double val = (analogRead(LIGHT_SENSOR)/1024.0)*2; //Between 0-2
-    segmentBrightness =    min(max((int)( 40.0 * val*val ), 5),150); //Clamp between 5 and 150, median 40
-    backgroundBrightness = min(max((int)( 20.0 * val*val ), 2),100); //Clamp between 2 and 100, median 20
-    spotlightBrightness =  min(max((int)(160.0 * val*val ),30),255); //Clamp between 30 and 255, median 160
+    if(millis() >= lastBrightnessUpdate + AUTOBRIGHTNESS_DELAY*1000){
+      lastBrightnessUpdate = millis();
+      int avgLight = 0;
+      for(int i=1 ; i<AUTOBRIGHTNESS_SAMPLES ; i++){
+        avgLight += lightSensorValues[i];
+        lightSensorValues[i-1] = lightSensorValues[i];
+      }
+      lightSensorValues[AUTOBRIGHTNESS_SAMPLES-1] = analogRead(LIGHT_SENSOR); //set new sample
+      avgLight += lightSensorValues[AUTOBRIGHTNESS_SAMPLES-1]; //average the past N readings
+      
+      goalLightValue = (avgLight/AUTOBRIGHTNESS_SAMPLES /1024.0)*2; //Between 0-2
+    }
+    //Adjust brightness to transition to new brightness each frame if autobrightness decides different values
+    byte goalSegmentBrightness =    min(max((int)( 40.0 * goalLightValue*goalLightValue ), 5),150); //Clamp between 5 and 150, median 40
+    byte goalBackgroundBrightness = min(max((int)( 20.0 * goalLightValue*goalLightValue ), 2),100); //Clamp between 2 and 100, median 20
+    byte goalSpotlightBrightness =  min(max((int)(160.0 * goalLightValue*goalLightValue ),30),255); //Clamp between 30 and 255, median 160
+    if     (goalSegmentBrightness > segmentBrightness) segmentBrightness++;
+    else if(goalSegmentBrightness < segmentBrightness) segmentBrightness--;
+    if     (goalBackgroundBrightness > backgroundBrightness) backgroundBrightness++;
+    else if(goalBackgroundBrightness < backgroundBrightness) backgroundBrightness--;
+    if     (goalSpotlightBrightness > spotlightBrightness) spotlightBrightness++;
+    else if(goalSpotlightBrightness < spotlightBrightness) spotlightBrightness--;
   }
   //If we toggle on time-scheduled effects
   if(autoEffect) scheduleLighting();
@@ -1150,6 +1178,9 @@ void defaultSettings(){
   hyphenColor = CRGB::Black;
   utcOffset = 0;
   setNewOffset();
+  for(int i=0 ; i<AUTOBRIGHTNESS_SAMPLES ; i++){
+    lightSensorValues[i] = analogRead(LIGHT_SENSOR);
+  }
 }
 
 void loadEEPROM(){

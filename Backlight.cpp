@@ -1,3 +1,5 @@
+#ifdef BACKLIGHT_LED
+
 #include <FastLED.h>
 #include <EEPROM.h> 
 #include "Config.h"
@@ -34,7 +36,7 @@ void initBacklight(){
     for(int i=0;i<BACKLIGHT_NUM_LEDS;i++)
         ledIndex[i] = (BACKLIGHT_WIDTH-1-i) % BACKLIGHT_NUM_LEDS;
 
-  #else
+  #elif defined(BACKLIGHT_LED)
     #error "Backlight enabled but settings are invalid. Please check if you set options to BACKLIGHT_TOP_RIGHT or BACKLIGHT_TOP_LEFT, and BACKLIGHT_CLOCKWISE or BACKLIGHT_COUNTERCLOCKWISE"
   #endif
   FastLED.addLeds<LED_TYPE, BACKLIGHT_PIN, COLOR_ORDER>(backlight_leds, BACKLIGHT_NUM_LEDS).setCorrection(TypicalLEDStrip); 
@@ -135,3 +137,4 @@ void pushEffectTable(){
     backlight_leds[ledIndex[BACKLIGHT_NUM_LEDS - 1 - i]] = effectTable[i];
   }
 }
+#endif
