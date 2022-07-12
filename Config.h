@@ -35,6 +35,10 @@
 extern byte FRAMES_PER_SECOND;  // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
                                 // Originally constant, but can be changed using commands
 
+//autobrightness stuff
+#define AUTOBRIGHTNESS_DELAY 1 //seconds per brightness update. Supports decimal values
+#define AUTOBRIGHTNESS_SAMPLES 5 //number of samples to average. Must be an integer
+
 /*  Optional Backlight Example:
  *  Width: 11
  *  Height: 3
