@@ -123,6 +123,9 @@ LED_TYPE             | Should be WS2812B's in most cases
 COLOR_ORDER          | WS2812B's are GRB. If colors act weird or you are using other LED_TYPE's, you may need to switch to RGB
 NAME                 | Name of the ESP8266 device (used to connect or as an identifier so you know what device is which in the routers "device" page
 EEPROM_UPDATE_DELAY  | How many seconds to wait after a change before saving it to EEPROM. This is to reduce writes to EEPROM so we don't wear it out
+framesPerSecond      | Set to 30 by default; maximum FPS. Usually Gradient is the most intensive one at around 45fps at least for all effects
+AUTOBRIGHTNESS_DELAY | How many seconds to wait before getting another reading from the light sensor for auto brightness
+AUTOBRIGHTNESS_SAMPLES | How many samples to average for auto brightness
 **segmentWiringOrder[]** | Compensates for the difference between how the code references segments and how its actually wired. The wiring order goes from 1-2-3-4-5-6-7... in the order it is wired. If the direction of the wiring points towards the bottom right, the number is positive. If the direciton of the wiring points towards the upper left, the direction is negative. This is to both make effects easier without needing to hard-code any values. The numbers in the array represent the position of the segment it covers. The way I wired it was starting at segment 7 moving upwards, then moving right across segment 1, then down to segment 8, right to segment 14, and so on.
 **spotlightWiringOrder[]** | Same as above, but for spotlights. Starts at 0 this time since we don't need +- signs. If you don't have any spotlights, just leave this alone
 **m_one[]** | segment indicies for the ones digit for the minutes
