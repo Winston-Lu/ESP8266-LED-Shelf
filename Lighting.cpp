@@ -6,8 +6,8 @@
 #include "TimedEffects.h"
 
 //autobrightness stuff
-#define AUTOBRIGHTNESS_DELAY 60 //seconds per brightness update
-#define AUTOBRIGHTNESS_SAMPLES 10 //number of samples to average
+#define AUTOBRIGHTNESS_DELAY 1 //seconds per brightness update
+#define AUTOBRIGHTNESS_SAMPLES 5 //number of samples to average
 
 CRGB off_color = CRGB::Black;
 CRGB *leds = new CRGB[NUM_LEDS+1]; //array that gets rendered, +1 for sacrifice LED in case its needed
