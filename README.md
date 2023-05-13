@@ -1,4 +1,8 @@
-# ESP332 LED Shelf
+# ESP32 LED Shelf
+
+I've altered https://github.com/Winston-Lu/ESP8266-LED-Shelf to work with an ESP32 instead of arduino and included the platformio.ini. 
+
+I can't offer much in the way of support as I don't really know what I am going. 
 
 An improved version of [this LED shelf by DIY Machines on Youtube](https://www.youtube.com/watch?v=8E0SeycTzHw) to include more features and settings. [Link to the original Github repo here](https://github.com/DIY-Machines/DigitalClockSmartShelving)
 
@@ -16,7 +20,7 @@ Rainbow clock with solid background and 1 pixel wide hyphen | Rainbow Everything
 
 # Improvements over the original
 
-* Used an ESP8266 instead of an Arduino Nano
+* Used an an ESP32 over an ESP8266 instead of an Arduino Nano
 * Auto-update time from the internet (No need for a real-time clock or manual configuration aside from UTC offsets)
 * Created a webserver to control different settings:
   * Full mobile and desktop support!
@@ -73,9 +77,8 @@ Last thing you may need do is to go into `Config.h` and modify the segmentWiring
 
 ![Wiring](https://user-images.githubusercontent.com/33874247/117093218-4ef96480-ad2e-11eb-81ca-bb69942681c6.png)
 
-## Setting up Secrets.h (Required)
 
-Create a file called "Secrets.h" with the following code. Replace the placeholder text with the relevant information:
+alter the file called "Secrets.h" andeplace the placeholder text with the relevant information:
 
 ```c++
 const char PROGMEM *ssid     = "Your WiFi Name Here";
@@ -93,6 +96,9 @@ Located at the bottom of the webpage once you have everything setup. If you forg
 
 <img width="150px" />Command | <img width=100%/>Description | <img width="250px" />Usage
 ---------------|----------|----------
+
+## These are not currently working in this fork. 
+
 settings | For debug, shows all settings stored on the device | `settings`
 utcoffset | Sets your UTC offset in hours. This only needs to be done once, and is saved on reset in EEPROM | `utcoffset -8`
 rainbowrate | This changes how rainbow-y the rainbow is. By default, this value is 5  | `rainbowrate 3`
@@ -153,28 +159,23 @@ deviceName | The domain in use for mDNS. Default is `ledshelf.local` for `device
 
 When the Wi-Fi module sends/recieves data, it flashes the first LED in the strip. I am unable to trace exactly where this is coming from, so I recommond having a sacrifical "Wi-Fi status" LED right before the strip. All you need to do is uncomment the `#define SACRIFICELED` line to enable. Otherwise, the flashing should be fairly infrequent except for NTP time updates and webserver actions.
 
-# Setting up the ESP8266
+# Setting up the ESP32
 
-Run this command if you have git installed. Otherwise just download the repo zip file in the top right and extract:
+Download and install Visual Studio Code.
 
-```cmd
-git clone https://github.com/Winston-Lu/LED-Clock
-```
+Install the Platformio extension. 
 
-1. Download and open the [Arduino IDE](https://www.arduino.cc/en/software)
-2. Go to "File" > "Preferences"
-3. Under "Additional Boards Manager URLs:", add `http://arduino.esp8266.com/stable/package_esp8266com_index.json`. If you have entries there already, add a comma to seperate them
-4. Click OK and go to "Tools" > "Board" > "Board Manager"
-5. Look up "esp8266", then install the board
-6. Once it's installed, go to "Tools" > "Board" > "ESP8266 Boards" > "Generic ESP8266 Module". This will work for the NodeMCU v0.9 and NodeMCU v1.0.
-7. Change flash size to "4MB (FS: 1MB OTA ~1019MB)"
-8. Once you plugged in your ESP8266, select the COM port it is connected to. You can leave every other setting default
-9. Download the [LittleFS tool from this repository here](https://github.com/earlephilhower/arduino-esp8266littlefs-plugin/releases)
-10. Follow their installation instructions and under "Tools", you should see "ESP8266 LittleFS Data Upload"
-11. Click on it and let it upload the webserver code
-12. Create a `Secrets.h` file and modify the settings accordingly. Read above for how to configure your Wi-Fi settings and other important settings.
-13. Upload the Arduino code by clicking the right-facing arrow near the top left.
-14. After that, you should be done. Plug the ESP8266 in and start configuring some web settings such as the UTC offset by going to the webserver (Default <http://LEDShelf.local> or 192.168.1.52), scrolling to the bottom, and typing in the `utcoffset` command. This is meant to be configured online since daylight savings would make updating this a hassle
+Open the project's folder using the Platformio GUI. 
+
+Connect your ESP32 to your computer.
+
+Build the project using Platformio. 
+
+Build the filesystem using Platformio.
+
+Upload the filesystem using Platformio. 
+
+All being well you'll be able to access the webserver on <IP-OF-ESP32>/index.html. 
 
 # Wiring
 
@@ -182,8 +183,11 @@ git clone https://github.com/Winston-Lu/LED-Clock
  <img src="https://user-images.githubusercontent.com/33874247/117094177-10b17480-ad31-11eb-9f2e-6b3de03d06f2.jpg" width="600px" />
  <img src="https://user-images.githubusercontent.com/33874247/117375687-82a6cc80-ae9d-11eb-9581-abc4b28fb9d8.png" width="600px" />
 </div>
-On the ESP8266, I soldered one of the LED strip 3-pin male header onto it so I can hot-swap the module with only 1 connection needed. The red wire goes into Vin, white wire goes into G (ground), and the green wire into D8. I also have a photoresistor connected to A0 and 3v (actually 3.3v), as well as a 10k ohm resistor from A0 to G as a pull-down resistor. if you do not have this resistor, the analog readings will not be accurate.
+ 
+I haven't used a photo resistor for autobrightness. 
 
+I soldered directly to the ESP32 but i've left the other instructions here if they help: 
+ 
 Connect 2 red wires to the 5V line on the LED strip, one connected to the 5v power supply and 1 to the LED strip female header red wire. Do the same for the black wires: 2 coming from the GND pad on the LED strip, one to GND on the power supply and 1 to the GND pin on the female LED strip connector. For data, we only need 1 wire coming from the LED strip data line into the female connector (usually in the middle). Once you get that setup, you should be able to hotswap the module in case you want to do any testing and don't want to setup Arduino OTA uploads. If you don't want to hotswap, you can just solder directly onto the board's VIN, GND, and D8
 
 ## Bill of Materials and tools
