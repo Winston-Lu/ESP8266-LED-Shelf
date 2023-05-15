@@ -2,6 +2,8 @@
 
 An improved version of [this LED shelf by DIY Machines on Youtube](https://www.youtube.com/watch?v=8E0SeycTzHw) to include more features and settings. [Link to the original Github repo here](https://github.com/DIY-Machines/DigitalClockSmartShelving)
 
+[A fork for the ESP32 can be found here.](https://github.com/J-GitHub1/ESP-LED-Shelf) Note that this repository is maintained by a seperate user and uses PlatformIO instead of the Arduino IDE
+
 # Gallery
 
 I didnt show the Loop or Rain effect since they suck in picture form. They look better in video
