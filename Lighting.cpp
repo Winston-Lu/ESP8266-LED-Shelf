@@ -251,6 +251,7 @@ void showLightingEffects() {
   //Hyphen segment if enabled
   if(hyphenColor.r != 0 || hyphenColor.g != 0 || hyphenColor.b != 0){
     strip seg = segmentToLedIndex(hyphenSegment);
+    if(seg.start == -1) return;
     //If gap is odd, round the leftLedSkip up.since typically the m_ten values will be further right (for digits 1 & 7)
     //Hyphen length of 4 = 3left -hyphen- 2right. Clamp values to 0-LEDS_PER_LINE
     const int leftLedSkip = min(max(0,(LEDS_PER_LINE-hyphenLength)/2 + (LEDS_PER_LINE-hyphenLength)%2),LEDS_PER_LINE); 
@@ -319,6 +320,7 @@ void dimLed(int index, byte val) {        fadeToBlackBy(&leds[index]            
 void dimSegment(int segment, byte val) {
   if (segment == -1) return;
   strip segmentStruct = segmentToLedIndex(segment);
+  if(segmentStruct.start == -1) return;
   if (segmentStruct.reverse)       fadeToBlackBy(&leds[segmentStruct.start - LEDS_PER_LINE + 1], LEDS_PER_LINE                   , val);
   else                             fadeToBlackBy(&leds[segmentStruct.start]                    , LEDS_PER_LINE                   , val);
 }
@@ -432,7 +434,8 @@ void render_clock_to_display_gradient(int h, int m, byte dim) {
 void setSegmentColor(int segment, CRGB color) {
   if (segment == -1) return;
   stripSegment = segmentToLedIndex(segment); 
-  if (stripSegment.reverse && stripSegment.start != -1) {
+  if(stripSegment.start == -1) return;
+  if (stripSegment.reverse) {
     for (int i = 0; i < LEDS_PER_LINE; i++) {
       leds[stripSegment.start - i] = color;
     }
@@ -449,7 +452,8 @@ void setSegmentColor(int segment, CRGB color) {
 void addSegmentColor(int segment, CRGB color, byte transparency) {
   if (segment == -1) return;
   stripSegment = segmentToLedIndex(segment); //convert from abstract segment index to wiring LED positions
-  if (stripSegment.reverse && stripSegment.start != -1) {
+  if(stripSegment.start == -1) return;
+  if (stripSegment.reverse) {
     for (int i = 0; i < LEDS_PER_LINE; i++) {
       CRGB newColor;
       newColor.red   = (byte)(color.red  * (transparency / 255.0) + leds[stripSegment.start - i].red  * (1 - (transparency / 255.0)));
@@ -509,6 +513,7 @@ void gradientSegment(int segment, CRGB color1, CRGB color2, byte transparency) {
   const float increment = 1.0 / (maxLedVal); //The change in brightness for each consecutive LED
   const int offset = segmentLightingOffset(segment); //the segment offset brightness
   strip segmentStruct = segmentToLedIndex(segment);
+  if(segmentStruct.start == -1) return;
 
   for (int i = 0; i < LEDS_PER_LINE; i++) {
     //                    color2 is from 0->100%                                  color1 is from 100->0%
@@ -561,6 +566,7 @@ void gradientSpotlights(CRGB color1, CRGB color2) {
 void rainbowSegment(int segment, uint8_t offset, uint8_t rate) {rainbowSegment(segment,offset,rate,255);}
 void rainbowSegment(int segment, uint8_t offset, uint8_t rate, byte transparency){
   stripSegment = segmentToLedIndex(segment); //convert from abstract segment index to wiring LED positions
+  if(stripSegment.start == -1) return;
   if (stripSegment.reverse) {
     stripSegment.start -= (LEDS_PER_LINE - 1); //we need the lowest LED index since the fill_rainbow counts up
     offset += rate * LEDS_PER_LINE; //moving in opposite direction, switch offset from min->max to max->min, Since its reverse, instead of starting hue at 0 then moving to 10, we should start at 10, then move to 0
@@ -1283,6 +1289,7 @@ void lightingInit() {
   int horzSegY = 0;
   for (int i = 0; i < NUM_SEGMENTS; i++) {
     strip seg = segmentToLedIndex(i);
+    if(seg.start == -1) continue;
     //Determine if segment is horizontal or vertical
     /* Reference
       --0-  --1-  --2-  --3-  --4-  --5-  
