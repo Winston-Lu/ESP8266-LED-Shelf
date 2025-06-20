@@ -60,6 +60,7 @@ You would need to have the following libraries installed:
 
 * FastLED
 * LittleFS
+* NTPClient
 
 # Configuration
 
