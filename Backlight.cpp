@@ -1,10 +1,10 @@
-#ifdef BACKLIGHT_LED
-
 #include <FastLED.h>
 #include <EEPROM.h> 
 #include "Config.h"
 #include "Backlight.h"
 #include "Lighting.h"
+
+#ifdef BACKLIGHT
 
 #define BACKLIGHT_NUM_LEDS 2*(BACKLIGHT_WIDTH + BACKLIGHT_HEIGHT)
 
